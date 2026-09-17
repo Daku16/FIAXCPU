@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>FIAX CPU - Autenticación</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #0f172a; color: #f8fafc; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .card { background-color: #1e293b; padding: 35px; border-radius: 16px; width: 360px; border: 1px solid #334155; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4); }
+        h2 { text-align: center; color: #38bdf8; margin-bottom: 5px; font-size: 26px; }
+        p.subtitle { text-align: center; color: #94a3b8; font-size: 13px; margin-bottom: 25px; }
+        
+        .tabs { display: flex; margin-bottom: 20px; border-bottom: 1px solid #334155; }
+        .tab-btn { flex: 1; padding: 10px; background: transparent; border: none; color: #94a3b8; cursor: pointer; font-weight: bold; border-bottom: 2px solid transparent; }
+        .tab-btn.active { color: #38bdf8; border-bottom-color: #38bdf8; }
+
+        input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #334155; background-color: #0f172a; color: white; font-size: 14px; outline: none; }
+        input:focus { border-color: #38bdf8; }
+        button.submit-btn { width: 100%; padding: 12px; border-radius: 8px; border: none; background-color: #3b82f6; color: white; font-weight: bold; font-size: 15px; cursor: pointer; transition: 0.2s; }
+        button.submit-btn:hover { background-color: #2563eb; }
+
+        /* Estilos del Popup / Modal Emergente */
+        .modal-overlay { display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.75); justify-content: center; align-items: center; z-index: 100; animation: fadeIn 0.2s ease-in-out; }
+        .popup { background-color: #1e293b; padding: 25px; border-radius: 14px; width: 320px; text-align: center; border: 1px solid #ef4444; box-shadow: 0 10px 25px rgba(239, 68, 68, 0.2); }
+        .popup-icon { font-size: 40px; color: #ef4444; margin-bottom: 10px; }
+        .popup h3 { color: #f8fafc; font-size: 18px; margin-bottom: 8px; }
+        .popup p { color: #cbd5e1; font-size: 14px; margin-bottom: 20px; }
+        .popup-btn { background-color: #ef4444; color: white; border: none; padding: 10px 25px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; font-size: 14px; }
+        .popup-btn:hover { background-color: #dc2626; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>FIAX CPU</h2>
+        <p class="subtitle">Asistente Inteligente de Mantenimiento</p>
+
+        <!-- Pestañas -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('login')">Iniciar Sesión</button>
+            <button class="tab-btn" onclick="switchTab('registro')">Crear Cuenta</button>
+        </div>
+
+        <!-- FORMULARIO 1: INICIAR SESIÓN -->
+        <form id="form-login" action="/login" method="POST">
+            <input type="email" name="correo" placeholder="Correo electrónico" required>
+            <input type="password" name="password" placeholder="Contraseña" required>
+            <button type="submit" class="submit-btn">Ingresar al Sistema</button>
+        </form>
+
+        <!-- FORMULARIO 2: REGISTRO DE NUEVO USUARIO -->
+        <form id="form-registro" action="/registro" method="POST" style="display: none;">
+            <input type="text" name="nombre" placeholder="Nombre completo" required>
+            <input type="email" name="correo" placeholder="Correo electrónico" required>
+            <input type="password" name="password" placeholder="Contraseña" required>
+            <input type="password" name="confirm_password" placeholder="Confirmar contraseña" required>
+            <button type="submit" class="submit-btn" style="background-color: #10b981;">Registrar e Ingresar</button>
+        </form>
+    </div>
+
+    <!-- POPUP EMERGENTE DE CREDENCIALES INVÁLIDAS -->
+    {% if error_login %}
+    <div class="modal-overlay" id="errorModal">
+        <div class="popup">
+            <div class="popup-icon">⚠️</div>
+            <h3>Credenciales Inválidas</h3>
+            <p>{{ error_login }}</p>
+            <button class="popup-btn" onclick="closePopup()">Aceptar</button>
+        </div>
+    </div>
+    {% endif %}
+
+    <script>
+        function switchTab(tab) {
+            const formLogin = document.getElementById('form-login');
+            const formRegistro = document.getElementById('form-registro');
+            const btns = document.querySelectorAll('.tab-btn');
+
+            if (tab === 'login') {
+                formLogin.style.display = 'block';
+                formRegistro.style.display = 'none';
+                btns[0].classList.add('active');
+                btns[1].classList.remove('active');
+            } else {
+                formLogin.style.display = 'none';
+                formRegistro.style.display = 'block';
+                btns[0].classList.remove('active');
+                btns[1].classList.add('active');
+            }
+        }
+
+        function closePopup() {
+            const modal = document.getElementById('errorModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
