@@ -3,7 +3,7 @@ import gc
 import subprocess
 from datetime import datetime
 import psutil
-from domain.models import db, IncidenciaDetectada, AccionCorrectiva
+from domain.models import db, IncidenciaDetectada, AccionCorrectiva, get_utc_now
 from domain.enums import EstadoIncidenciaEnum
 from services.audit_service import AuditService
 
@@ -99,7 +99,7 @@ class MaintenanceService:
     @classmethod
     def resolve_incident(cls, incidencia_id: int, user_id: int = None):
         """Aplica la acción correctiva recomendada para una incidencia detectada y actualiza su estado."""
-        incidencia = IncidenciaDetectada.query.get(incidencia_id)
+        incidencia = db.session.get(IncidenciaDetectada, incidencia_id)
         if not incidencia:
             return {"success": False, "error": "Incidencia no encontrada."}
 
@@ -129,7 +129,7 @@ class MaintenanceService:
         if accion:
             accion.autorizada_por_usuario = 1
             accion.ejecutada_con_exito = 1 if resultado.get("success") else 0
-            accion.fecha_ejecucion = datetime.utcnow()
+            accion.fecha_ejecucion = get_utc_now()
             accion.resultado_log = resultado.get("mensaje", "Ejecutado con éxito")
 
         db.session.commit()

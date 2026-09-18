@@ -104,7 +104,8 @@ def setup_initial_data():
 
         perms_usuario = Permission.query.filter(Permission.nombre.in_([
             PermissionEnum.DIAGNOSTIC_RUN.value,
-            PermissionEnum.REPORT_READ.value
+            PermissionEnum.REPORT_READ.value,
+            PermissionEnum.MAINTENANCE_RUN.value
         ])).all()
         usuario_role.permissions = perms_usuario
 

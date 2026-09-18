@@ -1,7 +1,7 @@
 import os
 import glob
 from datetime import datetime
-from domain.models import db, SesionDiagnostico, MetricaRendimiento, IncidenciaDetectada, AccionCorrectiva
+from domain.models import db, SesionDiagnostico, MetricaRendimiento, IncidenciaDetectada, AccionCorrectiva, get_utc_now
 from domain.enums import SeveridadEnum, EstadoIncidenciaEnum, TipoIncidenciaEnum, EstadoDiagnosticoEnum
 from services.telemetry_service import TelemetryService
 from services.audit_service import AuditService
@@ -168,7 +168,7 @@ class DiagnosticService:
             sesion = SesionDiagnostico(
                 equipo_id=equipo.id,
                 usuario_id=user_id,
-                fecha_hora=datetime.utcnow(),
+                fecha_hora=get_utc_now(),
                 estado=estado_diag,
                 score_salud=health_score,
                 resumen=f"Diagnóstico heurístico finalizado: Score {health_score}/100. {len(detected_incidents)} incidencias analizadas."

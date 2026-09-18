@@ -51,26 +51,28 @@ class AuthService:
 
 class AuthorizationService:
     @staticmethod
-    def user_has_permission(user_id: int, required_permission: str) -> bool:
+    def user_has_permission(user_id: int, required_permission) -> bool:
         """Verifica si el usuario posee un permiso a través de sus roles asignados."""
-        user = User.query.get(user_id)
+        user = db.session.get(User, user_id)
         if not user:
             return False
             
+        req_perm_str = required_permission.value if hasattr(required_permission, 'value') else str(required_permission)
+
         # Recorre los roles del usuario y sus permisos asociados
         for role in user.roles:
             # Los administradores tienen acceso irrestricto
             if role.nombre == RoleEnum.ADMINISTRADOR.value:
                 return True
             for perm in role.permissions:
-                if perm.nombre == required_permission:
+                if perm.nombre == req_perm_str:
                     return True
         return False
 
     @staticmethod
     def get_user_role_name(user_id: int) -> str:
         """Obtiene el nombre del rol principal del usuario."""
-        user = User.query.get(user_id)
+        user = db.session.get(User, user_id)
         if user and user.roles:
             return user.roles[0].nombre
         return RoleEnum.USUARIO.value

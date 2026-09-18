@@ -1,4 +1,4 @@
-from flask import request, session
+from flask import request, session, has_request_context
 from domain.models import db, LogAuditoria
 
 class AuditService:
@@ -6,13 +6,16 @@ class AuditService:
     def registrar(accion: str, modulo: str, detalles: str = "", nivel: str = "INFO", usuario_id: int = None, ip_origen: str = None):
         """Registra un evento en la pista de auditoría del sistema."""
         try:
-            if usuario_id is None and session:
-                usuario_id = session.get('user_id')
-                
-            if ip_origen is None:
-                try:
-                    ip_origen = request.remote_addr if request else "127.0.0.1"
-                except Exception:
+            if has_request_context():
+                if usuario_id is None:
+                    usuario_id = session.get('user_id')
+                if ip_origen is None:
+                    try:
+                        ip_origen = request.remote_addr or "127.0.0.1"
+                    except Exception:
+                        ip_origen = "127.0.0.1"
+            else:
+                if ip_origen is None:
                     ip_origen = "127.0.0.1"
 
             log = LogAuditoria(

@@ -24,7 +24,7 @@ class RoleManagementService:
         return role
 
     def assign_role_to_user(self, user_id, role_id):
-        user = User.query.get(user_id)
+        user = db.session.get(User, user_id)
         role = self.role_repo.find_by_id(role_id)
         if user and role and role not in user.roles:
             user.roles.append(role)

@@ -1,20 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
-    <title>FIAX CPU - Asistente de Optimización</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FIAX CPU - Asistente Inteligente de Mantenimiento</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #0f172a; color: #f8fafc; display: flex; height: 100vh; }
         :root {
-            --bg-main: #0f172a;
-            --bg-sidebar: #1e293b;
-            --bg-card: #1e293b;
-            --bg-card-alt: #0f172a;
-            --border-color: #334155;
             --bg-main: #0b1120;
             --bg-sidebar: #111c33;
             --bg-card: #172442;
@@ -30,24 +23,29 @@
             --text-muted: #94a3b8;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif; }
-        body { background-color: var(--bg-main); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
-        
-        .sidebar { width: 260px; background-color: #1e293b; padding: 25px; display: flex; flex-direction: column; justify-content: space-between; border-right: 1px solid #334155; }
-        .sidebar h2 { color: #38bdf8; font-size: 24px; margin-bottom: 5px; }
-        .user-card { background-color: #0f172a; padding: 12px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #334155; }
-        .nav-btn { background-color: transparent; color: #94a3b8; border: none; padding: 12px 15px; margin-bottom: 8px; border-radius: 8px; cursor: pointer; text-align: left; font-weight: 600; width: 100%; display: flex; align-items: center; gap: 10px; transition: 0.2s; text-decoration: none; }
-        .nav-btn:hover, .nav-btn.active { background-color: #3b82f6; color: white; }
-        /* Barra Lateral (Sidebar) */
-        .sidebar { width: 280px; background-color: var(--bg-sidebar); padding: 25px 20px; display: flex; flex-direction: column; justify-content: space-between; border-right: 1px solid var(--border-color); flex-shrink: 0; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
         /* Barra Lateral con Scroll Independiente y Footer Fijo */
-        .sidebar { 
-            width: 280px; 
-            background-color: var(--bg-sidebar); 
-            display: flex; 
-            flex-direction: column; 
-            border-right: 1px solid var(--border-color); 
-            flex-shrink: 0; 
+        .sidebar {
+            width: 280px;
+            background-color: var(--bg-sidebar);
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border-color);
+            flex-shrink: 0;
             height: 100vh;
             max-height: 100vh;
         }
@@ -58,46 +56,166 @@
             padding: 25px 20px 10px 20px;
         }
 
-        .sidebar-scroll-area::-webkit-scrollbar { width: 4px; }
-        .sidebar-scroll-area::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        .sidebar-scroll-area::-webkit-scrollbar {
+            width: 4px;
+        }
 
-        .logo-box { display: flex; align-items: center; gap: 12px; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color); }
-        .logo-icon { background: linear-gradient(135deg, #0284c7, #38bdf8); color: white; width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3); }
-        .logo-text h2 { font-size: 20px; font-weight: 800; color: #f8fafc; letter-spacing: 0.5px; }
-        .logo-text span { font-size: 11px; color: var(--accent-blue); font-weight: 600; text-transform: uppercase; }
+        .sidebar-scroll-area::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
 
-        .main-content { flex: 1; padding: 35px; overflow-y: auto; }
-        .user-card { background-color: var(--bg-card-alt); padding: 14px; border-radius: 10px; margin-bottom: 25px; border: 1px solid var(--border-color); display: flex; align-items: center; gap: 12px; }
-        .user-avatar { width: 40px; height: 40px; border-radius: 8px; background-color: #334155; display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--accent-blue); font-size: 16px; }
-        .user-card { background-color: var(--bg-card-alt); padding: 14px; border-radius: 10px; margin-bottom: 22px; border: 1px solid var(--border-color); display: flex; align-items: center; gap: 12px; }
-        .user-avatar { width: 42px; height: 42px; border-radius: 8px; background: linear-gradient(135deg, #1e3a8a, #3b82f6); display: flex; align-items: center; justify-content: center; font-weight: 800; color: white; font-size: 17px; }
-        .user-info { flex: 1; overflow: hidden; }
-        .user-info .name { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .user-info .role-badge { display: inline-block; font-size: 10px; font-weight: bold; padding: 2px 8px; border-radius: 6px; margin-top: 4px; text-transform: uppercase; }
-        .badge-admin { background-color: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid #3b82f6; }
-        .badge-tecnico { background-color: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
-        .badge-usuario { background-color: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
-        .user-info .name { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #f8fafc; }
-        .user-info .role-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 10.5px; font-weight: 800; padding: 3px 8px; border-radius: 6px; margin-top: 4px; text-transform: uppercase; }
-        .badge-admin { background-color: rgba(59, 130, 246, 0.25); color: #93c5fd; border: 1px solid #3b82f6; }
-        .badge-tecnico { background-color: rgba(245, 158, 11, 0.25); color: #fbbf24; border: 1px solid #f59e0b; }
-        .badge-usuario { background-color: rgba(16, 185, 129, 0.25); color: #34d399; border: 1px solid #10b981; }
+        .logo-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
 
-        .nav-links { list-style: none; display: flex; flex-direction: column; gap: 6px; }
-        .nav-btn { background-color: transparent; color: var(--text-muted); border: none; padding: 12px 16px; border-radius: 10px; cursor: pointer; text-align: left; font-weight: 600; font-size: 13.5px; width: 100%; display: flex; align-items: center; gap: 12px; transition: all 0.2s ease; text-decoration: none; }
-        .nav-btn i { font-size: 16px; width: 20px; text-align: center; }
-        .nav-btn:hover { background-color: rgba(255, 255, 255, 0.05); color: #f8fafc; }
-        .nav-btn.active { background-color: var(--btn-blue); color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
-        .nav-btn:hover { background-color: rgba(255, 255, 255, 0.06); color: #f8fafc; }
-        .nav-btn.active { background-color: var(--btn-blue); color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35); }
+        .logo-icon {
+            background: linear-gradient(135deg, #0284c7, #38bdf8);
+            color: white;
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+        }
 
-        .sidebar-footer { border-top: 1px solid var(--border-color); padding-top: 15px; }
-        /* Pie de la barra lateral - SIEMPRE VISIBLE */
-        .sidebar-footer { 
-            padding: 15px 20px; 
-            border-top: 1px solid var(--border-color); 
-            background: #0d1629; 
-            flex-shrink: 0; 
+        .logo-text h2 {
+            font-size: 20px;
+            font-weight: 800;
+            color: #f8fafc;
+            letter-spacing: 0.5px;
+        }
+
+        .logo-text span {
+            font-size: 11px;
+            color: var(--accent-blue);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .user-card {
+            background-color: var(--bg-card-alt);
+            padding: 14px;
+            border-radius: 10px;
+            margin-bottom: 22px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            color: white;
+            font-size: 17px;
+        }
+
+        .user-info {
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .user-info .name {
+            font-size: 14px;
+            font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: #f8fafc;
+        }
+
+        .user-info .role-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10.5px;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 6px;
+            margin-top: 4px;
+            text-transform: uppercase;
+        }
+
+        .badge-admin {
+            background-color: rgba(59, 130, 246, 0.25);
+            color: #93c5fd;
+            border: 1px solid #3b82f6;
+        }
+
+        .badge-tecnico {
+            background-color: rgba(245, 158, 11, 0.25);
+            color: #fbbf24;
+            border: 1px solid #f59e0b;
+        }
+
+        .badge-usuario {
+            background-color: rgba(16, 185, 129, 0.25);
+            color: #34d399;
+            border: 1px solid #10b981;
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .nav-btn {
+            background-color: transparent;
+            color: var(--text-muted);
+            border: none;
+            padding: 12px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13.5px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .nav-btn i {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .nav-btn:hover {
+            background-color: rgba(255, 255, 255, 0.06);
+            color: #f8fafc;
+        }
+
+        .nav-btn.active {
+            background-color: var(--btn-blue);
+            color: white;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+        }
+
+        .sidebar-footer {
+            padding: 15px 20px;
+            border-top: 1px solid var(--border-color);
+            background: #0d1629;
+            flex-shrink: 0;
         }
 
         .btn-logout-sidebar {
@@ -126,262 +244,651 @@
         }
 
         /* Contenedor Principal */
-        .main-content { flex: 1; padding: 30px; overflow-y: auto; display: flex; flex-direction: column; gap: 25px; }
-        .main-content { flex: 1; padding: 30px; overflow-y: auto; display: flex; flex-direction: column; gap: 24px; }
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
 
-        /* Header Superior */
         /* Barra Superior */
-        .top-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
-        .header-title h1 { font-size: 24px; font-weight: 800; color: #f8fafc; }
-        .header-title p { color: var(--text-muted); font-size: 13.5px; margin-top: 2px; }
-        .header-actions { display: flex; gap: 12px; }
-        .header-actions { display: flex; align-items: center; gap: 12px; }
+        .top-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
 
-        .btn { padding: 10px 18px; border-radius: 8px; font-weight: 700; font-size: 13px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s ease; }
-        .btn { padding: 10px 18px; border-radius: 8px; font-weight: 700; font-size: 13px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s ease; text-decoration: none; }
-        .btn-primary { background: linear-gradient(135deg, #0284c7, #2563eb); color: white; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3); }
-        .btn-primary:hover { background: linear-gradient(135deg, #0369a1, #1d4ed8); transform: translateY(-1px); }
-        .btn-success { background-color: var(--color-green); color: white; }
-        .btn-success:hover { background-color: #059669; }
-        .btn-secondary { background-color: #334155; color: #f8fafc; }
-        .btn-secondary:hover { background-color: #475569; }
-        .btn-secondary { background-color: #1e293b; border: 1px solid var(--border-color); color: #cbd5e1; }
-        .btn-secondary:hover { background-color: #334155; color: white; }
+        .header-title h1 {
+            font-size: 24px;
+            font-weight: 800;
+            color: #f8fafc;
+        }
+
+        .header-title p {
+            color: var(--text-muted);
+            font-size: 13.5px;
+            margin-top: 2px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 13px;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0284c7, #2563eb);
+            color: white;
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #0369a1, #1d4ed8);
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background-color: var(--color-green);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #059669;
+        }
+
+        .btn-secondary {
+            background-color: #1e293b;
+            border: 1px solid var(--border-color);
+            color: #cbd5e1;
+        }
+
+        .btn-secondary:hover {
+            background-color: #334155;
+            color: white;
+        }
 
         .btn-top-logout {
             background-color: rgba(239, 68, 68, 0.15);
             color: #fca5a5;
             border: 1px solid rgba(239, 68, 68, 0.4);
         }
+
         .btn-top-logout:hover {
             background-color: #ef4444;
             color: white;
         }
 
         /* Banner de Ficha Técnica y Salud */
-        .health-banner { background: linear-gradient(135deg, #0f2b5c, #0369a1); padding: 24px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(56, 189, 248, 0.3); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4); flex-wrap: wrap; gap: 20px; }
-        .health-banner { 
-            background: linear-gradient(135deg, #0f2752, #075985); 
-            padding: 24px; 
-            border-radius: 16px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            border: 1px solid rgba(56, 189, 248, 0.35); 
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4); 
-            flex-wrap: wrap; 
-            gap: 20px; 
+        .health-banner {
+            background: linear-gradient(135deg, #0f2752, #075985);
+            padding: 24px;
+            border-radius: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+            flex-wrap: wrap;
+            gap: 20px;
         }
 
-        .hardware-specs { display: flex; flex-direction: column; gap: 6px; }
-        .hardware-title { font-size: 20px; font-weight: 800; color: #f8fafc; display: flex; align-items: center; gap: 10px; }
-        .hardware-meta { display: flex; gap: 15px; flex-wrap: wrap; font-size: 12.5px; color: #cbd5e1; margin-top: 4px; }
-        .meta-item { display: flex; align-items: center; gap: 6px; background: rgba(0, 0, 0, 0.25); padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.1); }
-        .hardware-title { font-size: 21px; font-weight: 800; color: #f8fafc; display: flex; align-items: center; gap: 10px; }
-        .hardware-meta { display: flex; gap: 12px; flex-wrap: wrap; font-size: 12.5px; color: #cbd5e1; margin-top: 4px; }
-        .meta-item { display: flex; align-items: center; gap: 6px; background: rgba(0, 0, 0, 0.3); padding: 5px 12px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.12); font-weight: 600; }
+        .hardware-specs {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
 
-        .health-gauge-box { display: flex; align-items: center; gap: 20px; background: rgba(15, 23, 42, 0.6); padding: 15px 25px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .hardware-title {
+            font-size: 21px;
+            font-weight: 800;
+            color: #f8fafc;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .hardware-meta {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            font-size: 12.5px;
+            color: #cbd5e1;
+            margin-top: 4px;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 5px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            font-weight: 600;
+        }
+
         /* Cuadro del Score de Salud y Estado Visual */
-        .health-gauge-box { 
-            display: flex; 
-            align-items: center; 
-            gap: 22px; 
-            background: rgba(11, 17, 32, 0.7); 
-            padding: 16px 26px; 
-            border-radius: 16px; 
-            border: 1px solid rgba(56, 189, 248, 0.25); 
-            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        .health-gauge-box {
+            display: flex;
+            align-items: center;
+            gap: 22px;
+            background: rgba(11, 17, 32, 0.7);
+            padding: 16px 26px;
+            border-radius: 16px;
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
         }
-        .gauge-text { text-align: right; }
-        .gauge-label { font-size: 11px; text-transform: uppercase; color: var(--accent-blue); font-weight: 700; letter-spacing: 0.5px; }
-        .gauge-status { font-size: 15px; font-weight: 700; color: #f8fafc; }
-        .gauge-value { font-size: 42px; font-weight: 900; color: #38bdf8; line-height: 1; }
-        .gauge-label { font-size: 11px; text-transform: uppercase; color: var(--accent-blue); font-weight: 800; letter-spacing: 0.5px; margin-bottom: 4px; }
-        
-        /* Insignia de ESTADO DE SALUD (Alta Visibilidad) */
-        .status-health-badge { 
-            display: inline-flex; 
-            align-items: center; 
-            gap: 6px; 
-            padding: 4px 12px; 
-            border-radius: 20px; 
-            font-size: 12.5px; 
-            font-weight: 800; 
-            text-transform: uppercase; 
+
+        .gauge-text {
+            text-align: right;
         }
-        .status-health-badge.excelente { background-color: rgba(16, 185, 129, 0.25); color: #34d399; border: 1px solid #10b981; }
-        .status-health-badge.advertencia { background-color: rgba(245, 158, 11, 0.25); color: #fbbf24; border: 1px solid #f59e0b; }
-        .status-health-badge.critico { background-color: rgba(239, 68, 68, 0.25); color: #f87171; border: 1px solid #ef4444; }
 
-        /* Cuadrícula de Métricas de Rendimiento */
-        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
-        .metric-card { background-color: var(--bg-card); padding: 20px; border-radius: 14px; border: 1px solid var(--border-color); position: relative; display: flex; flex-direction: column; justify-content: space-between; }
-        .metric-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .metric-header span { color: var(--text-muted); font-size: 13px; font-weight: 600; }
-        .metric-header i { font-size: 18px; color: var(--accent-blue); }
-        .metric-value { font-size: 30px; font-weight: 800; color: #f8fafc; }
-        .metric-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
-        .progress-bar { height: 7px; background-color: #334155; border-radius: 4px; margin-top: 14px; overflow: hidden; }
-        .gauge-value { font-size: 44px; font-weight: 900; color: #38bdf8; line-height: 1; }
+        .gauge-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: var(--accent-blue);
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
 
-        /* Tarjetas de Métricas de Rendimiento con Estado Explícito */
-        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 18px; }
-        .metric-card { background-color: var(--bg-card); padding: 22px; border-radius: 14px; border: 1px solid var(--border-color); display: flex; flex-direction: column; justify-content: space-between; gap: 12px; position: relative; }
-        
-        .metric-header { display: flex; justify-content: space-between; align-items: center; }
-        .metric-header span { color: var(--text-muted); font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-        .metric-header i { font-size: 20px; color: var(--accent-blue); }
-        
-        .metric-value-row { display: flex; align-items: baseline; justify-content: space-between; }
-        .metric-value { font-size: 32px; font-weight: 900; color: #f8fafc; }
-        
-        /* Estado por Métrica */
-        .metric-state-pill { font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; display: inline-flex; align-items: center; gap: 5px; }
-        .state-normal { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
-        .state-warning { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
-        .state-critical { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+        /* Insignia de ESTADO DE SALUD */
+        .status-health-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12.5px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
 
-        .metric-sub { font-size: 12.5px; color: var(--text-muted); font-weight: 500; }
-        .progress-bar { height: 8px; background-color: var(--bg-card-alt); border-radius: 4px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.05); }
-        .progress-fill { height: 100%; border-radius: 4px; transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+        .status-health-badge.excelente {
+            background-color: rgba(16, 185, 129, 0.25);
+            color: #34d399;
+            border: 1px solid #10b981;
+        }
+
+        .status-health-badge.advertencia {
+            background-color: rgba(245, 158, 11, 0.25);
+            color: #fbbf24;
+            border: 1px solid #f59e0b;
+        }
+
+        .status-health-badge.critico {
+            background-color: rgba(239, 68, 68, 0.25);
+            color: #f87171;
+            border: 1px solid #ef4444;
+        }
+
+        .gauge-value {
+            font-size: 44px;
+            font-weight: 900;
+            color: #38bdf8;
+            line-height: 1;
+        }
+
+        /* Tarjetas de Métricas de Rendimiento */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 18px;
+        }
+
+        .metric-card {
+            background-color: var(--bg-card);
+            padding: 22px;
+            border-radius: 14px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 12px;
+            position: relative;
+        }
+
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .metric-header span {
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .metric-header i {
+            font-size: 20px;
+            color: var(--accent-blue);
+        }
+
+        .metric-value-row {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+        }
+
+        .metric-value {
+            font-size: 32px;
+            font-weight: 900;
+            color: #f8fafc;
+        }
+
+        .metric-state-pill {
+            font-size: 11px;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .state-normal {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            border: 1px solid #10b981;
+        }
+
+        .state-warning {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+            border: 1px solid #f59e0b;
+        }
+
+        .state-critical {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            border: 1px solid #ef4444;
+        }
+
+        .metric-sub {
+            font-size: 12.5px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background-color: var(--bg-card-alt);
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
         /* Contenedores de Pestañas */
-        .tab-pane { display: none; flex-direction: column; gap: 20px; }
-        .tab-pane { display: none; flex-direction: column; gap: 22px; }
-        .tab-pane.active { display: flex; }
+        .tab-pane {
+            display: none;
+            flex-direction: column;
+            gap: 22px;
+        }
 
-        /* Tablas de Procesos y Auditoría */
-        .card { background-color: var(--bg-card); border-radius: 14px; border: 1px solid var(--border-color); padding: 22px; }
-        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-        .card-header h3 { font-size: 16px; font-weight: 700; color: #f8fafc; display: flex; align-items: center; gap: 8px; }
+        .tab-pane.active {
+            display: flex;
+        }
+
         /* Tablas */
-        .card { background-color: var(--bg-card); border-radius: 14px; border: 1px solid var(--border-color); padding: 24px; }
-        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 12px; }
-        .card-header h3 { font-size: 17px; font-weight: 800; color: #f8fafc; display: flex; align-items: center; gap: 10px; }
+        .card {
+            background-color: var(--bg-card);
+            border-radius: 14px;
+            border: 1px solid var(--border-color);
+            padding: 24px;
+        }
 
-        table { width: 100%; border-collapse: collapse; text-align: left; }
-        th, td { padding: 12px 14px; font-size: 13px; border-bottom: 1px solid var(--border-color); }
-        th { color: var(--text-muted); font-weight: 600; background-color: var(--bg-card-alt); border-top: 1px solid var(--border-color); }
-        th, td { padding: 14px; font-size: 13.5px; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
-        th { color: #cbd5e1; font-weight: 700; background-color: var(--bg-card-alt); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
-        tr:hover td { background-color: rgba(255, 255, 255, 0.02); }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .card-header h3 {
+            font-size: 17px;
+            font-weight: 800;
+            color: #f8fafc;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th,
+        td {
+            padding: 14px;
+            font-size: 13.5px;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+
+        th {
+            color: #cbd5e1;
+            font-weight: 700;
+            background-color: var(--bg-card-alt);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        tr:hover td {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
 
         /* Tarjetas de Incidencias */
-        .incident-card { background-color: var(--bg-card); border-radius: 12px; border: 1px solid var(--border-color); border-left: 6px solid var(--color-yellow); padding: 18px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; transition: transform 0.15s ease; }
-        .incident-card:hover { transform: translateX(3px); }
-        /* Tarjetas de Incidencias con Estados Altamente Visibles */
-        .incident-card { 
-            background-color: var(--bg-card); 
-            border-radius: 12px; 
-            border: 1px solid var(--border-color); 
-            border-left: 7px solid var(--color-yellow); 
-            padding: 20px; 
-            margin-bottom: 14px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            gap: 20px; 
-            flex-wrap: wrap; 
-            transition: all 0.2s ease; 
+        .incident-card {
+            background-color: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            border-left: 7px solid var(--color-yellow);
+            padding: 20px;
+            margin-bottom: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            transition: all 0.2s ease;
         }
-        .incident-card:hover { transform: translateX(3px); box-shadow: 0 6px 18px rgba(0,0,0,0.3); }
-        .incident-card.sev-CRITICO { border-left-color: var(--color-red); }
-        .incident-card.sev-ALTO { border-left-color: #f97316; }
-        .incident-card.sev-MEDIO { border-left-color: var(--color-yellow); }
-        .incident-card.sev-BAJO { border-left-color: #3b82f6; }
-        .incident-card.status-RESUELTA { border-left-color: var(--color-green); opacity: 0.75; }
-        .incident-card.status-RESUELTA { border-left-color: var(--color-green); opacity: 0.82; background-color: rgba(23, 36, 66, 0.6); }
 
-        .incident-info { flex: 1; }
-        .incident-badge-row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
-        .badge-sev { font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; }
-        .badge-sev.CRITICO { background-color: rgba(239, 68, 68, 0.2); color: #f87171; }
-        .badge-sev.ALTO { background-color: rgba(249, 115, 22, 0.2); color: #fb923c; }
-        .badge-sev.MEDIO { background-color: rgba(245, 158, 11, 0.2); color: #fbbf24; }
-        .badge-sev.BAJO { background-color: rgba(59, 130, 246, 0.2); color: #60a5fa; }
-        .incident-badge-row { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; flex-wrap: wrap; }
-        
-        /* Banner de Salud del Equipo */
-        .health-banner { background: linear-gradient(135deg, #1e3a8a, #0284c7); padding: 25px; border-radius: 16px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3); }
-        .health-score { font-size: 48px; font-weight: 800; color: #38bdf8; }
-        .incident-title { font-size: 15px; font-weight: 700; color: #f8fafc; }
-        .incident-desc { font-size: 13px; color: #cbd5e1; margin-top: 4px; }
-        .incident-solution { font-size: 12.5px; color: var(--accent-blue); margin-top: 6px; display: flex; align-items: center; gap: 6px; }
-        /* Severidades */
-        .badge-sev { font-size: 11px; font-weight: 900; padding: 4px 10px; border-radius: 6px; text-transform: uppercase; display: inline-flex; align-items: center; gap: 5px; }
-        .badge-sev.CRITICO { background-color: rgba(239, 68, 68, 0.25); color: #f87171; border: 1px solid #ef4444; }
-        .badge-sev.ALTO { background-color: rgba(249, 115, 22, 0.25); color: #fb923c; border: 1px solid #f97316; }
-        .badge-sev.MEDIO { background-color: rgba(245, 158, 11, 0.25); color: #fbbf24; border: 1px solid #f59e0b; }
-        .badge-sev.BAJO { background-color: rgba(59, 130, 246, 0.25); color: #60a5fa; border: 1px solid #3b82f6; }
-        
-        /* Estados de Incidencia (Ultra Visibles) */
-        .badge-inc-estado { font-size: 11.5px; font-weight: 800; padding: 4px 12px; border-radius: 20px; text-transform: uppercase; display: inline-flex; align-items: center; gap: 6px; letter-spacing: 0.5px; }
-        .badge-inc-estado.pendiente { 
-            background: rgba(245, 158, 11, 0.2); 
-            color: #fbbf24; 
-            border: 1px solid #f59e0b; 
+        .incident-card:hover {
+            transform: translateX(3px);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+        }
+
+        .incident-card.sev-CRITICO {
+            border-left-color: var(--color-red);
+        }
+
+        .incident-card.sev-ALTO {
+            border-left-color: #f97316;
+        }
+
+        .incident-card.sev-MEDIO {
+            border-left-color: var(--color-yellow);
+        }
+
+        .incident-card.sev-BAJO {
+            border-left-color: #3b82f6;
+        }
+
+        .incident-card.status-RESUELTA {
+            border-left-color: var(--color-green);
+            opacity: 0.82;
+            background-color: rgba(23, 36, 66, 0.6);
+        }
+
+        .incident-info {
+            flex: 1;
+        }
+
+        .incident-badge-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+
+        .badge-sev {
+            font-size: 11px;
+            font-weight: 900;
+            padding: 4px 10px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .badge-sev.CRITICO {
+            background-color: rgba(239, 68, 68, 0.25);
+            color: #f87171;
+            border: 1px solid #ef4444;
+        }
+
+        .badge-sev.ALTO {
+            background-color: rgba(249, 115, 22, 0.25);
+            color: #fb923c;
+            border: 1px solid #f97316;
+        }
+
+        .badge-sev.MEDIO {
+            background-color: rgba(245, 158, 11, 0.25);
+            color: #fbbf24;
+            border: 1px solid #f59e0b;
+        }
+
+        .badge-sev.BAJO {
+            background-color: rgba(59, 130, 246, 0.25);
+            color: #60a5fa;
+            border: 1px solid #3b82f6;
+        }
+
+        .badge-inc-estado {
+            font-size: 11.5px;
+            font-weight: 800;
+            padding: 4px 12px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-inc-estado.pendiente {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+            border: 1px solid #f59e0b;
             box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
         }
-        .badge-inc-estado.resuelta { 
-            background: rgba(16, 185, 129, 0.25); 
-            color: #34d399; 
-            border: 1px solid #10b981; 
+
+        .badge-inc-estado.resuelta {
+            background: rgba(16, 185, 129, 0.25);
+            color: #34d399;
+            border: 1px solid #10b981;
             box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
         }
 
-        /* Tarjetas de Métricas de Usuario */
-        .metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; }
-        .user-card-stat { background-color: #1e293b; padding: 20px; border-radius: 14px; border: 1px solid #334155; position: relative; overflow: hidden; }
-        .progress-bar { height: 8px; background-color: #334155; border-radius: 4px; margin-top: 12px; overflow: hidden; }
-        .progress-fill { height: 100%; background-color: #38bdf8; border-radius: 4px; }
-        .incident-title { font-size: 16px; font-weight: 800; color: #f8fafc; }
-        .incident-desc { font-size: 13.5px; color: #cbd5e1; margin-top: 5px; line-height: 1.4; }
-        .incident-solution { font-size: 13px; color: var(--accent-blue); margin-top: 8px; display: flex; align-items: center; gap: 8px; font-weight: 600; background: rgba(56, 189, 248, 0.08); padding: 6px 12px; border-radius: 6px; border-left: 3px solid var(--accent-blue); }
+        .incident-title {
+            font-size: 16px;
+            font-weight: 800;
+            color: #f8fafc;
+        }
+
+        .incident-desc {
+            font-size: 13.5px;
+            color: #cbd5e1;
+            margin-top: 5px;
+            line-height: 1.4;
+        }
+
+        .incident-solution {
+            font-size: 13px;
+            color: var(--accent-blue);
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            background: rgba(56, 189, 248, 0.08);
+            padding: 6px 12px;
+            border-radius: 6px;
+            border-left: 3px solid var(--accent-blue);
+        }
 
         /* Herramientas de Optimización */
-        .tools-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-        .tool-card { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 14px; padding: 22px; display: flex; flex-direction: column; justify-content: space-between; gap: 15px; }
-        .tool-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
-        .tool-title { font-size: 16px; font-weight: 700; color: #f8fafc; }
-        .tool-desc { font-size: 13px; color: var(--text-muted); line-height: 1.4; }
-        .tool-card { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 14px; padding: 24px; display: flex; flex-direction: column; justify-content: space-between; gap: 16px; }
-        .tool-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
-        .tool-title { font-size: 17px; font-weight: 800; color: #f8fafc; }
-        .tool-desc { font-size: 13.5px; color: var(--text-muted); line-height: 1.5; }
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
 
-        /* Tarjetas de Recomendaciones y Alertas */
-        .alert-card { background-color: #1e293b; border-left: 6px solid #f59e0b; padding: 20px; border-radius: 12px; margin-bottom: 15px; border-top: 1px solid #334155; border-right: 1px solid #334155; border-bottom: 1px solid #334155; }
-        .alert-card.critical { border-left-color: #ef4444; }
-        .btn-fix { background-color: #10b981; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .btn-fix:hover { background-color: #059669; }
+        .tool-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .tool-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+
+        .tool-title {
+            font-size: 17px;
+            font-weight: 800;
+            color: #f8fafc;
+        }
+
+        .tool-desc {
+            font-size: 13.5px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
         /* Modal de Diagnóstico en Ejecución */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(4px); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-diag { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 35px; width: 440px; text-align: center; box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.6); }
-        .diag-spinner { font-size: 45px; color: var(--accent-blue); animation: spin 1.5s linear infinite; margin-bottom: 20px; }
-        .diag-status-step { font-size: 14px; color: #cbd5e1; margin-top: 10px; font-weight: 500; }
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 17, 32, 0.85); backdrop-filter: blur(4px); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-diag { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 35px; width: 450px; text-align: center; box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.6); }
-        .diag-spinner { font-size: 46px; color: var(--accent-blue); animation: spin 1.5s linear infinite; margin-bottom: 20px; }
-        .diag-status-step { font-size: 14px; color: #cbd5e1; margin-top: 10px; font-weight: 600; }
-        
-        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(11, 17, 32, 0.85);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-diag {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 35px;
+            width: 450px;
+            text-align: center;
+            box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.6);
+        }
+
+        .diag-spinner {
+            font-size: 46px;
+            color: var(--accent-blue);
+            animation: spin 1.5s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        .diag-status-step {
+            font-size: 14px;
+            color: #cbd5e1;
+            margin-top: 10px;
+            font-weight: 600;
+        }
+
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
 
         /* Toast Notifications */
-        .toast-container { position: fixed; bottom: 25px; right: 25px; z-index: 2000; display: flex; flex-direction: column; gap: 10px; }
-        .toast { background-color: #1e293b; color: white; padding: 14px 20px; border-radius: 10px; border-left: 5px solid var(--accent-blue); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4); display: flex; align-items: center; gap: 12px; font-size: 13.5px; animation: slideIn 0.3s ease; }
-        .toast { background-color: #172442; color: white; padding: 14px 20px; border-radius: 10px; border-left: 5px solid var(--accent-blue); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4); display: flex; align-items: center; gap: 12px; font-size: 13.5px; animation: slideIn 0.3s ease; }
-        .toast.success { border-left-color: var(--color-green); }
-        .toast.error { border-left-color: var(--color-red); }
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .toast-container {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background-color: #172442;
+            color: white;
+            padding: 14px 20px;
+            border-radius: 10px;
+            border-left: 5px solid var(--accent-blue);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13.5px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .toast.success {
+            border-left-color: var(--color-green);
+        }
+
+        .toast.error {
+            border-left-color: var(--color-red);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
     </style>
 </head>
+
 <body>
 
     <!-- Menú Lateral -->
     <div class="sidebar">
-        <div>
-            <h2>FIAX CPU</h2>
         <div class="sidebar-scroll-area">
             <div class="logo-box">
                 <div class="logo-icon"><i class="fa-solid fa-microchip"></i></div>
@@ -392,12 +899,9 @@
             </div>
 
             <div class="user-card">
-                <div style="font-size: 14px; font-weight: bold;">{{ user_name }}</div>
-                <div style="font-size: 12px; color: #38bdf8;">{{ user_role }}</div>
                 <div class="user-avatar">{{ user_name[0] if user_name else 'U' }}</div>
                 <div class="user-info">
                     <div class="name">{{ user_name }}</div>
-                    <span class="role-badge badge-{{ user_role.lower() }}">{{ user_role }}</span>
                     <span class="role-badge badge-{{ user_role.lower() }}">
                         {% if user_role == 'ADMINISTRADOR' %}<i class="fa-solid fa-shield-halved"></i>
                         {% elif user_role == 'TECNICO' %}<i class="fa-solid fa-screwdriver-wrench"></i>
@@ -407,28 +911,26 @@
                 </div>
             </div>
 
-            <a href="#" class="nav-btn active" onclick="showTab('resumen')"> Estado de mi Equipo</a>
-            <a href="#" class="nav-btn" onclick="showTab('soluciones')"> Optimización y Limpieza</a>
-            {% if user_role == 'ADMINISTRADOR' %}
-                <a href="/usuarios" class="nav-btn" style="color: #f59e0b;"> Gestión de Usuarios (RBAC)</a>
-            {% endif %}
             <ul class="nav-links">
-                <li><button class="nav-btn active" onclick="switchNavTab('tab-telemetria', this)"><i class="fa-solid fa-gauge-high"></i> Estado y Telemetría</button></li>
-                <li><button class="nav-btn" onclick="switchNavTab('tab-diagnostico', this)"><i class="fa-solid fa-stethoscope"></i> Diagnóstico e Incidencias</button></li>
-                <li><button class="nav-btn" onclick="switchNavTab('tab-optimizacion', this)"><i class="fa-solid fa-wand-magic-sparkles"></i> Optimización y Limpieza</button></li>
+                <li><button class="nav-btn active" onclick="switchNavTab('tab-telemetria', this)"><i
+                            class="fa-solid fa-gauge-high"></i> Estado y Telemetría</button></li>
+                <li><button class="nav-btn" onclick="switchNavTab('tab-diagnostico', this)"><i
+                            class="fa-solid fa-stethoscope"></i> Diagnóstico e Incidencias</button></li>
+                <li><button class="nav-btn" onclick="switchNavTab('tab-optimizacion', this)"><i
+                            class="fa-solid fa-wand-magic-sparkles"></i> Optimización y Limpieza</button></li>
                 {% if user_role in ['ADMINISTRADOR', 'TECNICO'] %}
-                <li><button class="nav-btn" onclick="switchNavTab('tab-auditoria', this)"><i class="fa-solid fa-clock-rotate-left"></i> Historial y Auditoría</button></li>
+                <li><button class="nav-btn" onclick="switchNavTab('tab-auditoria', this)"><i
+                            class="fa-solid fa-clock-rotate-left"></i> Historial y Auditoría</button></li>
                 {% endif %}
                 {% if user_role == 'ADMINISTRADOR' %}
-                <li><a href="/usuarios" class="nav-btn" style="color: #fbbf24;"><i class="fa-solid fa-users-gear"></i> Gestión de Usuarios</a></li>
+                <li><a href="/usuarios" class="nav-btn" style="color: #fbbf24;"><i class="fa-solid fa-users-gear"></i>
+                        Gestión de Usuarios</a></li>
                 {% endif %}
             </ul>
         </div>
-        <a href="/logout" class="nav-btn" style="color: #ef4444;"> Cerrar Sesión</a>
 
-        <!-- Botón Fijo e Inamovible al pie del Sidebar -->
+        <!-- Botón Fijo al pie del Sidebar -->
         <div class="sidebar-footer">
-            <a href="/logout" class="nav-btn" style="color: #f87171;"><i class="fa-solid fa-arrow-right-from-bracket"></i> Cerrar Sesión</a>
             <a href="/logout" class="btn-logout-sidebar">
                 <i class="fa-solid fa-arrow-right-from-bracket"></i>
                 <span>Cerrar Sesión Activa</span>
@@ -438,25 +940,20 @@
 
     <!-- Contenido Principal -->
     <div class="main-content">
-        
-        <!-- PESTAÑA 1: ESTADO DEL EQUIPO -->
-        <div id="tab-resumen">
-            <div class="health-banner">
-                <div>
-                    <h2 style="font-size: 24px; margin-bottom: 5px;">Salud General del Sistema: Excelente</h2>
-                    <p style="color: #cbd5e1;">Tu equipo se encuentra optimizado y listo para trabajar.</p>
 
         <!-- Barra Superior de Acciones -->
         <div class="top-header">
             <div class="header-title">
                 <h1>Asistente Inteligente de Mantenimiento</h1>
-                <p>Plataforma de Diagnóstico Heurístico, Telemetría y Optimización de Equipos</p>
                 <p>Monitoreo Heurístico en Tiempo Real, Detección de Anomalías y Optimización</p>
             </div>
             <div class="header-actions">
-                <button class="btn btn-secondary" onclick="fetchLiveTelemetry()"><i class="fa-solid fa-arrows-rotate"></i> Refrescar Métricas</button>
-                <button class="btn btn-primary" onclick="triggerCompleteDiagnosis()"><i class="fa-solid fa-bolt"></i> Ejecutar Diagnóstico Heurístico</button>
-                <a href="/logout" class="btn btn-top-logout"><i class="fa-solid fa-arrow-right-from-bracket"></i> Cerrar Sesión</a>
+                <button class="btn btn-secondary" onclick="fetchLiveTelemetry()"><i
+                        class="fa-solid fa-arrows-rotate"></i> Refrescar Métricas</button>
+                <button class="btn btn-primary" onclick="triggerCompleteDiagnosis()"><i class="fa-solid fa-bolt"></i>
+                    Ejecutar Diagnóstico Heurístico</button>
+                <a href="/logout" class="btn btn-top-logout"><i class="fa-solid fa-arrow-right-from-bracket"></i> Cerrar
+                    Sesión</a>
             </div>
         </div>
 
@@ -467,34 +964,36 @@
                     <i class="fa-solid fa-desktop" style="color: var(--accent-blue);"></i>
                     <span id="txt-equipo-nombre">{{ equipo.nombre_equipo or 'DESKTOP-LOCAL' }}</span>
                 </div>
-                <div class="health-score">92/100</div>
                 <div class="hardware-meta">
-                    <div class="meta-item"><i class="fa-brands fa-windows"></i> <span id="txt-os">{{ equipo.os_version or 'Windows 11' }}</span></div>
-                    <div class="meta-item"><i class="fa-solid fa-microchip"></i> <span id="txt-cpu-model">{{ equipo.procesador or 'Intel / AMD' }}</span></div>
-                    <div class="meta-item"><i class="fa-solid fa-memory"></i> <span id="txt-ram-total">{{ equipo.ram_total_gb or '16.0' }} GB RAM</span></div>
-                    <div class="meta-item"><i class="fa-solid fa-network-wired"></i> <span id="txt-ip">{{ equipo.ip_local or '127.0.0.1' }}</span></div>
+                    <div class="meta-item"><i class="fa-brands fa-windows"></i> <span id="txt-os">{{ equipo.os_version
+                            or 'Windows 11' }}</span></div>
+                    <div class="meta-item"><i class="fa-solid fa-microchip"></i> <span id="txt-cpu-model">{{
+                            equipo.procesador or 'Intel / AMD' }}</span></div>
+                    <div class="meta-item"><i class="fa-solid fa-memory"></i> <span id="txt-ram-total">{{
+                            equipo.ram_total_gb or '16.0' }} GB RAM</span></div>
+                    <div class="meta-item"><i class="fa-solid fa-network-wired"></i> <span id="txt-ip">{{
+                            equipo.ip_local or '127.0.0.1' }}</span></div>
                 </div>
             </div>
 
             <!-- Caja de Score y Estado de Salud -->
-         <!-- Caja de Score y Estado de Salud -->
             <div class="health-gauge-box">
                 <div class="gauge-text">
                     <div class="gauge-label">Score de Salud FIAX</div>
                     <div>
                         {% set score = ultimo_diag.sesion.score_salud if ultimo_diag else 92 %}
                         {% if score >= 80 %}
-                            <span class="status-health-badge excelente" id="txt-health-status">
-                                <i class="fa-solid fa-circle-check"></i> ESTADO: ÓPTIMO
-                            </span>
+                        <span class="status-health-badge excelente" id="txt-health-status">
+                            <i class="fa-solid fa-circle-check"></i> ESTADO: ÓPTIMO
+                        </span>
                         {% elif score >= 60 %}
-                            <span class="status-health-badge advertencia" id="txt-health-status">
-                                <i class="fa-solid fa-triangle-exclamation"></i> ESTADO: ADVERTENCIA
-                            </span>
+                        <span class="status-health-badge advertencia" id="txt-health-status">
+                            <i class="fa-solid fa-triangle-exclamation"></i> ESTADO: ADVERTENCIA
+                        </span>
                         {% else %}
-                            <span class="status-health-badge critico" id="txt-health-status">
-                                <i class="fa-solid fa-fire"></i> ESTADO: CRÍTICO
-                            </span>
+                        <span class="status-health-badge critico" id="txt-health-status">
+                            <i class="fa-solid fa-fire"></i> ESTADO: CRÍTICO
+                        </span>
                         {% endif %}
                     </div>
                 </div>
@@ -507,28 +1006,23 @@
         <!-- PESTAÑA 1: TELEMETRÍA EN TIEMPO REAL -->
         <div id="tab-telemetria" class="tab-pane active">
             <div class="metrics-grid">
-                <div class="user-card-stat">
-                    <span style="color: #94a3b8; font-size: 14px;">Uso del Procesador (CPU)</span>
-                    <div style="font-size: 28px; font-weight: bold; margin-top: 5px;" id="lbl-cpu">45%</div>
-                    <div class="progress-bar"><div class="progress-fill" style="width: 45%;"></div></div>
                 <!-- CPU -->
                 <div class="metric-card">
                     <div class="metric-header">
                         <span>Carga de Procesador (CPU)</span>
                         <i class="fa-solid fa-microchip"></i>
                     </div>
-                    <div class="metric-value" id="val-cpu">--%</div>
                     <div class="metric-value-row">
                         <div class="metric-value" id="val-cpu">--%</div>
-                        <span class="metric-state-pill state-normal" id="state-cpu"><i class="fa-solid fa-circle"></i> Normal</span>
+                        <span class="metric-state-pill state-normal" id="state-cpu"><i class="fa-solid fa-circle"></i>
+                            Normal</span>
                     </div>
                     <div class="metric-sub" id="sub-cpu">Analizando núcleos lógicos...</div>
-                    <div class="progress-bar"><div class="progress-fill" id="bar-cpu" style="width: 0%; background-color: var(--accent-blue);"></div></div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="bar-cpu"
+                            style="width: 0%; background-color: var(--accent-blue);"></div>
+                    </div>
                 </div>
-                <div class="user-card-stat">
-                    <span style="color: #94a3b8; font-size: 14px;">Memoria RAM en Uso</span>
-                    <div style="font-size: 28px; font-weight: bold; margin-top: 5px;" id="lbl-ram">68%</div>
-                    <div class="progress-bar"><div class="progress-fill" style="width: 68%; background-color: #f59e0b;"></div></div>
 
                 <!-- RAM -->
                 <div class="metric-card">
@@ -536,18 +1030,17 @@
                         <span>Memoria RAM en Uso</span>
                         <i class="fa-solid fa-memory"></i>
                     </div>
-                    <div class="metric-value" id="val-ram">--%</div>
                     <div class="metric-value-row">
                         <div class="metric-value" id="val-ram">--%</div>
-                        <span class="metric-state-pill state-normal" id="state-ram"><i class="fa-solid fa-circle"></i> Normal</span>
+                        <span class="metric-state-pill state-normal" id="state-ram"><i class="fa-solid fa-circle"></i>
+                            Normal</span>
                     </div>
                     <div class="metric-sub" id="sub-ram">Cargando datos físicos...</div>
-                    <div class="progress-bar"><div class="progress-fill" id="bar-ram" style="width: 0%; background-color: var(--color-yellow);"></div></div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="bar-ram"
+                            style="width: 0%; background-color: var(--color-yellow);"></div>
+                    </div>
                 </div>
-                <div class="user-card-stat">
-                    <span style="color: #94a3b8; font-size: 14px;">Espacio Libre en Disco</span>
-                    <div style="font-size: 28px; font-weight: bold; margin-top: 5px;">45.1 GB</div>
-                    <div class="progress-bar"><div class="progress-fill" style="width: 80%; background-color: #10b981;"></div></div>
 
                 <!-- DISCO -->
                 <div class="metric-card">
@@ -555,43 +1048,43 @@
                         <span>Almacenamiento (Unidad C:)</span>
                         <i class="fa-solid fa-hard-drive"></i>
                     </div>
-                    <div class="metric-value" id="val-disk">--%</div>
                     <div class="metric-value-row">
                         <div class="metric-value" id="val-disk">--%</div>
-                        <span class="metric-state-pill state-normal" id="state-disk"><i class="fa-solid fa-circle"></i> Normal</span>
+                        <span class="metric-state-pill state-normal" id="state-disk"><i class="fa-solid fa-circle"></i>
+                            Normal</span>
                     </div>
                     <div class="metric-sub" id="sub-disk">Espacio libre disponible</div>
-                    <div class="progress-bar"><div class="progress-fill" id="bar-disk" style="width: 0%; background-color: var(--color-green);"></div></div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="bar-disk"
+                            style="width: 0%; background-color: var(--color-green);"></div>
+                    </div>
                 </div>
 
-                <!-- ACTIVIDAD -->
                 <!-- ACTIVIDAD Y ESTADO GENERAL -->
                 <div class="metric-card">
                     <div class="metric-header">
-                        <span>Procesos y Uptime</span>
                         <span>Procesos del Sistema</span>
                         <i class="fa-solid fa-chart-line"></i>
                     </div>
-                    <div class="metric-value" id="val-procs">--</div>
                     <div class="metric-value-row">
                         <div class="metric-value" id="val-procs">--</div>
-                        <span class="metric-state-pill state-normal" id="state-system"><i class="fa-solid fa-shield"></i> Protegido</span>
+                        <span class="metric-state-pill state-normal" id="state-system"><i
+                                class="fa-solid fa-shield"></i> Protegido</span>
                     </div>
                     <div class="metric-sub" id="sub-uptime">Tiempo de actividad: --</div>
-                    <div class="progress-bar"><div class="progress-fill" style="width: 100%; background-color: #64748b;"></div></div>
-                    <div class="progress-bar"><div class="progress-fill" style="width: 100%; background-color: #3b82f6;"></div></div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 100%; background-color: #3b82f6;"></div>
+                    </div>
                 </div>
             </div>
 
-            <h3 style="margin-bottom: 15px;">Recomendaciones Inteligentes (IA)</h3>
             <!-- Tabla de Procesos Top Consumidores -->
-            <!-- Tabla de Procesos Top Consumidores con Estado de Ejecución -->
             <div class="card">
                 <div class="card-header">
-                    <h3><i class="fa-solid fa-list-check" style="color: var(--accent-blue);"></i> Procesos del Sistema con Mayor Consumo en Memoria</h3>
-                    <span style="font-size: 12px; color: var(--text-muted);">Monitoreo directo del sistema operativo</span>
-                    <h3><i class="fa-solid fa-list-check" style="color: var(--accent-blue);"></i> Procesos Activos con Mayor Consumo de Memoria</h3>
-                    <span style="font-size: 12.5px; color: var(--text-muted);">Monitoreo directo del sistema operativo anfitrión</span>
+                    <h3><i class="fa-solid fa-list-check" style="color: var(--accent-blue);"></i> Procesos Activos con
+                        Mayor Consumo de Memoria</h3>
+                    <span style="font-size: 12.5px; color: var(--text-muted);">Monitoreo directo del sistema operativo
+                        anfitrión</span>
                 </div>
                 <table>
                     <thead>
@@ -601,57 +1094,53 @@
                             <th>Uso de Memoria (MB)</th>
                             <th>Consumo RAM (%)</th>
                             <th>Carga CPU (%)</th>
-                            <th>Estado</th>
                             <th>Estado de Proceso</th>
                         </tr>
                     </thead>
                     <tbody id="tbody-procesos">
-                        <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Cargando telemetría de procesos...</td></tr>
-                        <tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 25px;">Cargando telemetría de procesos...</td></tr>
+                        <tr>
+                            <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 25px;">
+                                Cargando telemetría de procesos...</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
-            <div class="alert-card">
-                <div style="font-weight: bold; font-size: 16px; color: #f59e0b; margin-bottom: 5px;">Actualización de Controlador de Video Pendiente</div>
-                <p style="color: #cbd5e1; font-size: 14px;">Se detectó una versión más reciente para tu tarjeta gráfica NVIDIA. Actualizarla mejorará la fluidez del sistema.</p>
-                <button class="btn-fix" onclick="alert('Iniciando descarga e instalación asistida...')">Actualizar Automáticamente</button>
         <!-- PESTAÑA 2: DIAGNÓSTICO E INCIDENCIAS -->
         <div id="tab-diagnostico" class="tab-pane">
             <div class="card">
                 <div class="card-header">
                     <div>
-                        <h3><i class="fa-solid fa-triangle-exclamation" style="color: var(--color-yellow);"></i> Incidencias Detectadas y Acciones Correctivas</h3>
-                        <p style="font-size: 13px; color: var(--text-muted); margin-top: 3px;">Resultado del análisis heurístico continuo sobre anomalías y cuellos de botella.</p>
-                        <p style="font-size: 13.5px; color: var(--text-muted); margin-top: 3px;">Inspección continua de anomalías, cuellos de botella y riesgos de degradación de hardware.</p>
+                        <h3><i class="fa-solid fa-triangle-exclamation" style="color: var(--color-yellow);"></i>
+                            Incidencias Detectadas y Acciones Correctivas</h3>
+                        <p style="font-size: 13.5px; color: var(--text-muted); margin-top: 3px;">Inspección continua de
+                            anomalías, cuellos de botella y riesgos de degradación de hardware.</p>
                     </div>
-                    <button class="btn btn-primary" onclick="triggerCompleteDiagnosis()"><i class="fa-solid fa-rotate"></i> Re-escanear Ahora</button>
-                    <button class="btn btn-primary" onclick="triggerCompleteDiagnosis()"><i class="fa-solid fa-rotate"></i> Re-escanear Sistema</button>
+                    <button class="btn btn-primary" onclick="triggerCompleteDiagnosis()"><i
+                            class="fa-solid fa-rotate"></i> Re-escanear Sistema</button>
                 </div>
 
                 <div id="container-incidencias">
-                    <div style="text-align: center; padding: 30px; color: var(--text-muted);">Cargando incidencias registradas...</div>
+                    <div style="text-align: center; padding: 30px; color: var(--text-muted);">Cargando incidencias
+                        registradas...</div>
                 </div>
             </div>
         </div>
 
-            <div class="alert-card critical">
-                <div style="font-weight: bold; font-size: 16px; color: #ef4444; margin-bottom: 5px;">Archivo de Configuración Inconsistente</div>
-                <p style="color: #cbd5e1; font-size: 14px;">Un archivo del sistema necesita reparación sencilla para evitar fallos inesperados.</p>
-                <button class="btn-fix" style="background-color: #ef4444;" onclick="alert('Ejecutando verificador de archivos de Windows (SFC)...')">Reparar Ahora</button>
         <!-- PESTAÑA 3: OPTIMIZACIÓN Y LIMPIEZA -->
         <div id="tab-optimizacion" class="tab-pane">
-            <div class="card" style="margin-bottom: 20px; background: linear-gradient(135deg, #1e293b, #0f172a);">
             <div class="card" style="margin-bottom: 20px; background: linear-gradient(135deg, #172442, #0d172e);">
-                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
                     <div>
-                        <h2 style="font-size: 18px; color: #f8fafc; margin-bottom: 5px;">Optimización Global en Un Clic</h2>
-                        <p style="font-size: 13px; color: var(--text-muted);">Ejecuta de forma secuencial la depuración de caché temporal, vaciado de DNS y recorte de memoria.</p>
-                        <h2 style="font-size: 19px; color: #f8fafc; margin-bottom: 5px;">Optimización Global en Un Clic</h2>
-                        <p style="font-size: 13.5px; color: var(--text-muted);">Ejecuta de forma secuencial la depuración de archivos temporales, refresco de DNS y recorte de memoria.</p>
+                        <h2 style="font-size: 19px; color: #f8fafc; margin-bottom: 5px;">Optimización Global en Un Clic
+                        </h2>
+                        <p style="font-size: 13.5px; color: var(--text-muted);">Ejecuta de forma secuencial la
+                            depuración de archivos temporales, refresco de DNS y recorte de memoria.</p>
                     </div>
-                    <button class="btn btn-success" onclick="runGlobalOptimization()"><i class="fa-solid fa-bolt-lightning"></i> Ejecutar Mantenimiento Rápido</button>
+                    <button class="btn btn-success" onclick="runGlobalOptimization()"><i
+                            class="fa-solid fa-bolt-lightning"></i> Ejecutar Mantenimiento Rápido</button>
                 </div>
             </div>
 
@@ -659,34 +1148,41 @@
                 <!-- Herramienta 1: Temporales -->
                 <div class="tool-card">
                     <div>
-                        <div class="tool-icon" style="background: rgba(245, 158, 11, 0.15); color: var(--color-yellow);"><i class="fa-solid fa-broom"></i></div>
+                        <div class="tool-icon"
+                            style="background: rgba(245, 158, 11, 0.15); color: var(--color-yellow);"><i
+                                class="fa-solid fa-broom"></i></div>
                         <h3 class="tool-title" style="margin-top: 14px;">Limpieza de Temporales (%TEMP%)</h3>
-                        <p class="tool-desc" style="margin-top: 6px;">Elimina archivos residuales obsoletos generados por instaladores y sesiones de usuario para liberar espacio en disco.</p>
-                        <p class="tool-desc" style="margin-top: 6px;">Elimina archivos residuales obsoletos generados por aplicaciones y el sistema operativo para recuperar espacio en disco.</p>
+                        <p class="tool-desc" style="margin-top: 6px;">Elimina archivos residuales obsoletos generados
+                            por aplicaciones y el sistema operativo para recuperar espacio en disco.</p>
                     </div>
-                    <button class="btn btn-secondary" onclick="runSingleOptimization('temp')"><i class="fa-solid fa-trash-can"></i> Purgar Archivos Temporales</button>
+                    <button class="btn btn-secondary" onclick="runSingleOptimization('temporales')"><i
+                            class="fa-solid fa-trash-can"></i> Purgar Archivos Temporales</button>
                 </div>
 
                 <!-- Herramienta 2: DNS -->
                 <div class="tool-card">
                     <div>
-                        <div class="tool-icon" style="background: rgba(56, 189, 248, 0.15); color: var(--accent-blue);"><i class="fa-solid fa-network-wired"></i></div>
+                        <div class="tool-icon" style="background: rgba(56, 189, 248, 0.15); color: var(--accent-blue);">
+                            <i class="fa-solid fa-network-wired"></i></div>
                         <h3 class="tool-title" style="margin-top: 14px;">Vaciado de Caché DNS</h3>
-                        <p class="tool-desc" style="margin-top: 6px;">Ejecuta <code>ipconfig /flushdns</code> para eliminar registros de resolución corruptos y agilizar la navegación.</p>
-                        <p class="tool-desc" style="margin-top: 6px;">Ejecuta <code>ipconfig /flushdns</code> para eliminar registros de resolución corruptos y agilizar la navegación de red.</p>
+                        <p class="tool-desc" style="margin-top: 6px;">Ejecuta <code>ipconfig /flushdns</code> para
+                            eliminar registros de resolución corruptos y agilizar la navegación de red.</p>
                     </div>
-                    <button class="btn btn-secondary" onclick="runSingleOptimization('dns')"><i class="fa-solid fa-arrows-spin"></i> Refrescar Caché DNS</button>
+                    <button class="btn btn-secondary" onclick="runSingleOptimization('dns')"><i
+                            class="fa-solid fa-arrows-spin"></i> Refrescar Caché DNS</button>
                 </div>
 
                 <!-- Herramienta 3: Memoria RAM -->
                 <div class="tool-card">
                     <div>
-                        <div class="tool-icon" style="background: rgba(16, 185, 129, 0.15); color: var(--color-green);"><i class="fa-solid fa-microchip"></i></div>
+                        <div class="tool-icon" style="background: rgba(16, 185, 129, 0.15); color: var(--color-green);">
+                            <i class="fa-solid fa-microchip"></i></div>
                         <h3 class="tool-title" style="margin-top: 14px;">Optimización de Memoria RAM</h3>
-                        <p class="tool-desc" style="margin-top: 6px;">Recorta el Working Set de aplicaciones en segundo plano y ejecuta recolección de basura para reducir saturación.</p>
-                        <p class="tool-desc" style="margin-top: 6px;">Recorta el Working Set de aplicaciones en segundo plano y ejecuta recolección de basura para reducir contención de memoria.</p>
+                        <p class="tool-desc" style="margin-top: 6px;">Recorta el Working Set de aplicaciones en segundo
+                            plano y ejecuta recolección de basura para reducir contención de memoria.</p>
                     </div>
-                    <button class="btn btn-secondary" onclick="runSingleOptimization('memoria')"><i class="fa-solid fa-compact-disc"></i> Optimizar Working Set</button>
+                    <button class="btn btn-secondary" onclick="runSingleOptimization('memoria')"><i
+                            class="fa-solid fa-compact-disc"></i> Optimizar Working Set</button>
                 </div>
             </div>
         </div>
@@ -697,11 +1193,13 @@
             <div class="card">
                 <div class="card-header">
                     <div>
-                        <h3><i class="fa-solid fa-shield-halved" style="color: var(--accent-blue);"></i> Registro de Auditoría y Trazabilidad (ISO/IEC 27001)</h3>
-                        <p style="font-size: 13px; color: var(--text-muted); margin-top: 3px;">Trazabilidad completa de operaciones de mantenimiento, accesos y cambios del sistema.</p>
-                        <p style="font-size: 13.5px; color: var(--text-muted); margin-top: 3px;">Trazabilidad de operaciones de mantenimiento, diagnósticos y cambios de privilegios.</p>
+                        <h3><i class="fa-solid fa-shield-halved" style="color: var(--accent-blue);"></i> Registro de
+                            Auditoría y Trazabilidad (ISO/IEC 27001)</h3>
+                        <p style="font-size: 13.5px; color: var(--text-muted); margin-top: 3px;">Trazabilidad de
+                            operaciones de mantenimiento, diagnósticos y cambios de privilegios.</p>
                     </div>
-                    <button class="btn btn-secondary" onclick="loadAuditLogs()"><i class="fa-solid fa-arrows-rotate"></i> Actualizar Log</button>
+                    <button class="btn btn-secondary" onclick="loadAuditLogs()"><i
+                            class="fa-solid fa-arrows-rotate"></i> Actualizar Log</button>
                 </div>
                 <table>
                     <thead>
@@ -715,8 +1213,10 @@
                         </tr>
                     </thead>
                     <tbody id="tbody-auditoria">
-                        <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Cargando registros de auditoría...</td></tr>
-                        <tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 25px;">Cargando registros de auditoría...</td></tr>
+                        <tr>
+                            <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 25px;">
+                                Cargando registros de auditoría...</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -729,7 +1229,6 @@
     <div class="modal-overlay" id="diagModal">
         <div class="modal-diag">
             <i class="fa-solid fa-circle-notch diag-spinner"></i>
-            <h3 style="font-size: 20px; font-weight: 800; color: #f8fafc;">Ejecutando Diagnóstico Heurístico</h3>
             <h3 style="font-size: 21px; font-weight: 800; color: #f8fafc;">Ejecutando Diagnóstico Heurístico</h3>
             <p class="diag-status-step" id="modalDiagStep">Capturando métricas de hardware...</p>
         </div>
@@ -738,11 +1237,7 @@
     <!-- TOAST CONTAINER -->
     <div class="toast-container" id="toastContainer"></div>
 
-  <script>
-        function showTab(tabId) {
-            // Permite alternar secciones de forma fluida
-        } // <-- Esta llave de cierre faltaba en el código original
-
+    <script>
         document.addEventListener('DOMContentLoaded', () => {
             fetchLiveTelemetry();
             loadIncidents();
@@ -765,6 +1260,12 @@
         async function fetchLiveTelemetry() {
             try {
                 const res = await fetch('/api/v1/fiax/telemetria');
+                if (!res.ok) {
+                    if (res.status === 401) {
+                        window.location.href = '/';
+                    }
+                    return;
+                }
                 const data = await res.json();
                 if (!data.success) return;
 
@@ -773,18 +1274,23 @@
 
                 // Actualizar Ficha
                 if (eq) {
-                    document.getElementById('txt-equipo-nombre').innerText = eq.nombre_equipo;
-                    document.getElementById('txt-os').innerText = eq.os_version;
-                    document.getElementById('txt-cpu-model').innerText = eq.procesador;
-                    document.getElementById('txt-ram-total').innerText = `${eq.ram_total_gb} GB RAM`;
-                    document.getElementById('txt-ip').innerText = eq.ip_local;
+                    const elEq = document.getElementById('txt-equipo-nombre');
+                    if (elEq) elEq.innerText = eq.nombre_equipo;
+                    const elOs = document.getElementById('txt-os');
+                    if (elOs) elOs.innerText = eq.os_version;
+                    const elCpu = document.getElementById('txt-cpu-model');
+                    if (elCpu) elCpu.innerText = eq.procesador;
+                    const elRam = document.getElementById('txt-ram-total');
+                    if (elRam) elRam.innerText = `${eq.ram_total_gb} GB RAM`;
+                    const elIp = document.getElementById('txt-ip');
+                    if (elIp) elIp.innerText = eq.ip_local;
                 }
 
                 // Actualizar CPU y su Estado
                 document.getElementById('val-cpu').innerText = `${m.cpu.usage_percent}%`;
                 document.getElementById('sub-cpu').innerText = `${m.cpu.cores_logical} Núcleos lógicos activos`;
                 document.getElementById('bar-cpu').style.width = `${m.cpu.usage_percent}%`;
-                
+
                 const stateCpu = document.getElementById('state-cpu');
                 if (m.cpu.usage_percent >= 80) {
                     stateCpu.className = 'metric-state-pill state-critical';
@@ -839,7 +1345,7 @@
                     m.top_procesos.forEach(p => {
                         tbody.innerHTML += `
                             <tr>
-                                <td><strong>#${p.pid}</strong></td>
+                                <td><strong style="color: var(--accent-blue);">#${p.pid}</strong></td>
                                 <td style="font-weight: 700; color: #f8fafc;"><i class="fa-solid fa-gear" style="color: var(--accent-blue); margin-right: 6px;"></i> ${p.name}</td>
                                 <td>${p.memory_mb} MB</td>
                                 <td><span style="font-weight: 800; color: ${p.memory_percent > 8 ? '#f87171' : '#f8fafc'};">${p.memory_percent}%</span></td>
@@ -881,7 +1387,7 @@
                 if (result.success) {
                     showToast(`Diagnóstico completado con éxito. Score: ${result.score_salud}/100`, "success");
                     document.getElementById('txt-health-score').innerHTML = `${result.score_salud}<span style="font-size: 20px; font-weight: 500;">/100</span>`;
-                    
+
                     const statusElem = document.getElementById('txt-health-status');
                     if (result.score_salud >= 80) {
                         statusElem.className = 'status-health-badge excelente';
@@ -909,6 +1415,7 @@
         async function loadIncidents() {
             try {
                 const res = await fetch('/api/v1/fiax/incidencias');
+                if (!res.ok) return;
                 const data = await res.json();
                 const container = document.getElementById('container-incidencias');
                 container.innerHTML = '';
@@ -980,13 +1487,14 @@
                     loadIncidents();
                     fetchLiveTelemetry();
                 } else {
-                    showToast("Error al resolver: " + data.error, "error");
+                    showToast("Error al resolver: " + (data.error || "Fallo en la operación"), "error");
                     btn.disabled = false;
                     btn.innerHTML = '<i class="fa-solid fa-screwdriver-wrench"></i> Aplicar Solución';
                 }
             } catch (err) {
                 showToast("Fallo en la comunicación con el servidor.", "error");
                 btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-screwdriver-wrench"></i> Aplicar Solución';
             }
         }
 
@@ -1000,7 +1508,7 @@
                     fetchLiveTelemetry();
                     loadIncidents();
                 } else {
-                    showToast("Error en la optimización.", "error");
+                    showToast("Error en la optimización: " + (data.error || "No autorizado o fallo interno"), "error");
                 }
             } catch (err) {
                 showToast("Error al conectar con el servidor.", "error");
@@ -1008,7 +1516,7 @@
         }
 
         async function runSingleOptimization(type) {
-            showToast(`Ejecutando mantenimiento de ${type}...`, "info");
+            showToast(`Ejecutando optimización de ${type}...`, "info");
             await runGlobalOptimization();
         }
 
@@ -1018,6 +1526,10 @@
 
             try {
                 const res = await fetch('/api/v1/fiax/auditoria');
+                if (!res.ok) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--color-red); padding: 25px;">No autorizado para consultar registros de auditoría.</td></tr>';
+                    return;
+                }
                 const data = await res.json();
                 tbody.innerHTML = '';
 
@@ -1051,7 +1563,7 @@
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
-            
+
             let icon = '<i class="fa-solid fa-info-circle"></i>';
             if (type === 'success') icon = '<i class="fa-solid fa-circle-check" style="color: var(--color-green);"></i>';
             if (type === 'error') icon = '<i class="fa-solid fa-circle-xmark" style="color: var(--color-red);"></i>';
@@ -1068,4 +1580,5 @@
         }
     </script>
 </body>
+
 </html>

@@ -3,7 +3,7 @@ from services.role_service import RoleManagementService
 from services.auth_service import AuthService
 from services.audit_service import AuditService
 from security.decorators import has_permission
-from domain.enums import PermissionEnum
+from domain.enums import PermissionEnum, RoleEnum
 from domain.models import db, User, Role
 
 role_bp = Blueprint('role_bp', __name__, url_prefix='/api/v1')
@@ -15,6 +15,7 @@ role_service = RoleManagementService()
 
 # READ: Obtener lista completa de usuarios y roles
 @role_bp.route('/users', methods=['GET'])
+@has_permission(PermissionEnum.USER_READ)
 def get_users():
     users = User.query.all()
     roles = Role.query.all()
@@ -25,6 +26,7 @@ def get_users():
 
 # CREATE: Crear un nuevo usuario administrativo
 @role_bp.route('/users', methods=['POST'])
+@has_permission(PermissionEnum.USER_CREATE)
 def create_user():
     data = request.json or {}
     nombre = data.get('nombre', '').strip()
@@ -41,10 +43,13 @@ def create_user():
     pass_hash = AuthService.hash_password(password)
     nuevo_usuario = User(nombre_completo=nombre, correo=correo, password_hash=pass_hash)
     
+    rol = None
     if role_id:
-        rol = Role.query.get(role_id)
-        if rol:
-            nuevo_usuario.roles.append(rol)
+        rol = db.session.get(Role, role_id)
+    if not rol:
+        rol = Role.query.filter_by(nombre=RoleEnum.USUARIO.value).first()
+    if rol:
+        nuevo_usuario.roles.append(rol)
         
     db.session.add(nuevo_usuario)
     db.session.commit()
@@ -52,7 +57,7 @@ def create_user():
     AuditService.registrar(
         accion="CREAR_USUARIO",
         modulo="USUARIOS",
-        detalles=f"Usuario creado administrativamente: {correo} con rol ID {role_id}",
+        detalles=f"Usuario creado administrativamente: {correo} con rol {rol.nombre if rol else 'N/A'}",
         nivel="INFO"
     )
 
@@ -60,21 +65,28 @@ def create_user():
 
 # UPDATE: Modificar datos y rol de un usuario
 @role_bp.route('/users/<int:user_id>', methods=['PUT'])
+@has_permission(PermissionEnum.USER_CREATE)
 def update_user(user_id):
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if not user:
         return jsonify({"error": "Usuario no encontrado."}), 404
 
     data = request.json or {}
-    user.nombre_completo = data.get('nombre', user.nombre_completo)
-    user.correo = data.get('correo', user.correo)
+    user.nombre_completo = data.get('nombre', user.nombre_completo).strip()
+    
+    nuevo_correo = data.get('correo', user.correo).strip()
+    if nuevo_correo and nuevo_correo != user.correo:
+        existente = User.query.filter(User.correo == nuevo_correo, User.id != user_id).first()
+        if existente:
+            return jsonify({"error": "El correo electrónico ya está en uso por otro usuario."}), 400
+        user.correo = nuevo_correo
     
     if data.get('password'):
         user.password_hash = AuthService.hash_password(data.get('password'))
 
     role_id = data.get('role_id')
     if role_id:
-        rol = Role.query.get(role_id)
+        rol = db.session.get(Role, role_id)
         if rol:
             user.roles = [rol]
 
@@ -91,13 +103,21 @@ def update_user(user_id):
 
 # DELETE: Eliminar un usuario
 @role_bp.route('/users/<int:user_id>', methods=['DELETE'])
+@has_permission(PermissionEnum.USER_CREATE)
 def delete_user(user_id):
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if not user:
         return jsonify({"error": "Usuario no encontrado."}), 404
 
     if user.id == session.get('user_id'):
         return jsonify({"error": "No puede eliminar su propia cuenta activa."}), 400
+
+    # Proteger contra la eliminación del único Administrador
+    es_admin = any(r.nombre == RoleEnum.ADMINISTRADOR.value for r in user.roles)
+    if es_admin:
+        admin_count = User.query.filter(User.roles.any(Role.nombre == RoleEnum.ADMINISTRADOR.value)).count()
+        if admin_count <= 1:
+            return jsonify({"error": "No se puede eliminar el único Administrador del sistema."}), 400
 
     correo_eliminado = user.correo
     db.session.delete(user)

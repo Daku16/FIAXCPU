@@ -44,14 +44,14 @@ def registro():
     confirm_pass = request.form.get('confirm_password', '')
 
     if not nombre or not correo or not password:
-        return render_template('login.html', error_login="Todos los campos son obligatorios.")
+        return render_template('login.html', error_login="Todos los campos son obligatorios.", active_tab='registro')
 
     if password != confirm_pass:
-        return render_template('login.html', error_login="Las contraseñas no coinciden.")
+        return render_template('login.html', error_login="Las contraseñas no coinciden.", active_tab='registro')
 
     nuevo_usuario, error = AuthService.register(nombre, correo, password, RoleEnum.USUARIO.value)
     if error:
-        return render_template('login.html', error_login=error)
+        return render_template('login.html', error_login=error, active_tab='registro')
 
     session['user_id'] = nuevo_usuario.id
     session['user_name'] = nuevo_usuario.nombre_completo

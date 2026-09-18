@@ -4,7 +4,7 @@ import socket
 import time
 from datetime import datetime
 import psutil
-from domain.models import db, Equipo
+from domain.models import db, Equipo, get_utc_now
 
 class TelemetryService:
     @staticmethod
@@ -23,6 +23,7 @@ class TelemetryService:
             # Obtener IP local
             try:
                 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                s.settimeout(2.0)
                 s.connect(("8.8.8.8", 80))
                 ip_local = s.getsockname()[0]
                 s.close()
@@ -61,12 +62,12 @@ class TelemetryService:
                 ram_total_gb=profile["ram_total_gb"],
                 procesador=profile["procesador"],
                 ip_local=profile["ip_local"],
-                ultima_conexion=datetime.utcnow()
+                ultima_conexion=get_utc_now()
             )
             db.session.add(equipo)
             db.session.commit()
         else:
-            equipo.ultima_conexion = datetime.utcnow()
+            equipo.ultima_conexion = get_utc_now()
             equipo.ip_local = profile["ip_local"]
             db.session.commit()
             
@@ -116,7 +117,7 @@ class TelemetryService:
                         "memory_mb": mem_mb,
                         "status": info.get('status') or "running"
                     })
-                except (psutil.NoSuchProcess, psutil.AccessDenied):
+                except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess, Exception):
                     continue
 
             # Ordenar por consumo de memoria descendente

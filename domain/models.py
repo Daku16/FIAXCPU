@@ -1,7 +1,20 @@
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+from datetime import datetime, timezone
+from sqlalchemy import event
+from sqlalchemy.engine import Engine
 
 db = SQLAlchemy()
+
+def get_utc_now():
+    """Retorna fecha y hora UTC sin zona horaria para compatibilidad SQLite."""
+    return datetime.now(timezone.utc).replace(tzinfo=None)
+
+@event.listens_for(Engine, "connect")
+def set_sqlite_pragma(dbapi_connection, connection_record):
+    """Garantiza que la integridad referencial y claves foráneas estén activas en SQLite."""
+    cursor = dbapi_connection.cursor()
+    cursor.execute("PRAGMA foreign_keys=ON")
+    cursor.close()
 
 # Tablas Asociativas Muchos a Muchos
 user_roles = db.Table('user_roles',
@@ -20,7 +33,7 @@ class User(db.Model):
     nombre_completo = db.Column(db.String(100), nullable=False)
     correo = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=get_utc_now)
     
     roles = db.relationship('Role', secondary=user_roles, lazy='subquery',
                             backref=db.backref('usuarios', lazy=True))
@@ -79,8 +92,8 @@ class Equipo(db.Model):
     ram_total_gb = db.Column(db.Float)
     procesador = db.Column(db.String(150))
     ip_local = db.Column(db.String(50), default="127.0.0.1")
-    fecha_registro = db.Column(db.DateTime, default=datetime.utcnow)
-    ultima_conexion = db.Column(db.DateTime, default=datetime.utcnow)
+    fecha_registro = db.Column(db.DateTime, default=get_utc_now)
+    ultima_conexion = db.Column(db.DateTime, default=get_utc_now)
 
     sesiones = db.relationship('SesionDiagnostico', backref='equipo', cascade="all, delete-orphan", lazy=True)
 
@@ -101,7 +114,7 @@ class SesionDiagnostico(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     equipo_id = db.Column(db.Integer, db.ForeignKey('equipos.id', ondelete="CASCADE"), nullable=False)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id', ondelete="SET NULL"), nullable=True)
-    fecha_hora = db.Column(db.DateTime, default=datetime.utcnow)
+    fecha_hora = db.Column(db.DateTime, default=get_utc_now)
     estado = db.Column(db.String(50), default='COMPLETADO')
     score_salud = db.Column(db.Integer, default=100) # 0 a 100
     resumen = db.Column(db.String(255))
@@ -156,7 +169,7 @@ class IncidenciaDetectada(db.Model):
     descripcion = db.Column(db.Text, nullable=False)
     nivel_severidad = db.Column(db.String(20), default='MEDIO') # BAJO, MEDIO, ALTO, CRITICO
     estado = db.Column(db.String(20), default='PENDIENTE') # PENDIENTE, EN_PROCESO, RESUELTA
-    fecha_deteccion = db.Column(db.DateTime, default=datetime.utcnow)
+    fecha_deteccion = db.Column(db.DateTime, default=get_utc_now)
 
     acciones = db.relationship('AccionCorrectiva', backref='incidencia', cascade="all, delete-orphan", lazy=True)
 
@@ -205,7 +218,7 @@ class LogAuditoria(db.Model):
     detalles = db.Column(db.Text)
     ip_origen = db.Column(db.String(45))
     nivel = db.Column(db.String(20), default="INFO") # INFO, WARNING, ERROR, CRITICAL
-    fecha_hora = db.Column(db.DateTime, default=datetime.utcnow)
+    fecha_hora = db.Column(db.DateTime, default=get_utc_now)
 
     def to_dict(self):
         return {
