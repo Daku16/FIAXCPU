@@ -132,13 +132,36 @@ class MaintenanceService:
             accion.fecha_ejecucion = get_utc_now()
             accion.resultado_log = resultado.get("mensaje", "Ejecutado con éxito")
 
+        # Recalcular dinámicamente el Score de Salud tras la remediación
+        from domain.models import SesionDiagnostico, MetricaRendimiento
+        from services.diagnostic_service import DiagnosticService
+        
+        sesion = db.session.get(SesionDiagnostico, incidencia.diagnostico_id) if incidencia.diagnostico_id else None
+        incidencias_restantes = IncidenciaDetectada.query.filter_by(
+            diagnostico_id=incidencia.diagnostico_id,
+            estado=EstadoIncidenciaEnum.PENDIENTE.value
+        ).all() if incidencia.diagnostico_id else []
+
+        metrica = MetricaRendimiento.query.filter_by(diagnostico_id=incidencia.diagnostico_id).first() if incidencia.diagnostico_id else None
+
+        nuevo_score = DiagnosticService.calculate_health_score(
+            cpu_pct=metrica.uso_cpu_porcentaje if metrica else 20.0,
+            ram_pct=resultado.get('ram_despues', metrica.uso_ram_porcentaje if metrica else 35.0),
+            disk_free_gb=(metrica.disco_libre_gb if metrica else 50.0) + (resultado.get('mb_liberados', 0) / 1024.0),
+            temp_mb=0.0 if tipo_accion == "LIMPIEZA_TEMP" else 50.0,
+            incidents=[{'severidad': inc.nivel_severidad} for inc in incidencias_restantes]
+        )
+
+        if sesion:
+            sesion.score_salud = nuevo_score
+
         db.session.commit()
 
         # Registrar en Auditoría
         AuditService.registrar(
             accion="RESOLVER_INCIDENCIA",
             modulo="MANTENIMIENTO",
-            detalles=f"Incidencia #{incidencia.id} ({incidencia.tipo_incidencia}) resuelta. Resultado: {resultado.get('mensaje')}",
+            detalles=f"Incidencia #{incidencia.id} ({incidencia.tipo_incidencia}) resuelta. Resultado: {resultado.get('mensaje')}. Nuevo Score: {nuevo_score}/100",
             nivel="INFO",
             usuario_id=user_id
         )
@@ -147,6 +170,8 @@ class MaintenanceService:
             "success": True,
             "incidencia": incidencia.to_dict(),
             "accion": accion.to_dict() if accion else None,
-            "resultado": resultado
+            "resultado": resultado,
+            "nuevo_score": nuevo_score,
+            "incidencias_pendientes_count": len(incidencias_restantes)
         }
 

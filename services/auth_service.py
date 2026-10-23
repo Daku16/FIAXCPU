@@ -26,20 +26,29 @@ class AuthService:
 
     @staticmethod
     def authenticate(correo: str, password: str):
-        """Autentica a un usuario por correo y contraseña."""
-        user = User.query.filter_by(correo=correo).first()
+        """Autentica a un usuario por correo (case-insensitive) y contraseña."""
+        clean_correo = (correo or '').strip()
+        user = User.query.filter(db.func.lower(User.correo) == clean_correo.lower()).first()
         if user and AuthService.verify_password(user.password_hash, password):
             return user
         return None
 
     @staticmethod
     def register(nombre: str, correo: str, password: str, role_name: str = RoleEnum.USUARIO.value):
-        """Registra un nuevo usuario en la base de datos."""
-        if User.query.filter_by(correo=correo).first():
-            return None, "El correo electrónico ya está registrado."
+        """Registra un nuevo usuario en la base de datos validando nombre y correo únicos."""
+        nombre_clean = (nombre or '').strip()
+        correo_clean = (correo or '').strip()
+
+        # Validación 1: Correo electrónico duplicado
+        if User.query.filter(db.func.lower(User.correo) == correo_clean.lower()).first():
+            return None, "El correo electrónico ya se encuentra registrado."
+
+        # Validación 2: Nombre de usuario duplicado
+        if User.query.filter(db.func.lower(User.nombre_completo) == nombre_clean.lower()).first():
+            return None, "El nombre de usuario ya se encuentra registrado."
 
         hashed_pw = AuthService.hash_password(password)
-        new_user = User(nombre_completo=nombre, correo=correo, password_hash=hashed_pw)
+        new_user = User(nombre_completo=nombre_clean, correo=correo_clean, password_hash=hashed_pw)
         
         role = Role.query.filter_by(nombre=role_name).first()
         if role:

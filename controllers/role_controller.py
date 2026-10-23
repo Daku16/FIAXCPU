@@ -37,8 +37,11 @@ def create_user():
     if not nombre or not correo or not password:
         return jsonify({"error": "Todos los campos son obligatorios."}), 400
 
-    if User.query.filter_by(correo=correo).first():
+    if User.query.filter(db.func.lower(User.correo) == correo.lower()).first():
         return jsonify({"error": "El correo electrónico ya está registrado."}), 400
+
+    if User.query.filter(db.func.lower(User.nombre_completo) == nombre.lower()).first():
+        return jsonify({"error": "Ya existe un usuario con este nombre completo."}), 400
 
     pass_hash = AuthService.hash_password(password)
     nuevo_usuario = User(nombre_completo=nombre, correo=correo, password_hash=pass_hash)
@@ -72,11 +75,22 @@ def update_user(user_id):
         return jsonify({"error": "Usuario no encontrado."}), 404
 
     data = request.json or {}
-    user.nombre_completo = data.get('nombre', user.nombre_completo).strip()
+    nuevo_nombre = data.get('nombre', user.nombre_completo).strip()
+    if nuevo_nombre and nuevo_nombre.lower() != user.nombre_completo.lower():
+        existente_nombre = User.query.filter(
+            db.func.lower(User.nombre_completo) == nuevo_nombre.lower(),
+            User.id != user_id
+        ).first()
+        if existente_nombre:
+            return jsonify({"error": "El nombre completo ya está en uso por otro usuario."}), 400
+        user.nombre_completo = nuevo_nombre
     
     nuevo_correo = data.get('correo', user.correo).strip()
-    if nuevo_correo and nuevo_correo != user.correo:
-        existente = User.query.filter(User.correo == nuevo_correo, User.id != user_id).first()
+    if nuevo_correo and nuevo_correo.lower() != user.correo.lower():
+        existente = User.query.filter(
+            db.func.lower(User.correo) == nuevo_correo.lower(),
+            User.id != user_id
+        ).first()
         if existente:
             return jsonify({"error": "El correo electrónico ya está en uso por otro usuario."}), 400
         user.correo = nuevo_correo

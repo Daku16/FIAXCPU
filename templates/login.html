@@ -3,100 +3,262 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>FIAX CPU - Autenticación</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIAX CPU - Autenticación y Acceso Seguro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --bg-main: #0b1120;
+            --bg-card: #172442;
+            --bg-card-alt: #0d172e;
+            --border-color: #24355a;
+            --accent-blue: #38bdf8;
+            --btn-blue: #2563eb;
+            --btn-blue-hover: #1d4ed8;
+            --color-green: #10b981;
+            --color-green-hover: #059669;
+            --color-yellow: #f59e0b;
+            --color-red: #ef4444;
+            --color-red-hover: #dc2626;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
         }
 
         body {
-            background-color: #0f172a;
-            color: #f8fafc;
+            background-color: var(--bg-main);
+            color: var(--text-main);
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
+            padding: 20px;
         }
 
         .card {
-            background-color: #1e293b;
-            padding: 35px;
-            border-radius: 16px;
-            width: 360px;
-            border: 1px solid #334155;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+            background-color: var(--bg-card);
+            padding: 36px 32px;
+            border-radius: 18px;
+            width: 400px;
+            max-width: 100%;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.6);
+            position: relative;
         }
 
-        h2 {
+        .logo-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             text-align: center;
-            color: #38bdf8;
-            margin-bottom: 5px;
-            font-size: 26px;
+            margin-bottom: 24px;
         }
 
-        p.subtitle {
-            text-align: center;
-            color: #94a3b8;
-            font-size: 13px;
-            margin-bottom: 25px;
+        .logo-icon {
+            background: linear-gradient(135deg, #0284c7, #38bdf8);
+            color: white;
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 16px rgba(56, 189, 248, 0.35);
         }
 
+        .logo-header h2 {
+            font-size: 24px;
+            font-weight: 900;
+            color: #f8fafc;
+            letter-spacing: 0.5px;
+        }
+
+        .logo-header p.subtitle {
+            color: var(--accent-blue);
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 2px;
+        }
+
+        /* Pestañas */
         .tabs {
             display: flex;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #334155;
+            margin-bottom: 22px;
+            border-bottom: 1px solid var(--border-color);
+            gap: 4px;
         }
 
         .tab-btn {
             flex: 1;
-            padding: 10px;
+            padding: 12px 10px;
             background: transparent;
             border: none;
-            color: #94a3b8;
+            color: var(--text-muted);
             cursor: pointer;
-            font-weight: bold;
-            border-bottom: 2px solid transparent;
+            font-weight: 700;
+            font-size: 13.5px;
+            border-bottom: 3px solid transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn:hover {
+            color: #f8fafc;
         }
 
         .tab-btn.active {
-            color: #38bdf8;
-            border-bottom-color: #38bdf8;
+            color: var(--accent-blue);
+            border-bottom-color: var(--accent-blue);
+        }
+
+        /* Grupos de Formulario e Inputs */
+        .form-group {
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 14px;
+            pointer-events: none;
+            transition: color 0.2s;
         }
 
         input {
             width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            border: 1px solid #334155;
-            background-color: #0f172a;
+            padding: 12px 42px 12px 38px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-card-alt);
             color: white;
             font-size: 14px;
             outline: none;
+            transition: all 0.2s ease;
         }
 
         input:focus {
-            border-color: #38bdf8;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
         }
 
+        input:focus ~ .input-icon {
+            color: var(--accent-blue);
+        }
+
+        .btn-toggle-pass {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 14px;
+            padding: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s;
+        }
+
+        .btn-toggle-pass:hover {
+            color: var(--accent-blue);
+        }
+
+        /* Botones de Envío */
         button.submit-btn {
             width: 100%;
-            padding: 12px;
-            border-radius: 8px;
+            padding: 13px;
+            border-radius: 10px;
             border: none;
-            background-color: #3b82f6;
+            background-color: var(--btn-blue);
             color: white;
-            font-weight: bold;
-            font-size: 15px;
+            font-weight: 800;
+            font-size: 14.5px;
             cursor: pointer;
-            transition: 0.2s;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 4px;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
         }
 
         button.submit-btn:hover {
-            background-color: #2563eb;
+            background-color: var(--btn-blue-hover);
+            transform: translateY(-1px);
+        }
+
+        button.submit-btn.btn-register {
+            background-color: var(--color-green);
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+        }
+
+        button.submit-btn.btn-register:hover {
+            background-color: var(--color-green-hover);
+        }
+
+        /* Feedback en vivo de contraseñas */
+        .match-feedback {
+            font-size: 11.5px;
+            margin-top: -10px;
+            margin-bottom: 14px;
+            display: none;
+            align-items: center;
+            gap: 5px;
+            font-weight: 600;
+        }
+
+        .match-feedback.error {
+            color: #f87171;
+            display: flex;
+        }
+
+        .match-feedback.success {
+            color: #34d399;
+            display: flex;
+        }
+
+        /* Footer de Versión */
+        .version-footer {
+            text-align: center;
+            margin-top: 22px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .version-tag {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+        }
+
+        .version-tag strong {
+            color: var(--accent-blue);
         }
 
         /* Estilos del Popup / Modal Emergente */
@@ -107,65 +269,71 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.75);
+            background: rgba(11, 17, 32, 0.85);
+            backdrop-filter: blur(4px);
             justify-content: center;
             align-items: center;
-            z-index: 100;
+            z-index: 1000;
             animation: fadeIn 0.2s ease-in-out;
         }
 
         .popup {
-            background-color: #1e293b;
-            padding: 25px;
-            border-radius: 14px;
-            width: 320px;
+            background-color: var(--bg-card);
+            padding: 30px 25px;
+            border-radius: 16px;
+            width: 360px;
+            max-width: 90%;
             text-align: center;
-            border: 1px solid #ef4444;
-            box-shadow: 0 10px 25px rgba(239, 68, 68, 0.2);
+            border: 1px solid var(--color-red);
+            box-shadow: 0 15px 35px rgba(239, 68, 68, 0.25);
+            animation: popIn 0.25s ease-out;
         }
 
         .popup-icon {
-            font-size: 40px;
-            color: #ef4444;
-            margin-bottom: 10px;
+            font-size: 38px;
+            color: var(--color-red);
+            margin-bottom: 12px;
         }
 
         .popup h3 {
             color: #f8fafc;
             font-size: 18px;
+            font-weight: 800;
             margin-bottom: 8px;
         }
 
         .popup p {
             color: #cbd5e1;
-            font-size: 14px;
-            margin-bottom: 20px;
+            font-size: 13.5px;
+            line-height: 1.5;
+            margin-bottom: 22px;
         }
 
         .popup-btn {
-            background-color: #ef4444;
+            background-color: var(--color-red);
             color: white;
             border: none;
-            padding: 10px 25px;
-            border-radius: 6px;
-            font-weight: bold;
+            padding: 11px 24px;
+            border-radius: 8px;
+            font-weight: 800;
             cursor: pointer;
             width: 100%;
-            font-size: 14px;
+            font-size: 13.5px;
+            transition: all 0.2s ease;
         }
 
         .popup-btn:hover {
-            background-color: #dc2626;
+            background-color: var(--color-red-hover);
         }
 
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
 
-            to {
-                opacity: 1;
-            }
+        @keyframes popIn {
+            from { transform: scale(0.92); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
         }
     </style>
 </head>
@@ -173,44 +341,97 @@
 <body>
 
     <div class="card">
-        <h2>FIAX CPU</h2>
-        <p class="subtitle">Asistente Inteligente de Mantenimiento</p>
+        <!-- Encabezado y Logotipo -->
+        <div class="logo-header">
+            <div class="logo-icon"><i class="fa-solid fa-microchip"></i></div>
+            <h2>FIAX CPU</h2>
+            <p class="subtitle">Asistente Inteligente de Mantenimiento</p>
+        </div>
 
-        <!-- Pestañas -->
+        <!-- Pestañas de Alternancia -->
         <div class="tabs">
-            <button class="tab-btn {% if not active_tab or active_tab == 'login' %}active{% endif %}"
-                onclick="switchTab('login')">Iniciar Sesión</button>
-            <button class="tab-btn {% if active_tab == 'registro' %}active{% endif %}"
-                onclick="switchTab('registro')">Crear Cuenta</button>
+            <button type="button" class="tab-btn {% if not active_tab or active_tab == 'login' %}active{% endif %}"
+                onclick="switchTab('login')">
+                <i class="fa-solid fa-right-to-bracket"></i> Iniciar Sesión
+            </button>
+            <button type="button" class="tab-btn {% if active_tab == 'registro' %}active{% endif %}"
+                onclick="switchTab('registro')">
+                <i class="fa-solid fa-user-plus"></i> Crear Cuenta
+            </button>
         </div>
 
         <!-- FORMULARIO 1: INICIAR SESIÓN -->
         <form id="form-login" action="/login" method="POST"
             style="display: {% if active_tab == 'registro' %}none{% else %}block{% endif %};">
-            <input type="email" name="correo" placeholder="Correo electrónico" required>
-            <input type="password" name="password" placeholder="Contraseña" required>
-            <button type="submit" class="submit-btn">Ingresar al Sistema</button>
+            <div class="form-group">
+                <input type="email" name="correo" id="login-email" placeholder="Correo electrónico institucional"
+                    value="{{ correo or '' }}" autocomplete="email" required>
+                <i class="fa-solid fa-envelope input-icon"></i>
+            </div>
+            <div class="form-group">
+                <input type="password" name="password" id="login-password" placeholder="Contraseña de acceso"
+                    autocomplete="current-password" required>
+                <i class="fa-solid fa-lock input-icon"></i>
+                <button type="button" class="btn-toggle-pass" onclick="togglePassVisibility('login-password', this)" title="Ver / Ocultar">
+                    <i class="fa-solid fa-eye"></i>
+                </button>
+            </div>
+            <button type="submit" class="submit-btn">
+                <i class="fa-solid fa-right-to-bracket"></i> Ingresar al Sistema
+            </button>
         </form>
 
         <!-- FORMULARIO 2: REGISTRO DE NUEVO USUARIO -->
-        <form id="form-registro" action="/registro" method="POST"
+        <form id="form-registro" action="/registro" method="POST" onsubmit="return validateRegisterForm()"
             style="display: {% if active_tab == 'registro' %}block{% else %}none{% endif %};">
-            <input type="text" name="nombre" placeholder="Nombre completo" required>
-            <input type="email" name="correo" placeholder="Correo electrónico" required>
-            <input type="password" name="password" placeholder="Contraseña" required>
-            <input type="password" name="confirm_password" placeholder="Confirmar contraseña" required>
-            <button type="submit" class="submit-btn" style="background-color: #10b981;">Registrar e Ingresar</button>
+            <div class="form-group">
+                <input type="text" name="nombre" id="reg-nombre" placeholder="Nombre y Apellidos completos"
+                    value="{{ nombre or '' }}" autocomplete="name" required>
+                <i class="fa-solid fa-user input-icon"></i>
+            </div>
+            <div class="form-group">
+                <input type="email" name="correo" id="reg-correo" placeholder="Correo electrónico"
+                    value="{{ correo or '' }}" autocomplete="email" required>
+                <i class="fa-solid fa-envelope input-icon"></i>
+            </div>
+            <div class="form-group">
+                <input type="password" name="password" id="reg-password" placeholder="Crear contraseña"
+                    autocomplete="new-password" oninput="checkPasswordMatch()" required>
+                <i class="fa-solid fa-lock input-icon"></i>
+                <button type="button" class="btn-toggle-pass" onclick="togglePassVisibility('reg-password', this)" title="Ver / Ocultar">
+                    <i class="fa-solid fa-eye"></i>
+                </button>
+            </div>
+            <div class="form-group">
+                <input type="password" name="confirm_password" id="reg-confirm-password" placeholder="Confirmar contraseña"
+                    autocomplete="new-password" oninput="checkPasswordMatch()" required>
+                <i class="fa-solid fa-shield-halved input-icon"></i>
+                <button type="button" class="btn-toggle-pass" onclick="togglePassVisibility('reg-confirm-password', this)" title="Ver / Ocultar">
+                    <i class="fa-solid fa-eye"></i>
+                </button>
+            </div>
+            <div id="match-feedback" class="match-feedback"></div>
+            <button type="submit" class="submit-btn btn-register">
+                <i class="fa-solid fa-user-check"></i> Registrar e Ingresar
+            </button>
         </form>
+
+        <!-- Pie Informativo con Versión -->
+        <div class="version-footer">
+            <span class="version-tag">
+                FIAX CPU &bull; <i class="fa-solid fa-code-branch"></i> <strong>Versión {{ app_version }}</strong>
+            </span>
+        </div>
     </div>
 
-    <!-- POPUP EMERGENTE DE CREDENCIALES INVÁLIDAS -->
+    <!-- POPUP EMERGENTE DE ERRORES (RESPETA REGLAS DE TEST) -->
     {% if error_login %}
-    <div class="modal-overlay" id="errorModal">
+    <div class="modal-overlay" id="errorModal" onclick="handleBackdropClick(event)">
         <div class="popup">
-            <div class="popup-icon">⚠️</div>
-            <h3>Credenciales Inválidas</h3>
+            <div class="popup-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            <h3>{% if active_tab == 'registro' %}Validación de Registro{% else %}Credenciales Inválidas{% endif %}</h3>
             <p>{{ error_login }}</p>
-            <button class="popup-btn" onclick="closePopup()">Aceptar</button>
+            <button type="button" class="popup-btn" onclick="closePopup()">Aceptar</button>
         </div>
     </div>
     {% endif %}
@@ -226,12 +447,65 @@
                 formRegistro.style.display = 'none';
                 btns[0].classList.add('active');
                 btns[1].classList.remove('active');
+                const emailInput = document.getElementById('login-email');
+                if (emailInput && !emailInput.value) emailInput.focus();
             } else {
                 formLogin.style.display = 'none';
                 formRegistro.style.display = 'block';
                 btns[0].classList.remove('active');
                 btns[1].classList.add('active');
+                const nameInput = document.getElementById('reg-nombre');
+                if (nameInput && !nameInput.value) nameInput.focus();
             }
+        }
+
+        function togglePassVisibility(inputId, btn) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            const icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                if (icon) {
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                }
+            } else {
+                input.type = 'password';
+                if (icon) {
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            }
+        }
+
+        function checkPasswordMatch() {
+            const p1 = document.getElementById('reg-password').value;
+            const p2 = document.getElementById('reg-confirm-password').value;
+            const feedback = document.getElementById('match-feedback');
+
+            if (!p2) {
+                feedback.className = 'match-feedback';
+                feedback.style.display = 'none';
+                return;
+            }
+
+            if (p1 !== p2) {
+                feedback.className = 'match-feedback error';
+                feedback.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> Las contraseñas no coinciden.';
+            } else {
+                feedback.className = 'match-feedback success';
+                feedback.innerHTML = '<i class="fa-solid fa-circle-check"></i> Las contraseñas coinciden correctamente.';
+            }
+        }
+
+        function validateRegisterForm() {
+            const p1 = document.getElementById('reg-password').value;
+            const p2 = document.getElementById('reg-confirm-password').value;
+            if (p1 !== p2) {
+                alert("Las contraseñas no coinciden. Por favor verifíquelas antes de continuar.");
+                return false;
+            }
+            return true;
         }
 
         function closePopup() {
@@ -240,6 +514,18 @@
                 modal.style.display = 'none';
             }
         }
+
+        function handleBackdropClick(event) {
+            if (event.target.id === 'errorModal') {
+                closePopup();
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closePopup();
+            }
+        });
     </script>
 </body>
 

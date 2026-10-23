@@ -67,6 +67,12 @@ def create_app(config_name='default'):
             user_role=user_role
         )
 
+    @app.context_processor
+    def inject_app_globals():
+        return {
+            'app_version': app.config.get('APP_VERSION', '1.1.0')
+        }
+
     return app
 
 app = create_app('dev')

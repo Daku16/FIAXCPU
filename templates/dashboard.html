@@ -753,6 +753,71 @@
             border-left: 3px solid var(--accent-blue);
         }
 
+        /* Barra de filtros de incidencias */
+        .incident-filters-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+            flex-wrap: wrap;
+        }
+
+        .btn-filter-inc {
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-filter-inc:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: #f8fafc;
+        }
+
+        .btn-filter-inc.active {
+            background: rgba(56, 189, 248, 0.15);
+            color: #38bdf8;
+            border-color: #38bdf8;
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
+        }
+
+        .btn-filter-inc.active.filter-resueltas {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border-color: #10b981;
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);
+        }
+
+        .filter-count-badge {
+            background: rgba(255, 255, 255, 0.12);
+            color: #cbd5e1;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 800;
+            transition: all 0.2s ease;
+        }
+
+        .btn-filter-inc.active .filter-count-badge {
+            background: #38bdf8;
+            color: #0b1120;
+        }
+
+        .btn-filter-inc.active.filter-resueltas .filter-count-badge {
+            background: #34d399;
+            color: #0b1120;
+        }
+
         /* Herramientas de Optimización */
         .tools-grid {
             display: grid;
@@ -893,7 +958,10 @@
             <div class="logo-box">
                 <div class="logo-icon"><i class="fa-solid fa-microchip"></i></div>
                 <div class="logo-text">
-                    <h2>FIAX CPU</h2>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <h2>FIAX CPU</h2>
+                        <span style="font-size: 10px; font-weight: 800; background: rgba(56, 189, 248, 0.2); color: #38bdf8; padding: 1px 6px; border-radius: 4px; border: 1px solid rgba(56, 189, 248, 0.4);">v{{ app_version }}</span>
+                    </div>
                     <span>Ing. de Sistemas 2026</span>
                 </div>
             </div>
@@ -931,6 +999,10 @@
 
         <!-- Botón Fijo al pie del Sidebar -->
         <div class="sidebar-footer">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding: 0 4px;">
+                <span style="font-size: 11px; color: var(--text-muted); font-weight: 600;">Versión del Sistema</span>
+                <span style="font-size: 11px; font-weight: 800; color: #38bdf8; background: rgba(56, 189, 248, 0.12); padding: 2px 8px; border-radius: 6px; border: 1px solid rgba(56, 189, 248, 0.3);"><i class="fa-solid fa-code-branch"></i> v{{ app_version }}</span>
+            </div>
             <a href="/logout" class="btn-logout-sidebar">
                 <i class="fa-solid fa-arrow-right-from-bracket"></i>
                 <span>Cerrar Sesión Activa</span>
@@ -944,7 +1016,12 @@
         <!-- Barra Superior de Acciones -->
         <div class="top-header">
             <div class="header-title">
-                <h1>Asistente Inteligente de Mantenimiento</h1>
+                <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                    <h1>Asistente Inteligente de Mantenimiento</h1>
+                    <span style="font-size: 11.5px; font-weight: 800; background: rgba(56, 189, 248, 0.15); color: #38bdf8; padding: 3px 10px; border-radius: 20px; border: 1px solid rgba(56, 189, 248, 0.35); letter-spacing: 0.5px;">
+                        <i class="fa-solid fa-code-branch"></i> Versión {{ app_version }}
+                    </span>
+                </div>
                 <p>Monitoreo Heurístico en Tiempo Real, Detección de Anomalías y Optimización</p>
             </div>
             <div class="header-actions">
@@ -1121,6 +1198,25 @@
                             class="fa-solid fa-rotate"></i> Re-escanear Sistema</button>
                 </div>
 
+                <!-- Barra de Filtros de Incidencias -->
+                <div class="incident-filters-bar">
+                    <button class="btn-filter-inc active" id="filter-btn-pendientes" onclick="setIncidentsFilter('PENDIENTE')">
+                        <i class="fa-solid fa-triangle-exclamation" style="color: #fbbf24;"></i>
+                        Pendientes Activas
+                        <span class="filter-count-badge" id="badge-count-pendientes">0</span>
+                    </button>
+                    <button class="btn-filter-inc" id="filter-btn-resueltas" onclick="setIncidentsFilter('RESUELTA')">
+                        <i class="fa-solid fa-circle-check" style="color: #34d399;"></i>
+                        Historial de Resueltas
+                        <span class="filter-count-badge" id="badge-count-resueltas">0</span>
+                    </button>
+                    <button class="btn-filter-inc" id="filter-btn-todas" onclick="setIncidentsFilter('TODAS')">
+                        <i class="fa-solid fa-layer-group"></i>
+                        Todas
+                        <span class="filter-count-badge" id="badge-count-todas">0</span>
+                    </button>
+                </div>
+
                 <div id="container-incidencias">
                     <div style="text-align: center; padding: 30px; color: var(--text-muted);">Cargando incidencias
                         registradas...</div>
@@ -1231,6 +1327,77 @@
             <i class="fa-solid fa-circle-notch diag-spinner"></i>
             <h3 style="font-size: 21px; font-weight: 800; color: #f8fafc;">Ejecutando Diagnóstico Heurístico</h3>
             <p class="diag-status-step" id="modalDiagStep">Capturando métricas de hardware...</p>
+        </div>
+    </div>
+
+    <!-- MODAL DE CONFIRMACIÓN DE ACCIONES DE MANTENIMIENTO -->
+    <div class="modal-overlay" id="confirmActionModal" style="display: none;">
+        <div class="modal-diag" style="max-width: 480px; text-align: left; padding: 28px; position: relative;">
+            <div style="display: flex; align-items: flex-start; gap: 15px; margin-bottom: 16px;">
+                <div id="confirmModalIconBox"
+                    style="width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; background: rgba(56, 189, 248, 0.15); color: #38bdf8;">
+                    <i class="fa-solid fa-circle-question" id="confirmModalIcon"></i>
+                </div>
+                <div style="flex: 1;">
+                    <h3 id="confirmModalTitle"
+                        style="font-size: 18px; font-weight: 800; color: #f8fafc; margin-bottom: 4px; line-height: 1.2;">
+                        ¿Confirmar Acción?</h3>
+                    <span id="confirmModalCategory"
+                        style="font-size: 11.5px; color: var(--accent-blue); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+                        Módulo de Mantenimiento</span>
+                </div>
+            </div>
+            <p id="confirmModalMessage"
+                style="font-size: 13.5px; color: #cbd5e1; line-height: 1.5; margin-bottom: 24px; background: rgba(13, 23, 46, 0.6); padding: 12px 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+                ¿Está seguro de que desea ejecutar esta acción en el sistema?
+            </p>
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button class="btn btn-secondary" onclick="closeConfirmModal()" style="padding: 10px 18px; font-size: 13px;">
+                    <i class="fa-solid fa-xmark"></i> Cancelar
+                </button>
+                <button class="btn btn-primary" id="btnConfirmActionExec"
+                    style="padding: 10px 18px; font-size: 13px; font-weight: 700;">
+                    <i class="fa-solid fa-check"></i> Confirmar y Ejecutar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE CONFIRMACIÓN DE ÉXITO EN REMEDIACIÓN -->
+    <div class="modal-overlay" id="actionSuccessModal" style="display: none;">
+        <div class="modal-diag" style="max-width: 500px; text-align: left; padding: 28px; position: relative;">
+            <div style="display: flex; align-items: flex-start; gap: 16px; margin-bottom: 18px;">
+                <div style="width: 54px; height: 54px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0; background: rgba(16, 185, 129, 0.18); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.35); box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <div style="flex: 1;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 5px;">
+                        <span style="font-size: 11px; font-weight: 800; background: rgba(16, 185, 129, 0.25); color: #34d399; border: 1px solid #10b981; padding: 2px 8px; border-radius: 12px; text-transform: uppercase;">
+                            <i class="fa-solid fa-check"></i> Estado: Resuelta
+                        </span>
+                        <span id="successModalIncId" style="font-size: 11.5px; color: var(--text-muted); font-weight: 700;">#INC-00</span>
+                    </div>
+                    <h3 id="successModalTitle" style="font-size: 18px; font-weight: 800; color: #f8fafc; line-height: 1.25;">¡Solución Aplicada con Éxito!</h3>
+                    <p id="successModalComponent" style="font-size: 12.5px; color: var(--accent-blue); font-weight: 600; margin-top: 2px;"></p>
+                </div>
+            </div>
+
+            <!-- Caja de detalles técnicos de la ejecución -->
+            <div style="background: rgba(13, 23, 46, 0.75); border: 1px solid var(--border-color); border-radius: 10px; padding: 16px; margin-bottom: 22px;">
+                <div style="font-size: 11.5px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">Resultado Técnico:</div>
+                <div id="successModalDetail" style="font-size: 13.5px; color: #f8fafc; font-weight: 600; line-height: 1.5; margin-bottom: 12px;"></div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.06);">
+                    <span style="font-size: 12.5px; color: var(--text-muted);"><i class="fa-solid fa-heart-pulse" style="color: #38bdf8; margin-right: 6px;"></i> Score de Salud Actualizado:</span>
+                    <span id="successModalScore" style="font-size: 15px; font-weight: 900; color: #34d399;">--/100</span>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end;">
+                <button class="btn btn-primary" onclick="closeSuccessModal()" style="padding: 10px 22px; font-size: 13.5px; font-weight: 700;">
+                    <i class="fa-solid fa-check"></i> Entendido y Continuar
+                </button>
+            </div>
         </div>
     </div>
 
@@ -1412,72 +1579,276 @@
             }
         }
 
+        let currentIncidentsFilter = 'PENDIENTE';
+        let incidentsCache = [];
+
+        function setIncidentsFilter(filter) {
+            currentIncidentsFilter = filter;
+            const btnPend = document.getElementById('filter-btn-pendientes');
+            const btnRes = document.getElementById('filter-btn-resueltas');
+            const btnTodas = document.getElementById('filter-btn-todas');
+
+            if (btnPend) btnPend.className = 'btn-filter-inc' + (filter === 'PENDIENTE' ? ' active' : '');
+            if (btnRes) btnRes.className = 'btn-filter-inc' + (filter === 'RESUELTA' ? ' active filter-resueltas' : '');
+            if (btnTodas) btnTodas.className = 'btn-filter-inc' + (filter === 'TODAS' ? ' active' : '');
+
+            renderIncidentsList();
+        }
+
         async function loadIncidents() {
             try {
                 const res = await fetch('/api/v1/fiax/incidencias');
                 if (!res.ok) return;
                 const data = await res.json();
-                const container = document.getElementById('container-incidencias');
-                container.innerHTML = '';
+                
+                incidentsCache = data.incidencias || [];
 
-                if (!data.incidencias || data.incidencias.length === 0) {
-                    container.innerHTML = '<div style="text-align: center; padding: 35px; color: var(--text-muted);"><i class="fa-solid fa-circle-check" style="color: var(--color-green); font-size: 32px; margin-bottom: 12px;"></i><br><strong style="color: #f8fafc; font-size: 16px;">¡Excelente! No se detectaron anomalías en el equipo.</strong><p style="margin-top: 4px;">El sistema se encuentra operando bajo parámetros saludables.</p></div>';
-                    return;
-                }
+                // Actualizar contadores en los botones de filtro
+                const pCount = data.pendientes_count !== undefined ? data.pendientes_count : incidentsCache.filter(i => i.estado === 'PENDIENTE').length;
+                const rCount = data.resueltas_count !== undefined ? data.resueltas_count : incidentsCache.filter(i => i.estado === 'RESUELTA').length;
+                
+                const elPend = document.getElementById('badge-count-pendientes');
+                if (elPend) elPend.innerText = pCount;
+                const elRes = document.getElementById('badge-count-resueltas');
+                if (elRes) elRes.innerText = rCount;
+                const elTodas = document.getElementById('badge-count-todas');
+                if (elTodas) elTodas.innerText = incidentsCache.length;
 
-                data.incidencias.forEach(inc => {
-                    const isResolved = inc.estado === 'RESUELTA';
-                    const action = inc.acciones && inc.acciones.length > 0 ? inc.acciones[0] : null;
-
-                    let iconSev = 'fa-circle-info';
-                    if (inc.nivel_severidad === 'CRITICO') iconSev = 'fa-fire';
-                    if (inc.nivel_severidad === 'ALTO') iconSev = 'fa-triangle-exclamation';
-                    if (inc.nivel_severidad === 'MEDIO') iconSev = 'fa-circle-exclamation';
-
-                    container.innerHTML += `
-                        <div class="incident-card sev-${inc.nivel_severidad} status-${inc.estado}">
-                            <div class="incident-info">
-                                <div class="incident-badge-row">
-                                    <span class="badge-sev ${inc.nivel_severidad}">
-                                        <i class="fa-solid ${iconSev}"></i> SEVERIDAD ${inc.nivel_severidad}
-                                    </span>
-                                    ${isResolved ? `
-                                        <span class="badge-inc-estado resuelta">
-                                            <i class="fa-solid fa-circle-check"></i> ESTADO: RESUELTA
-                                        </span>
-                                    ` : `
-                                        <span class="badge-inc-estado pendiente">
-                                            <i class="fa-solid fa-triangle-exclamation"></i> ESTADO: PENDIENTE
-                                        </span>
-                                    `}
-                                    <span style="font-size: 12px; color: var(--text-muted);"><i class="fa-regular fa-clock"></i> ${inc.fecha_deteccion}</span>
-                                </div>
-                                <div class="incident-title">${inc.componente_afectado} &bull; ${inc.tipo_incidencia.replace(/_/g, ' ')}</div>
-                                <div class="incident-desc">${inc.descripcion}</div>
-                                ${action ? `<div class="incident-solution"><i class="fa-solid fa-lightbulb"></i> Solución Recomendada: ${action.solucion_recomendada}</div>` : ''}
-                            </div>
-                            <div>
-                                ${!isResolved ? `
-                                    <button class="btn btn-primary" onclick="resolveIncident(${inc.id}, this)">
-                                        <i class="fa-solid fa-screwdriver-wrench"></i> Aplicar Solución
-                                    </button>
-                                ` : `
-                                    <button class="btn btn-secondary" disabled style="opacity: 0.7; cursor: default;">
-                                        <i class="fa-solid fa-check-double" style="color: var(--color-green);"></i> Solucionado
-                                    </button>
-                                `}
-                            </div>
-                        </div>
-                    `;
-                });
+                renderIncidentsList();
             } catch (err) {
                 console.error("Error al cargar incidencias:", err);
             }
         }
 
-        async function resolveIncident(incidenciaId, btn) {
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Aplicando...';
+        function renderIncidentsList() {
+            const container = document.getElementById('container-incidencias');
+            if (!container) return;
+            container.innerHTML = '';
+
+            let list = incidentsCache;
+            if (currentIncidentsFilter === 'PENDIENTE') {
+                list = incidentsCache.filter(i => i.estado === 'PENDIENTE');
+            } else if (currentIncidentsFilter === 'RESUELTA') {
+                list = incidentsCache.filter(i => i.estado === 'RESUELTA');
+            }
+
+            if (list.length === 0) {
+                if (currentIncidentsFilter === 'PENDIENTE') {
+                    const resueltasCount = incidentsCache.filter(i => i.estado === 'RESUELTA').length;
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 45px 20px; background: rgba(16, 185, 129, 0.05); border: 1px dashed rgba(16, 185, 129, 0.35); border-radius: 12px;">
+                            <i class="fa-solid fa-circle-check" style="color: var(--color-green); font-size: 42px; margin-bottom: 14px;"></i>
+                            <br>
+                            <strong style="color: #f8fafc; font-size: 18px;">¡Excelente! No hay incidencias pendientes</strong>
+                            <p style="margin-top: 6px; color: #cbd5e1; font-size: 13.5px;">Todos los componentes del sistema operan en condiciones óptimas o las alertas ya fueron subsanadas.</p>
+                            ${resueltasCount > 0 ? `
+                                <button class="btn btn-secondary" onclick="setIncidentsFilter('RESUELTA')" style="margin-top: 15px; font-size: 12.5px;">
+                                    <i class="fa-solid fa-clock-rotate-left"></i> Ver historial de incidencias resueltas (${resueltasCount})
+                                </button>
+                            ` : ''}
+                        </div>
+                    `;
+                } else if (currentIncidentsFilter === 'RESUELTA') {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+                            <i class="fa-solid fa-clock-rotate-left" style="font-size: 32px; margin-bottom: 12px; color: #64748b;"></i>
+                            <br>
+                            <strong style="color: #cbd5e1; font-size: 15px;">No hay incidencias resueltas en el historial todavía.</strong>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+                            <i class="fa-solid fa-circle-check" style="color: var(--color-green); font-size: 32px; margin-bottom: 12px;"></i>
+                            <br>
+                            <strong style="color: #f8fafc; font-size: 16px;">No se registran incidencias en el sistema.</strong>
+                        </div>
+                    `;
+                }
+                return;
+            }
+
+            list.forEach(inc => {
+                const isResolved = inc.estado === 'RESUELTA';
+                const action = inc.acciones && inc.acciones.length > 0 ? inc.acciones[0] : null;
+
+                let iconSev = 'fa-circle-info';
+                if (inc.nivel_severidad === 'CRITICO') iconSev = 'fa-fire';
+                if (inc.nivel_severidad === 'ALTO') iconSev = 'fa-triangle-exclamation';
+                if (inc.nivel_severidad === 'MEDIO') iconSev = 'fa-circle-exclamation';
+
+                container.innerHTML += `
+                    <div class="incident-card sev-${inc.nivel_severidad} status-${inc.estado}" id="inc-card-${inc.id}">
+                        <div class="incident-info">
+                            <div class="incident-badge-row">
+                                <span class="badge-sev ${inc.nivel_severidad}">
+                                    <i class="fa-solid ${iconSev}"></i> SEVERIDAD ${inc.nivel_severidad}
+                                </span>
+                                ${isResolved ? `
+                                    <span class="badge-inc-estado resuelta">
+                                        <i class="fa-solid fa-circle-check"></i> ESTADO: RESUELTA
+                                    </span>
+                                ` : `
+                                    <span class="badge-inc-estado pendiente">
+                                        <i class="fa-solid fa-triangle-exclamation"></i> ESTADO: PENDIENTE
+                                    </span>
+                                `}
+                                <span style="font-size: 12px; color: var(--text-muted);"><i class="fa-regular fa-clock"></i> ${inc.fecha_deteccion}</span>
+                            </div>
+                            <div class="incident-title">${inc.componente_afectado} &bull; ${inc.tipo_incidencia.replace(/_/g, ' ')}</div>
+                            <div class="incident-desc">${inc.descripcion}</div>
+                            ${action ? `<div class="incident-solution"><i class="fa-solid fa-lightbulb"></i> Solución Recomendada: ${action.solucion_recomendada}</div>` : ''}
+                        </div>
+                        <div>
+                            ${!isResolved ? `
+                                <button class="btn btn-primary" onclick="confirmResolveIncident(${inc.id}, this)">
+                                    <i class="fa-solid fa-screwdriver-wrench"></i> Aplicar Solución
+                                </button>
+                            ` : `
+                                <button class="btn btn-secondary" disabled style="opacity: 0.7; cursor: default;">
+                                    <i class="fa-solid fa-check-double" style="color: var(--color-green);"></i> Solucionado
+                                </button>
+                            `}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // --- SISTEMA DE CONFIRMACIÓN MODAL (MANTENIMIENTO & REMEDIACIÓN) ---
+        let activeConfirmCallback = null;
+
+        function openConfirmModal(config) {
+            const modal = document.getElementById('confirmActionModal');
+            document.getElementById('confirmModalTitle').innerText = config.title || '¿Confirmar Acción?';
+            document.getElementById('confirmModalCategory').innerText = config.category || 'Módulo de Mantenimiento';
+            document.getElementById('confirmModalMessage').innerHTML = config.message || '¿Desea continuar con esta acción?';
+
+            const iconElem = document.getElementById('confirmModalIcon');
+            iconElem.className = `fa-solid ${config.iconClass || 'fa-circle-question'}`;
+
+            const iconBox = document.getElementById('confirmModalIconBox');
+            iconBox.style.background = config.iconBg || 'rgba(56, 189, 248, 0.15)';
+            iconBox.style.color = config.iconColor || 'var(--accent-blue)';
+
+            const execBtn = document.getElementById('btnConfirmActionExec');
+            execBtn.className = `btn ${config.btnClass || 'btn-primary'}`;
+            execBtn.innerHTML = `<i class="fa-solid fa-check"></i> ${config.btnText || 'Confirmar y Ejecutar'}`;
+
+            activeConfirmCallback = config.onConfirm;
+            execBtn.onclick = async () => {
+                closeConfirmModal();
+                if (activeConfirmCallback) {
+                    await activeConfirmCallback();
+                }
+            };
+
+            modal.style.display = 'flex';
+        }
+
+        function closeConfirmModal() {
+            const modal = document.getElementById('confirmActionModal');
+            if (modal) modal.style.display = 'none';
+            activeConfirmCallback = null;
+        }
+
+        function runSingleOptimization(type) {
+            if (type === 'dns') {
+                openConfirmModal({
+                    title: '¿Confirmar Vaciado de Caché DNS?',
+                    category: 'Red & Conectividad',
+                    message: 'Esta acción ejecutará <code>ipconfig /flushdns</code> en el sistema operativo anfitrión para purgar registros de resolución obsoletos o corruptos. ¿Desea continuar?',
+                    iconClass: 'fa-network-wired',
+                    iconBg: 'rgba(56, 189, 248, 0.15)',
+                    iconColor: 'var(--accent-blue)',
+                    btnText: 'Vaciar Caché DNS',
+                    btnClass: 'btn-primary',
+                    onConfirm: () => executeOptimization('dns')
+                });
+            } else if (type === 'temporales') {
+                openConfirmModal({
+                    title: '¿Confirmar Purga de Temporales?',
+                    category: 'Almacenamiento Local',
+                    message: 'Se escaneará y depurará el directorio temporal del usuario (<code>%TEMP%</code>) para recuperar espacio en disco. Los archivos en uso por procesos activos se conservarán de forma segura. ¿Desea continuar?',
+                    iconClass: 'fa-trash-can',
+                    iconBg: 'rgba(245, 158, 11, 0.15)',
+                    iconColor: 'var(--color-yellow)',
+                    btnText: 'Purgar Temporales',
+                    btnClass: 'btn-primary',
+                    onConfirm: () => executeOptimization('temporales')
+                });
+            } else if (type === 'memoria') {
+                openConfirmModal({
+                    title: '¿Confirmar Optimización de RAM?',
+                    category: 'Gestión de Recursos',
+                    message: 'Se compactará el Working Set de los procesos residentes y se forzará la recolección de basura del sistema para mitigar la contención de memoria RAM. ¿Desea continuar?',
+                    iconClass: 'fa-microchip',
+                    iconBg: 'rgba(16, 185, 129, 0.15)',
+                    iconColor: 'var(--color-green)',
+                    btnText: 'Optimizar RAM',
+                    btnClass: 'btn-success',
+                    onConfirm: () => executeOptimization('memoria')
+                });
+            } else {
+                runGlobalOptimization();
+            }
+        }
+
+        function runGlobalOptimization() {
+            openConfirmModal({
+                title: '¿Iniciar Mantenimiento Rápido?',
+                category: 'Optimización Global',
+                message: 'Se ejecutará de forma secuencial la rutina integral de mantenimiento: <strong>purga de temporales (%TEMP%)</strong>, <strong>vaciado de caché DNS</strong> y <strong>compactación de memoria RAM</strong>. ¿Desea iniciar la rutina completa?',
+                iconClass: 'fa-bolt-lightning',
+                iconBg: 'rgba(16, 185, 129, 0.15)',
+                iconColor: 'var(--color-green)',
+                btnText: 'Ejecutar Mantenimiento',
+                btnClass: 'btn-success',
+                onConfirm: () => executeOptimization('global')
+            });
+        }
+
+        async function executeOptimization(type = 'global') {
+            const label = type === 'dns' ? 'caché DNS' : (type === 'temporales' ? 'temporales' : (type === 'memoria' ? 'memoria RAM' : 'integral'));
+            showToast(`Ejecutando optimización de ${label}...`, "info");
+            try {
+                const res = await fetch('/api/v1/fiax/mantenimiento/optimizar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ tipo: type })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast(data.mensaje || "Optimización completada exitosamente.", "success");
+                    fetchLiveTelemetry();
+                    loadIncidents();
+                } else {
+                    showToast("Error en la optimización: " + (data.error || "Fallo en la operación"), "error");
+                }
+            } catch (err) {
+                showToast("Error al conectar con el servidor.", "error");
+            }
+        }
+
+        function confirmResolveIncident(incidenciaId, componentName, incidentType, btn) {
+            openConfirmModal({
+                title: '¿Aplicar Solución Asistida?',
+                category: `Incidencia en ${componentName}`,
+                message: `Se aplicará la acción correctiva recomendada para la incidencia <strong>${(incidentType || '').replace(/_/g, ' ')}</strong> y se actualizará su estado a <strong>RESUELTA</strong> en la base de datos relacional. ¿Desea proceder?`,
+                iconClass: 'fa-screwdriver-wrench',
+                iconBg: 'rgba(56, 189, 248, 0.15)',
+                iconColor: 'var(--accent-blue)',
+                btnText: 'Aplicar Solución',
+                btnClass: 'btn-primary',
+                onConfirm: () => executeResolveIncident(incidenciaId, btn)
+            });
+        }
+
+        async function executeResolveIncident(incidenciaId, btn) {
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Aplicando...';
+            }
 
             try {
                 const res = await fetch(`/api/v1/fiax/incidencias/${incidenciaId}/resolver`, { method: 'POST' });
@@ -1488,36 +1859,18 @@
                     fetchLiveTelemetry();
                 } else {
                     showToast("Error al resolver: " + (data.error || "Fallo en la operación"), "error");
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="fa-solid fa-screwdriver-wrench"></i> Aplicar Solución';
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fa-solid fa-screwdriver-wrench"></i> Aplicar Solución';
+                    }
                 }
             } catch (err) {
                 showToast("Fallo en la comunicación con el servidor.", "error");
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-screwdriver-wrench"></i> Aplicar Solución';
-            }
-        }
-
-        async function runGlobalOptimization() {
-            showToast("Iniciando rutina integral de optimización...", "info");
-            try {
-                const res = await fetch('/api/v1/fiax/mantenimiento/optimizar', { method: 'POST' });
-                const data = await res.json();
-                if (data.success) {
-                    showToast(data.mensaje, "success");
-                    fetchLiveTelemetry();
-                    loadIncidents();
-                } else {
-                    showToast("Error en la optimización: " + (data.error || "No autorizado o fallo interno"), "error");
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa-solid fa-screwdriver-wrench"></i> Aplicar Solución';
                 }
-            } catch (err) {
-                showToast("Error al conectar con el servidor.", "error");
             }
-        }
-
-        async function runSingleOptimization(type) {
-            showToast(`Ejecutando optimización de ${type}...`, "info");
-            await runGlobalOptimization();
         }
 
         async function loadAuditLogs() {

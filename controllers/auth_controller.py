@@ -10,6 +10,14 @@ def login():
     correo = request.form.get('correo', '').strip()
     password = request.form.get('password', '')
 
+    if not correo or not password:
+        return render_template(
+            'login.html', 
+            error_login="Credenciales inválidas. Por favor ingrese su correo y contraseña.",
+            correo=correo,
+            active_tab='login'
+        )
+
     user = AuthService.authenticate(correo, password)
     if user:
         session['user_id'] = user.id
@@ -31,7 +39,7 @@ def login():
         detalles=f"Intento fallido de inicio de sesión para el correo: {correo}",
         nivel="WARNING"
     )
-    return render_template('login.html', error_login="Credenciales inválidas. Verifique su correo y contraseña.")
+    return render_template('login.html', error_login="Credenciales inválidas. Verifique su correo y contraseña.", correo=correo, active_tab='login')
 
 @auth_bp.route('/registro', methods=['GET', 'POST'])
 def registro():
@@ -43,15 +51,15 @@ def registro():
     password = request.form.get('password', '')
     confirm_pass = request.form.get('confirm_password', '')
 
-    if not nombre or not correo or not password:
-        return render_template('login.html', error_login="Todos los campos son obligatorios.", active_tab='registro')
+    if not nombre or not correo or not password or not confirm_pass:
+        return render_template('login.html', error_login="Todos los campos son obligatorios.", active_tab='registro', nombre=nombre, correo=correo)
 
     if password != confirm_pass:
-        return render_template('login.html', error_login="Las contraseñas no coinciden.", active_tab='registro')
+        return render_template('login.html', error_login="Las contraseñas no coinciden. Por favor verifíquelas.", active_tab='registro', nombre=nombre, correo=correo)
 
     nuevo_usuario, error = AuthService.register(nombre, correo, password, RoleEnum.USUARIO.value)
     if error:
-        return render_template('login.html', error_login=error, active_tab='registro')
+        return render_template('login.html', error_login=error, active_tab='registro', nombre=nombre, correo=correo)
 
     session['user_id'] = nuevo_usuario.id
     session['user_name'] = nuevo_usuario.nombre_completo

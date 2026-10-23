@@ -6,6 +6,9 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'sqlite:///fiax_cpu_web.db')
     
+    # Versión de la Aplicación
+    APP_VERSION = '1.1.0'
+
     # Umbrales Heurísticos de Hardware para FIAX Diagnostic Engine
     THRESHOLD_CPU_WARNING = 70.0   # Porcentaje
     THRESHOLD_CPU_CRITICAL = 85.0  # Porcentaje
