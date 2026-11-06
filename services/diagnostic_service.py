@@ -1,33 +1,65 @@
 import os
-import glob
-from datetime import datetime
+import re
+import shutil
+import stat
+import subprocess
+import tempfile
 from domain.models import db, SesionDiagnostico, MetricaRendimiento, IncidenciaDetectada, AccionCorrectiva, get_utc_now
 from domain.enums import SeveridadEnum, EstadoIncidenciaEnum, TipoIncidenciaEnum, EstadoDiagnosticoEnum
 from services.telemetry_service import TelemetryService
 from services.audit_service import AuditService
 
+# Límites a partir de los cuales el diagnóstico abre incidencias.
+RAM_ALTA_PCT = 80.0
+RAM_MEDIA_PCT = 65.0
+CPU_ALTA_PCT = 80.0
+DISCO_BAJO_GB = 20.0
+TEMP_ALTO_MB = 250.0
+TEMP_ALTO_ARCHIVOS = 200
+DNS_ENTRADAS_ALTAS = 100
+
+_NO_WINDOW = {"creationflags": subprocess.CREATE_NO_WINDOW} if hasattr(subprocess, "CREATE_NO_WINDOW") else {}
+
+
 class DiagnosticService:
     @staticmethod
     def inspect_temp_cache_size():
-        """Calcula el tamaño y conteo de archivos residuales en el directorio TEMP del usuario."""
-        try:
-            temp_dir = os.environ.get('TEMP') or os.environ.get('TMP')
-            if not temp_dir or not os.path.exists(temp_dir):
-                return 0, 0
-            
-            total_bytes = 0
-            file_count = 0
-            for entry in os.scandir(temp_dir):
+        """Calcula el tamaño y conteo de archivos residuales en el directorio temporal, con subcarpetas."""
+        total_bytes = 0
+        file_count = 0
+        for root, dirs, files in os.walk(tempfile.gettempdir()):
+            dirs[:] = [d for d in dirs if not os.path.islink(os.path.join(root, d))]
+            for nombre in files:
                 try:
-                    if entry.is_file(follow_symlinks=False):
-                        total_bytes += entry.stat().st_size
-                        file_count += 1
-                except (PermissionError, FileNotFoundError):
+                    info = os.lstat(os.path.join(root, nombre))
+                except OSError:
                     continue
-            mb_size = round(total_bytes / (1024 * 1024), 1)
-            return mb_size, file_count
-        except Exception:
-            return 0, 0
+                if stat.S_ISREG(info.st_mode):
+                    total_bytes += info.st_size
+                    file_count += 1
+        return round(total_bytes / (1024 * 1024), 1), file_count
+
+    @staticmethod
+    def parse_windows_dns_cache(salida):
+        """Cuenta registros de `ipconfig /displaydns`; el separador no depende del idioma."""
+        return sum(1 for linea in salida.splitlines() if linea.strip() and set(linea.strip()) == {"-"})
+
+    @classmethod
+    def count_dns_cache_entries(cls):
+        """Entradas reales en caché DNS, o None si el sistema no permite medirlas."""
+        try:
+            if os.name == "nt":
+                res = subprocess.run(["ipconfig", "/displaydns"], capture_output=True, text=True,
+                                     errors="replace", timeout=10, **_NO_WINDOW)
+                return cls.parse_windows_dns_cache(res.stdout) if res.returncode == 0 else None
+            if shutil.which("resolvectl"):
+                res = subprocess.run(["resolvectl", "statistics"], capture_output=True, text=True,
+                                     errors="replace", timeout=5)
+                encontrado = re.search(r"Current Cache Size:\s*(\d+)", res.stdout)
+                return int(encontrado.group(1)) if encontrado else None
+        except (OSError, subprocess.SubprocessError):
+            pass
+        return None
 
     @staticmethod
     def calculate_health_score(cpu_pct, ram_pct, disk_free_gb, temp_mb, incidents):
@@ -81,8 +113,13 @@ class DiagnosticService:
     @classmethod
     def execute_complete_diagnosis(cls, user_id=None):
         """Ejecuta un análisis heurístico integral del sistema y lo persiste en la base de datos."""
-        equipo = TelemetryService.get_or_register_host_equipo()
-        metrics = TelemetryService.get_live_metrics()
+        try:
+            equipo = TelemetryService.get_or_register_host_equipo()
+            metrics = TelemetryService.get_live_metrics(cpu_interval=0.5)
+        except Exception as exc:
+            # Sin mediciones reales no se registra ningún diagnóstico.
+            db.session.rollback()
+            return {"success": False, "error": f"No se pudieron leer las métricas del equipo: {exc}"}
         
         cpu_pct = metrics['cpu']['usage_percent']
         ram_pct = metrics['ram']['usage_percent']
@@ -92,7 +129,7 @@ class DiagnosticService:
         detected_incidents = []
 
         # 1. Heurística de Memoria RAM
-        if ram_pct >= 80.0:
+        if ram_pct >= RAM_ALTA_PCT:
             detected_incidents.append({
                 "tipo": TipoIncidenciaEnum.SATURACION_RAM.value,
                 "componente": f"Memoria RAM ({ram_pct}% en uso)",
@@ -101,7 +138,7 @@ class DiagnosticService:
                 "solucion": "Optimizar espacio de memoria activa y recortar el Working Set de subprocesos inactivos.",
                 "tipo_accion": "OPTIMIZAR_RAM"
             })
-        elif ram_pct >= 65.0:
+        elif ram_pct >= RAM_MEDIA_PCT:
             detected_incidents.append({
                 "tipo": TipoIncidenciaEnum.SATURACION_RAM.value,
                 "componente": f"Memoria RAM ({ram_pct}% en uso)",
@@ -112,7 +149,7 @@ class DiagnosticService:
             })
 
         # 2. Heurística de CPU
-        if cpu_pct >= 80.0:
+        if cpu_pct >= CPU_ALTA_PCT:
             detected_incidents.append({
                 "tipo": TipoIncidenciaEnum.ALTO_CONSUMO_CPU.value,
                 "componente": f"Procesador ({cpu_pct}% de carga)",
@@ -123,36 +160,38 @@ class DiagnosticService:
             })
 
         # 3. Heurística de Espacio en Disco
-        if disk_free_gb <= 20.0:
+        if disk_free_gb <= DISCO_BAJO_GB:
             detected_incidents.append({
                 "tipo": TipoIncidenciaEnum.ESPACIO_DISCO_BAJO.value,
                 "componente": f"Disco del Sistema {metrics['disk']['drive']}",
-                "descripcion": f"Quedan solo {disk_free_gb} GB libres en la unidad principal. El umbral crítico de seguridad es de 25 GB.",
+                "descripcion": f"Quedan solo {disk_free_gb} GB libres en la unidad principal. El mínimo recomendado es de {DISCO_BAJO_GB:.0f} GB.",
                 "severidad": SeveridadEnum.ALTO.value,
                 "solucion": "Depurar residuos del sistema y ejecutar vaciado de almacenamiento temporal.",
                 "tipo_accion": "LIMPIEZA_TEMP"
             })
 
         # 4. Heurística de Archivos Temporales y Caché
-        if temp_mb >= 250.0 or temp_files >= 200:
+        if temp_mb >= TEMP_ALTO_MB or temp_files >= TEMP_ALTO_ARCHIVOS:
             detected_incidents.append({
                 "tipo": TipoIncidenciaEnum.CACHE_SOBREDIMENSIONADO.value,
-                "componente": "Directorio de Archivos Temporales (%TEMP%)",
+                "componente": "Directorio de Archivos Temporales",
                 "descripcion": f"Se identificaron {temp_files} archivos residuales ocupando aproximadamente {temp_mb} MB en el espacio temporal del usuario.",
                 "severidad": SeveridadEnum.MEDIO.value,
                 "solucion": "Purgar de manera segura archivos temporales obsoletos para liberar espacio y acelerar lecturas.",
                 "tipo_accion": "LIMPIEZA_TEMP"
             })
 
-        # 5. Verificación de Resolución DNS y Red
-        detected_incidents.append({
-            "tipo": TipoIncidenciaEnum.PROCESO_ANOMALO.value,
-            "componente": "Sub-sistema de Resolución DNS y Conectividad",
-            "descripcion": "Acumulación de entradas de nombres de dominio en la memoria caché DNS local que pueden causar demoras en consultas de red.",
-            "severidad": SeveridadEnum.BAJO.value,
-            "solucion": "Vaciar y refrescar la caché del cliente DNS de Windows (ipconfig /flushdns).",
-            "tipo_accion": "FLUSH_DNS"
-        })
+        # 5. Caché DNS: solo se reporta cuando se pudo medir y está realmente alta
+        dns_entradas = cls.count_dns_cache_entries()
+        if dns_entradas is not None and dns_entradas >= DNS_ENTRADAS_ALTAS:
+            detected_incidents.append({
+                "tipo": TipoIncidenciaEnum.CACHE_DNS_SATURADA.value,
+                "componente": "Sub-sistema de Resolución DNS y Conectividad",
+                "descripcion": f"La caché DNS local contiene {dns_entradas} entradas, lo que puede incluir registros obsoletos.",
+                "severidad": SeveridadEnum.BAJO.value,
+                "solucion": "Vaciar y refrescar la caché del cliente DNS.",
+                "tipo_accion": "FLUSH_DNS"
+            })
 
         # Cálculo del Health Score con la fórmula ponderada
         health_score = cls.calculate_health_score(cpu_pct, ram_pct, disk_free_gb, temp_mb, detected_incidents)
@@ -165,6 +204,14 @@ class DiagnosticService:
 
         # Persistencia en Base de Datos (Transacción Atómica)
         try:
+            sesion_previa = SesionDiagnostico.query.order_by(SesionDiagnostico.id.desc()).first()
+            score_previo = sesion_previa.score_actual if sesion_previa else None
+
+            # Lo que siga vigente vuelve a registrarse en esta sesión; lo anterior queda como historial.
+            IncidenciaDetectada.query.filter_by(estado=EstadoIncidenciaEnum.PENDIENTE.value).update(
+                {"estado": EstadoIncidenciaEnum.REEMPLAZADA.value}
+            )
+
             sesion = SesionDiagnostico(
                 equipo_id=equipo.id,
                 usuario_id=user_id,
@@ -228,6 +275,7 @@ class DiagnosticService:
                 "success": True,
                 "sesion_id": sesion.id,
                 "score_salud": health_score,
+                "score_previo": score_previo,
                 "estado": estado_diag,
                 "metricas": metrica.to_dict(),
                 "incidencias": [i.to_dict() for i in incidencias_creadas],

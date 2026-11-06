@@ -1,13 +1,36 @@
-from flask import Blueprint, request, jsonify, session
+from flask import Blueprint, current_app, request, jsonify, session
 from services.role_service import RoleManagementService
 from services.auth_service import AuthService
 from services.audit_service import AuditService
-from security.decorators import has_permission
+from security.decorators import has_permission, login_required
 from domain.enums import PermissionEnum, RoleEnum
 from domain.models import db, User, Role
 
 role_bp = Blueprint('role_bp', __name__, url_prefix='/api/v1')
 role_service = RoleManagementService()
+
+
+def _json_body():
+    data = request.get_json(silent=True)
+    return data if isinstance(data, dict) else {}
+
+
+def _text(data, key, default=''):
+    value = data.get(key, default)
+    return value.strip() if isinstance(value, str) else default
+
+
+def _password_error(password):
+    min_len = current_app.config['PASSWORD_MIN_LENGTH']
+    if not isinstance(password, str) or len(password) < min_len:
+        return f"La contraseña debe tener al menos {min_len} caracteres."
+    return None
+
+
+def _is_only_admin(user):
+    if not any(r.nombre == RoleEnum.ADMINISTRADOR.value for r in user.roles):
+        return False
+    return User.query.filter(User.roles.any(Role.nombre == RoleEnum.ADMINISTRADOR.value)).count() <= 1
 
 # ---------------------------------------------------------
 # CRUD DE USUARIOS CON RBAC Y AUDITORÍA
@@ -28,14 +51,18 @@ def get_users():
 @role_bp.route('/users', methods=['POST'])
 @has_permission(PermissionEnum.USER_CREATE)
 def create_user():
-    data = request.json or {}
-    nombre = data.get('nombre', '').strip()
-    correo = data.get('correo', '').strip()
+    data = _json_body()
+    nombre = _text(data, 'nombre')
+    correo = _text(data, 'correo')
     password = data.get('password', '')
     role_id = data.get('role_id')
 
     if not nombre or not correo or not password:
         return jsonify({"error": "Todos los campos son obligatorios."}), 400
+
+    password_error = _password_error(password)
+    if password_error:
+        return jsonify({"error": password_error}), 400
 
     if User.query.filter(db.func.lower(User.correo) == correo.lower()).first():
         return jsonify({"error": "El correo electrónico ya está registrado."}), 400
@@ -74,8 +101,8 @@ def update_user(user_id):
     if not user:
         return jsonify({"error": "Usuario no encontrado."}), 404
 
-    data = request.json or {}
-    nuevo_nombre = data.get('nombre', user.nombre_completo).strip()
+    data = _json_body()
+    nuevo_nombre = _text(data, 'nombre', user.nombre_completo)
     if nuevo_nombre and nuevo_nombre.lower() != user.nombre_completo.lower():
         existente_nombre = User.query.filter(
             db.func.lower(User.nombre_completo) == nuevo_nombre.lower(),
@@ -85,7 +112,7 @@ def update_user(user_id):
             return jsonify({"error": "El nombre completo ya está en uso por otro usuario."}), 400
         user.nombre_completo = nuevo_nombre
     
-    nuevo_correo = data.get('correo', user.correo).strip()
+    nuevo_correo = _text(data, 'correo', user.correo)
     if nuevo_correo and nuevo_correo.lower() != user.correo.lower():
         existente = User.query.filter(
             db.func.lower(User.correo) == nuevo_correo.lower(),
@@ -96,12 +123,19 @@ def update_user(user_id):
         user.correo = nuevo_correo
     
     if data.get('password'):
+        password_error = _password_error(data.get('password'))
+        if password_error:
+            db.session.rollback()
+            return jsonify({"error": password_error}), 400
         user.password_hash = AuthService.hash_password(data.get('password'))
 
     role_id = data.get('role_id')
     if role_id:
         rol = db.session.get(Role, role_id)
         if rol:
+            if rol.nombre != RoleEnum.ADMINISTRADOR.value and _is_only_admin(user):
+                db.session.rollback()
+                return jsonify({"error": "No se puede quitar el rol al único Administrador del sistema."}), 400
             user.roles = [rol]
 
     db.session.commit()
@@ -127,11 +161,8 @@ def delete_user(user_id):
         return jsonify({"error": "No puede eliminar su propia cuenta activa."}), 400
 
     # Proteger contra la eliminación del único Administrador
-    es_admin = any(r.nombre == RoleEnum.ADMINISTRADOR.value for r in user.roles)
-    if es_admin:
-        admin_count = User.query.filter(User.roles.any(Role.nombre == RoleEnum.ADMINISTRADOR.value)).count()
-        if admin_count <= 1:
-            return jsonify({"error": "No se puede eliminar el único Administrador del sistema."}), 400
+    if _is_only_admin(user):
+        return jsonify({"error": "No se puede eliminar el único Administrador del sistema."}), 400
 
     correo_eliminado = user.correo
     db.session.delete(user)
@@ -151,6 +182,7 @@ def delete_user(user_id):
 # ---------------------------------------------------------
 
 @role_bp.route('/roles', methods=['GET'])
+@login_required
 def get_roles():
     roles = Role.query.all()
     return jsonify([r.to_dict() for r in roles])
@@ -158,19 +190,24 @@ def get_roles():
 @role_bp.route('/roles', methods=['POST'])
 @has_permission(PermissionEnum.ROLE_ASSIGN)
 def create_role():
-    data = request.json or {}
-    role = role_service.create_role(data.get('nombre'), data.get('descripcion', ''))
+    data = _json_body()
+    nombre = _text(data, 'nombre')
+    if not nombre:
+        return jsonify({"error": "El nombre del rol es obligatorio."}), 400
+    role = role_service.create_role(nombre, _text(data, 'descripcion'))
     return jsonify(role.to_dict()), 201
 
 @role_bp.route('/users/<int:user_id>/roles', methods=['POST'])
 @has_permission(PermissionEnum.ROLE_ASSIGN)
 def assign_role(user_id):
-    data = request.json or {}
-    role_id = data.get('role_id')
+    role_id = _json_body().get('role_id')
     user = role_service.assign_role_to_user(user_id, role_id)
+    if not user or not db.session.get(Role, role_id):
+        return jsonify({"error": "Usuario o rol no encontrado."}), 404
     return jsonify({"message": f"Rol asignado correctamente al usuario {user.nombre_completo}"}), 200
 
 @role_bp.route('/roles/<int:role_id>/permissions', methods=['GET'])
+@login_required
 def get_role_permissions(role_id):
     from persistence.permission_repository import PermissionRepository
     perm_repo = PermissionRepository()

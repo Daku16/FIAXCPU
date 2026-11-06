@@ -25,6 +25,8 @@ class EstadoIncidenciaEnum(str, Enum):
     PENDIENTE = "PENDIENTE"
     EN_PROCESO = "EN_PROCESO"
     RESUELTA = "RESUELTA"
+    # Una sesión de diagnóstico más reciente volvió a evaluar el equipo.
+    REEMPLAZADA = "REEMPLAZADA"
 
 class TipoIncidenciaEnum(str, Enum):
     ALTO_CONSUMO_CPU = "ALTO_CONSUMO_CPU"
@@ -33,6 +35,7 @@ class TipoIncidenciaEnum(str, Enum):
     PROCESO_ANOMALO = "PROCESO_ANOMALO"
     DRIVER_DESACTUALIZADO = "DRIVER_DESACTUALIZADO"
     CACHE_SOBREDIMENSIONADO = "CACHE_SOBREDIMENSIONADO"
+    CACHE_DNS_SATURADA = "CACHE_DNS_SATURADA"
 
 class EstadoDiagnosticoEnum(str, Enum):
     COMPLETADO = "COMPLETADO"

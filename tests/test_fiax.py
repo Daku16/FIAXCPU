@@ -1,14 +1,22 @@
 import os
 import sys
+import tempfile
+import time
 import unittest
+from unittest import mock
 
 # Asegurar que el directorio raíz del proyecto esté en sys.path
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 if BASE_DIR not in sys.path:
     sys.path.insert(0, BASE_DIR)
 
+# Las pruebas nunca deben borrar los temporales reales del equipo.
+_TEMP_SANDBOX = tempfile.mkdtemp(prefix="fiax-tests-")
+tempfile.tempdir = _TEMP_SANDBOX
+
 from app import create_app, setup_initial_data
-from domain.models import db, User, Role, Permission, SesionDiagnostico, IncidenciaDetectada, Equipo
+from config import Config
+from domain.models import db, User, Role, Permission, SesionDiagnostico, IncidenciaDetectada, Equipo, AccionCorrectiva
 from domain.enums import RoleEnum, PermissionEnum, SeveridadEnum
 from services.telemetry_service import TelemetryService
 from services.diagnostic_service import DiagnosticService
@@ -19,12 +27,8 @@ from services.auth_service import AuthService
 class FIAXSystemTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.app = create_app('dev')
-        cls.app.config['TESTING'] = True
-        cls.app.config['WTF_CSRF_ENABLED'] = False
-        with cls.app.app_context():
-            db.create_all()
-            setup_initial_data()
+        cls.app = create_app('testing', instance_path=tempfile.mkdtemp(prefix="fiax-instance-"))
+        setup_initial_data(cls.app)
 
     def setUp(self):
         self.client = self.app.test_client()
@@ -135,41 +139,123 @@ class FIAXSystemTestCase(unittest.TestCase):
             self.assertTrue(resultado['success'])
             self.assertIn('sesion_id', resultado)
             self.assertIn('score_salud', resultado)
-            self.assertGreaterEqual(len(resultado['incidencias']), 1)
+            self.assertIn('score_previo', resultado)
+
+    def test_06b_new_diagnosis_replaces_old_pending_incidents(self):
+        with self.app.app_context():
+            vieja = self._pending_incident('CACHE_SOBREDIMENSIONADO', 'LIMPIEZA_TEMP')
+            DiagnosticService.execute_complete_diagnosis()
+            self.assertEqual(db.session.get(IncidenciaDetectada, vieja).estado, 'REEMPLAZADA')
+
+    def test_06c_metric_failure_never_stores_invented_data(self):
+        with self.app.app_context():
+            antes = SesionDiagnostico.query.count()
+            with mock.patch('psutil.virtual_memory', side_effect=OSError('sin acceso')):
+                resultado = DiagnosticService.execute_complete_diagnosis()
+            self.assertFalse(resultado['success'])
+            self.assertEqual(SesionDiagnostico.query.count(), antes)
+
+    def test_06d_dns_cache_parser(self):
+        salida = "    a.com\n    ----------------------------------------\n    Nombre : a\n\n    b.com\n    ------\n"
+        self.assertEqual(DiagnosticService.parse_windows_dns_cache(salida), 2)
 
     # 4. Servicios de Mantenimiento y Remediación
-    def test_07_maintenance_routines(self):
-        res_temp = MaintenanceService.clean_temporary_files()
-        self.assertTrue(res_temp['success'])
+    def _pending_incident(self, tipo, tipo_accion):
+        """Crea una incidencia pendiente en la última sesión de diagnóstico."""
+        sesion = SesionDiagnostico.query.order_by(SesionDiagnostico.id.desc()).first()
+        inc = IncidenciaDetectada(diagnostico_id=sesion.id, tipo_incidencia=tipo, componente_afectado='Prueba',
+                                  descripcion='Prueba', nivel_severidad='MEDIO', estado='PENDIENTE')
+        db.session.add(inc)
+        db.session.flush()
+        db.session.add(AccionCorrectiva(incidencia_id=inc.id, solucion_recomendada='Prueba', tipo_accion=tipo_accion))
+        db.session.commit()
+        return inc.id
 
-        res_dns = MaintenanceService.flush_dns_cache()
-        self.assertTrue(res_dns['success'])
+    def _temp_file(self, nombre, tamano=2048, antiguedad_horas=0.0, carpeta=None):
+        directorio = os.path.join(_TEMP_SANDBOX, carpeta) if carpeta else _TEMP_SANDBOX
+        os.makedirs(directorio, exist_ok=True)
+        ruta = os.path.join(directorio, nombre)
+        with open(ruta, 'wb') as handle:
+            handle.write(b'x' * tamano)
+        marca = time.time() - antiguedad_horas * 3600
+        os.utime(ruta, (marca, marca))
+        return ruta
 
-        res_mem = MaintenanceService.optimize_memory()
-        self.assertTrue(res_mem['success'])
+    def test_07_temp_cleanup_only_removes_old_unprotected_files(self):
+        viejo = self._temp_file('viejo.tmp', antiguedad_horas=5)
+        anidado = self._temp_file('anidado.tmp', antiguedad_horas=5, carpeta='sub')
+        reciente = self._temp_file('reciente.tmp')
+        protegido = self._temp_file('dll.bin', antiguedad_horas=5, carpeta='_MEI12345')
 
-        # Probar endpoint API con mantenimiento selectivo
+        res = MaintenanceService.clean_temporary_files()
+
+        self.assertTrue(res['success'])
+        self.assertFalse(os.path.exists(viejo))
+        self.assertFalse(os.path.exists(anidado))
+        self.assertTrue(os.path.exists(reciente))
+        self.assertTrue(os.path.exists(protegido))
+
+    def test_07b_dns_reports_failure_when_unsupported(self):
+        with mock.patch('shutil.which', return_value=None):
+            self.assertFalse(MaintenanceService.flush_dns_cache()['success'])
+
+    def test_07c_procedure_returns_before_and_after(self):
+        self._temp_file('comparar.tmp', tamano=3 * 1024 * 1024, antiguedad_horas=5)
         self.login_admin()
-        res_api_dns = self.client.post('/api/v1/fiax/mantenimiento/optimizar', json={'tipo': 'dns'})
-        self.assertEqual(res_api_dns.status_code, 200)
-        self.assertEqual(res_api_dns.get_json()['tipo'], 'dns')
+        res = self.client.post('/api/v1/fiax/mantenimiento/optimizar', json={'tipo': 'temporales'})
+        self.assertEqual(res.status_code, 200)
+        comparacion = res.get_json()['comparacion']
+        temp = next(f for f in comparacion['filas'] if f['clave'] == 'temp_mb')
+        self.assertLess(temp['final'], temp['inicial'])
+        self.assertEqual(temp['tendencia'], 'mejora')
 
-        res_api_temp = self.client.post('/api/v1/fiax/mantenimiento/optimizar', json={'tipo': 'temporales'})
-        self.assertEqual(res_api_temp.status_code, 200)
-        self.assertEqual(res_api_temp.get_json()['tipo'], 'temporales')
+        historial = self.client.get('/api/v1/fiax/comparaciones').get_json()['comparaciones']
+        self.assertEqual(historial[0]['id'], comparacion['id'])
 
-        res_api_mem = self.client.post('/api/v1/fiax/mantenimiento/optimizar', json={'tipo': 'memoria'})
-        self.assertEqual(res_api_mem.status_code, 200)
-        self.assertEqual(res_api_mem.get_json()['tipo'], 'memoria')
+    def test_07d_every_procedure_type_is_recorded(self):
+        self.login_admin()
+        for tipo in ('dns', 'memoria', 'global'):
+            res = self.client.post('/api/v1/fiax/mantenimiento/optimizar', json={'tipo': tipo})
+            self.assertEqual(res.status_code, 200)
+            self.assertEqual(res.get_json()['tipo'], tipo)
+            self.assertIn('comparacion', res.get_json())
+        self.assertEqual(self.client.post('/api/v1/fiax/mantenimiento/optimizar', json={'tipo': 'otro'}).status_code, 400)
 
-    def test_08_resolve_incident(self):
+    def test_07e_initial_state_endpoint(self):
+        self.login_admin()
+        filas = self.client.get('/api/v1/fiax/estado-actual').get_json()['estado']
+        self.assertIn('score_salud', [f['clave'] for f in filas])
+
+    def test_08_incident_closes_when_condition_cleared_and_keeps_initial_score(self):
         with self.app.app_context():
-            # Buscar una incidencia pendiente
-            incidencia = IncidenciaDetectada.query.filter_by(estado='PENDIENTE').first()
-            if incidencia:
-                res = MaintenanceService.resolve_incident(incidencia.id)
-                self.assertTrue(res['success'])
-                self.assertEqual(res['incidencia']['estado'], 'RESUELTA')
+            DiagnosticService.execute_complete_diagnosis()
+            inc_id = self._pending_incident('CACHE_DNS_SATURADA', 'FLUSH_DNS')
+            sesion = SesionDiagnostico.query.order_by(SesionDiagnostico.id.desc()).first()
+            score_inicial = sesion.score_salud
+            with mock.patch.object(MaintenanceService, 'flush_dns_cache', return_value={'success': True, 'mensaje': 'ok'}), \
+                    mock.patch.object(DiagnosticService, 'count_dns_cache_entries', return_value=1):
+                res = MaintenanceService.resolve_incident(inc_id)
+            self.assertTrue(res['resuelta'])
+            self.assertEqual(res['incidencia']['estado'], 'RESUELTA')
+            self.assertEqual(db.session.get(SesionDiagnostico, sesion.id).score_salud, score_inicial)
+            self.assertEqual(sesion.score_actual, res['nuevo_score'])
+
+    def test_08b_failed_action_does_not_close_incident(self):
+        with self.app.app_context():
+            inc_id = self._pending_incident('CACHE_DNS_SATURADA', 'FLUSH_DNS')
+            with mock.patch.object(MaintenanceService, 'flush_dns_cache', return_value={'success': False, 'mensaje': 'falló'}):
+                res = MaintenanceService.resolve_incident(inc_id)
+            self.assertFalse(res['success'])
+            self.assertEqual(db.session.get(IncidenciaDetectada, inc_id).estado, 'PENDIENTE')
+
+    def test_08c_incident_stays_pending_when_condition_persists(self):
+        with self.app.app_context():
+            inc_id = self._pending_incident('ALTO_CONSUMO_CPU', 'AUDITAR_PROCESOS')
+            with mock.patch('psutil.cpu_percent', return_value=99.0):
+                res = MaintenanceService.resolve_incident(inc_id)
+            self.assertTrue(res['success'])
+            self.assertFalse(res['resuelta'])
+            self.assertEqual(db.session.get(IncidenciaDetectada, inc_id).estado, 'PENDIENTE')
 
     # 5. Auditoría
     def test_09_audit_logging(self):
@@ -268,7 +354,7 @@ class FIAXSystemTestCase(unittest.TestCase):
         # Login page renderiza versión
         res = self.client.get('/')
         self.assertEqual(res.status_code, 200)
-        self.assertIn(b"1.1.0", res.data)
+        self.assertIn(Config.APP_VERSION.encode(), res.data)
 
         # Dashboard sin login redirige
         self.client.get('/logout')
@@ -280,13 +366,71 @@ class FIAXSystemTestCase(unittest.TestCase):
         res = self.client.get('/dashboard')
         self.assertEqual(res.status_code, 200)
         self.assertIn(b"Score de Salud FIAX", res.data)
-        self.assertIn(b"1.1.0", res.data)
+        self.assertIn(Config.APP_VERSION.encode(), res.data)
 
         # Gestion de usuarios renderiza exitosamente y muestra versión
         res = self.client.get('/usuarios')
         self.assertEqual(res.status_code, 200)
         self.assertIn(b"Control de Acceso y", res.data)
-        self.assertIn(b"1.1.0", res.data)
+        self.assertIn(Config.APP_VERSION.encode(), res.data)
+
+    # 8. Seguridad
+    def test_13_cross_site_writes_rejected(self):
+        self.login_admin()
+        res = self.client.post('/api/v1/fiax/mantenimiento/optimizar', json={'tipo': 'dns'},
+                               headers={'Origin': 'https://sitio-malicioso.example'})
+        self.assertEqual(res.status_code, 403)
+
+    def test_14_role_endpoints_require_login(self):
+        self.client.get('/logout')
+        self.assertEqual(self.client.get('/api/v1/roles').status_code, 401)
+        self.assertEqual(self.client.get('/api/v1/roles/1/permissions').status_code, 401)
+
+    def test_15_only_admin_cannot_be_demoted(self):
+        self.login_admin()
+        with self.app.app_context():
+            admin_id = User.query.filter_by(correo='admin@fiax.com').first().id
+            rol_usuario = Role.query.filter_by(nombre='USUARIO').first().id
+        res = self.client.put(f'/api/v1/users/{admin_id}', json={'role_id': rol_usuario})
+        self.assertEqual(res.status_code, 400)
+
+    def test_16_short_password_rejected(self):
+        self.login_admin()
+        res = self.client.post('/api/v1/users', json={'nombre': 'Corta', 'correo': 'corta@fiax.com', 'password': '123'})
+        self.assertEqual(res.status_code, 400)
+
+    def test_17_legacy_hash_is_upgraded_on_login(self):
+        import hashlib
+        with self.app.app_context():
+            user = User(nombre_completo='Legacy', correo='legacy@fiax.com',
+                        password_hash=hashlib.sha256(b'clave-antigua').hexdigest())
+            db.session.add(user)
+            db.session.commit()
+            self.assertIsNotNone(AuthService.authenticate('legacy@fiax.com', 'clave-antigua'))
+            self.assertIn(':', User.query.filter_by(correo='legacy@fiax.com').first().password_hash)
+
+
+class FirstRunTestCase(unittest.TestCase):
+    """La versión instalable no trae cuentas conocidas."""
+
+    def test_first_account_becomes_administrator(self):
+        app = create_app('testing', instance_path=tempfile.mkdtemp(prefix="fiax-first-"))
+        app.config['SEED_DEMO_USERS'] = False
+        setup_initial_data(app)
+        client = app.test_client()
+        with app.app_context():
+            self.assertEqual(User.query.count(), 0)
+        self.assertIn('la del Administrador'.encode(), client.get('/').data)
+
+        datos = {'nombre': 'Primera', 'correo': 'p@x.co', 'password': 'clave-larga', 'confirm_password': 'clave-larga'}
+        self.assertEqual(client.post('/registro', data=datos).status_code, 302)
+        segundo = app.test_client()
+        datos = {'nombre': 'Segunda', 'correo': 's@x.co', 'password': 'clave-larga', 'confirm_password': 'clave-larga'}
+        segundo.post('/registro', data=datos)
+        with app.app_context():
+            self.assertEqual(User.query.filter_by(correo='p@x.co').first().roles[0].nombre, 'ADMINISTRADOR')
+            self.assertEqual(User.query.filter_by(correo='s@x.co').first().roles[0].nombre, 'USUARIO')
+
 
 if __name__ == '__main__':
     unittest.main()

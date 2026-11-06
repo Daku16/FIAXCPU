@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FIAX CPU - Autenticación y Acceso Seguro</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='vendor/fontawesome/css/all.min.css') }}">
     <style>
         :root {
             --bg-main: #0b1120;
@@ -347,6 +347,12 @@
             <h2>FIAX CPU</h2>
             <p class="subtitle">Asistente Inteligente de Mantenimiento</p>
         </div>
+
+        {% if first_run %}
+        <p style="font-size: 13px; line-height: 1.45; color: #e2e8f0; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 8px; padding: 10px 12px; margin-bottom: 14px;">
+            <i class="fa-solid fa-circle-info"></i> Primera ejecución: la cuenta que cree ahora será la del Administrador.
+        </p>
+        {% endif %}
 
         <!-- Pestañas de Alternancia -->
         <div class="tabs">

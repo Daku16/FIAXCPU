@@ -1,4 +1,4 @@
-from flask import Blueprint, request, redirect, url_for, session, render_template, jsonify
+from flask import Blueprint, current_app, request, redirect, url_for, session, render_template
 from services.auth_service import AuthService
 from services.audit_service import AuditService
 from domain.enums import RoleEnum
@@ -57,13 +57,17 @@ def registro():
     if password != confirm_pass:
         return render_template('login.html', error_login="Las contraseñas no coinciden. Por favor verifíquelas.", active_tab='registro', nombre=nombre, correo=correo)
 
+    min_len = current_app.config['PASSWORD_MIN_LENGTH']
+    if len(password) < min_len:
+        return render_template('login.html', error_login=f"La contraseña debe tener al menos {min_len} caracteres.", active_tab='registro', nombre=nombre, correo=correo)
+
     nuevo_usuario, error = AuthService.register(nombre, correo, password, RoleEnum.USUARIO.value)
     if error:
         return render_template('login.html', error_login=error, active_tab='registro', nombre=nombre, correo=correo)
 
     session['user_id'] = nuevo_usuario.id
     session['user_name'] = nuevo_usuario.nombre_completo
-    session['user_role'] = RoleEnum.USUARIO.value
+    session['user_role'] = nuevo_usuario.roles[0].nombre if nuevo_usuario.roles else RoleEnum.USUARIO.value
 
     AuditService.registrar(
         accion="REGISTRO_USUARIO",

@@ -1,8 +1,13 @@
-from flask import Blueprint, jsonify, request, session
+import os
+import threading
+import time
+
+from flask import Blueprint, current_app, jsonify, request, session
 from services.telemetry_service import TelemetryService
 from services.diagnostic_service import DiagnosticService
 from services.maintenance_service import MaintenanceService
 from services.audit_service import AuditService
+from services.comparison_service import ComparisonService
 from domain.models import IncidenciaDetectada, SesionDiagnostico, LogAuditoria
 from security.decorators import has_permission, login_required
 from domain.enums import PermissionEnum
@@ -13,8 +18,11 @@ fiax_bp = Blueprint('fiax_bp', __name__, url_prefix='/api/v1/fiax')
 @login_required
 def get_telemetria():
     """Retorna telemetría viva de hardware y sistema operativo."""
-    metrics = TelemetryService.get_live_metrics()
-    equipo = TelemetryService.get_hardware_profile()
+    try:
+        metrics = TelemetryService.get_live_metrics()
+        equipo = TelemetryService.get_hardware_profile()
+    except Exception as exc:
+        return jsonify({"success": False, "error": f"No se pudieron leer las métricas: {exc}"}), 503
     return jsonify({
         "success": True,
         "equipo": equipo,
@@ -68,83 +76,33 @@ def resolver_incidencia(incidencia_id):
 @fiax_bp.route('/mantenimiento/optimizar', methods=['POST'])
 @has_permission(PermissionEnum.MAINTENANCE_RUN)
 def optimizacion_rapida():
-    """Ejecuta rutinas de optimización individuales (temporales, dns, memoria) o integral (global)."""
-    user_id = session.get('user_id')
-    
+    """Ejecuta temporales, dns, memoria o global y devuelve la comparación antes/después."""
     data = request.get_json(silent=True) or {}
     tipo = data.get('tipo') or request.args.get('tipo', 'global')
+    resultado = MaintenanceService.run_procedure(tipo, user_id=session.get('user_id'))
+    # Un procedimiento que no pudo completarse también devuelve su comparación.
+    return jsonify(resultado), 200 if 'comparacion' in resultado else 400
 
-    if tipo == 'temporales':
-        res_temp = MaintenanceService.clean_temporary_files()
-        AuditService.registrar(
-            accion="LIMPIEZA_TEMPORALES",
-            modulo="MANTENIMIENTO",
-            detalles=f"Purga de temporales: {res_temp.get('mb_liberados')} MB liberados ({res_temp.get('archivos_eliminados')} archivos).",
-            nivel="INFO",
-            usuario_id=user_id
-        )
-        return jsonify({
-            "success": True,
-            "tipo": "temporales",
-            "mensaje": res_temp.get('mensaje') or f"Limpieza completada: {res_temp.get('mb_liberados')} MB liberados.",
-            "resultados": {"temporales": res_temp}
-        })
+@fiax_bp.route('/estado-actual', methods=['GET'])
+@login_required
+def estado_actual():
+    """Estado del equipo que se usará como punto de partida de un procedimiento."""
+    return jsonify({"success": True, "estado": ComparisonService.build_rows(*[ComparisonService.capture_state()] * 2)})
 
-    elif tipo == 'dns':
-        res_dns = MaintenanceService.flush_dns_cache()
-        AuditService.registrar(
-            accion="VACIADO_CACHE_DNS",
-            modulo="MANTENIMIENTO",
-            detalles="Vaciado y refresco de caché DNS en el sistema anfitrión.",
-            nivel="INFO",
-            usuario_id=user_id
-        )
-        return jsonify({
-            "success": True,
-            "tipo": "dns",
-            "mensaje": res_dns.get('mensaje') or "Se vació correctamente la caché de resolución DNS.",
-            "resultados": {"dns": res_dns}
-        })
+@fiax_bp.route('/comparaciones', methods=['GET'])
+@has_permission(PermissionEnum.REPORT_READ)
+def get_comparaciones():
+    """Historial de comparaciones entre estado inicial y final."""
+    return jsonify({"success": True, "comparaciones": ComparisonService.history()})
 
-    elif tipo == 'memoria':
-        res_mem = MaintenanceService.optimize_memory()
-        AuditService.registrar(
-            accion="OPTIMIZACION_MEMORIA",
-            modulo="MANTENIMIENTO",
-            detalles=f"Compactación de Working Set y liberación de páginas de RAM. Reducción: {res_mem.get('reduccion_porcentaje')}%.",
-            nivel="INFO",
-            usuario_id=user_id
-        )
-        return jsonify({
-            "success": True,
-            "tipo": "memoria",
-            "mensaje": res_mem.get('mensaje') or "Optimización de memoria RAM completada.",
-            "resultados": {"memoria": res_mem}
-        })
-
-    # 'global' por defecto
-    res_temp = MaintenanceService.clean_temporary_files()
-    res_dns = MaintenanceService.flush_dns_cache()
-    res_mem = MaintenanceService.optimize_memory()
-
-    AuditService.registrar(
-        accion="OPTIMIZACION_INTEGRAL",
-        modulo="MANTENIMIENTO",
-        detalles=f"Optimización rápida ejecutada. Temporales: {res_temp.get('mb_liberados')} MB. RAM reducida en {res_mem.get('reduccion_porcentaje')}%.",
-        nivel="INFO",
-        usuario_id=user_id
-    )
-
-    return jsonify({
-        "success": True,
-        "tipo": "global",
-        "mensaje": "Optimización integral completada exitosamente.",
-        "resultados": {
-            "temporales": res_temp,
-            "dns": res_dns,
-            "memoria": res_mem
-        }
-    })
+@fiax_bp.route('/sistema/cerrar', methods=['POST'])
+@login_required
+def cerrar_aplicacion():
+    """Detiene la versión de escritorio, que no tiene otra ventana desde la cual cerrarse."""
+    if not current_app.config.get('ALLOW_SHUTDOWN'):
+        return jsonify({"error": "Disponible solo en la versión de escritorio."}), 404
+    threading.Thread(target=lambda: (time.sleep(0.5), os._exit(0)), daemon=True).start()
+    return jsonify({"success": True})
 
 @fiax_bp.route('/auditoria', methods=['GET'])
 @has_permission(PermissionEnum.AUDIT_READ)

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=FIAX CPU
+Comment=Diagnóstico y mantenimiento del equipo
+Exec=fiax-cpu
+Icon=fiax-cpu
+Terminal=false
+Categories=System;Monitor;

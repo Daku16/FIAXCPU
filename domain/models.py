@@ -1,3 +1,5 @@
+import json
+
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timezone
 from sqlalchemy import event
@@ -8,6 +10,12 @@ db = SQLAlchemy()
 def get_utc_now():
     """Retorna fecha y hora UTC sin zona horaria para compatibilidad SQLite."""
     return datetime.now(timezone.utc).replace(tzinfo=None)
+
+def format_local(value):
+    """Convierte una fecha UTC almacenada a la hora local del equipo para mostrarla."""
+    if not value:
+        return None
+    return value.replace(tzinfo=timezone.utc).astimezone().strftime('%Y-%m-%d %H:%M:%S')
 
 @event.listens_for(Engine, "connect")
 def set_sqlite_pragma(dbapi_connection, connection_record):
@@ -48,7 +56,7 @@ class User(db.Model):
             "rol_id": self.roles[0].id if self.roles else None,
             "rol_nombre": self.roles[0].nombre if self.roles else 'Sin Rol',
             "estado": "ACTIVO",
-            "created_at": self.created_at.strftime('%Y-%m-%d %H:%M:%S') if self.created_at else None
+            "created_at": format_local(self.created_at)
         }
 
 class Role(db.Model):
@@ -106,7 +114,7 @@ class Equipo(db.Model):
             "ram_total_gb": self.ram_total_gb,
             "procesador": self.procesador,
             "ip_local": self.ip_local,
-            "ultima_conexion": self.ultima_conexion.strftime('%Y-%m-%d %H:%M:%S') if self.ultima_conexion else None
+            "ultima_conexion": format_local(self.ultima_conexion)
         }
 
 class SesionDiagnostico(db.Model):
@@ -121,15 +129,23 @@ class SesionDiagnostico(db.Model):
 
     metricas = db.relationship('MetricaRendimiento', backref='sesion', uselist=False, cascade="all, delete-orphan", lazy=True)
     incidencias = db.relationship('IncidenciaDetectada', backref='sesion', cascade="all, delete-orphan", lazy=True)
+    ejecuciones = db.relationship('EjecucionMantenimiento', backref='sesion', cascade="all, delete-orphan",
+                                  order_by='EjecucionMantenimiento.id', lazy=True)
+
+    @property
+    def score_actual(self):
+        """score_salud conserva el valor inicial; este refleja el último procedimiento."""
+        return self.ejecuciones[-1].estado_final["score_salud"] if self.ejecuciones else self.score_salud
 
     def to_dict(self):
         return {
             "id": self.id,
             "equipo_id": self.equipo_id,
             "usuario_id": self.usuario_id,
-            "fecha_hora": self.fecha_hora.strftime('%Y-%m-%d %H:%M:%S') if self.fecha_hora else None,
+            "fecha_hora": format_local(self.fecha_hora),
             "estado": self.estado,
             "score_salud": self.score_salud,
+            "score_actual": self.score_actual,
             "resumen": self.resumen,
             "metricas": self.metricas.to_dict() if self.metricas else None,
             "incidencias_count": len(self.incidencias) if self.incidencias else 0
@@ -182,7 +198,7 @@ class IncidenciaDetectada(db.Model):
             "descripcion": self.descripcion,
             "nivel_severidad": self.nivel_severidad,
             "estado": self.estado,
-            "fecha_deteccion": self.fecha_deteccion.strftime('%Y-%m-%d %H:%M:%S') if self.fecha_deteccion else None,
+            "fecha_deteccion": format_local(self.fecha_deteccion),
             "acciones": [a.to_dict() for a in self.acciones] if self.acciones else []
         }
 
@@ -205,9 +221,34 @@ class AccionCorrectiva(db.Model):
             "tipo_accion": self.tipo_accion,
             "autorizada_por_usuario": bool(self.autorizada_por_usuario),
             "ejecutada_con_exito": bool(self.ejecutada_con_exito),
-            "fecha_ejecucion": self.fecha_ejecucion.strftime('%Y-%m-%d %H:%M:%S') if self.fecha_ejecucion else None,
+            "fecha_ejecucion": format_local(self.fecha_ejecucion),
             "resultado_log": self.resultado_log
         }
+
+class EjecucionMantenimiento(db.Model):
+    """Fotografía del equipo antes y después de cada procedimiento."""
+    __tablename__ = 'ejecuciones_mantenimiento'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    tipo = db.Column(db.String(30), nullable=False) # temporales, dns, memoria, global, incidencia
+    titulo = db.Column(db.String(150), nullable=False)
+    sesion_id = db.Column(db.Integer, db.ForeignKey('sesiones_diagnostico.id', ondelete="CASCADE"), nullable=True)
+    incidencia_id = db.Column(db.Integer, db.ForeignKey('incidencias_detectadas.id', ondelete="SET NULL"), nullable=True)
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id', ondelete="SET NULL"), nullable=True)
+    fecha_hora = db.Column(db.DateTime, default=get_utc_now)
+    exito = db.Column(db.Integer, default=1) # 0 o 1
+    mensaje = db.Column(db.Text)
+    estado_inicial_json = db.Column(db.Text, nullable=False)
+    estado_final_json = db.Column(db.Text, nullable=False)
+
+    usuario = db.relationship('User', lazy=True)
+
+    @property
+    def estado_inicial(self):
+        return json.loads(self.estado_inicial_json)
+
+    @property
+    def estado_final(self):
+        return json.loads(self.estado_final_json)
 
 class LogAuditoria(db.Model):
     __tablename__ = 'auditoria_logs'
@@ -230,5 +271,5 @@ class LogAuditoria(db.Model):
             "detalles": self.detalles,
             "ip_origen": self.ip_origen,
             "nivel": self.nivel,
-            "fecha_hora": self.fecha_hora.strftime('%Y-%m-%d %H:%M:%S') if self.fecha_hora else None
+            "fecha_hora": format_local(self.fecha_hora)
         }

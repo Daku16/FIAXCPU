@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FIAX CPU - Gestión de Usuarios y Roles (RBAC)</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='vendor/fontawesome/css/all.min.css') }}">
     <style>
         :root {
             --bg-main: #0b1120;
@@ -771,6 +771,10 @@
     </div>
 
     <script>
+function esc(value) {
+            return String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+
         let usuariosRaw = [];
         let rolesCache = [];
         let filtroActual = 'TODOS';
@@ -844,11 +848,11 @@
                 tbody.innerHTML += `
                     <tr>
                         <td><strong style="color: var(--accent-blue);">#${u.id}</strong></td>
-                        <td style="font-weight: 700; color: #f8fafc;">${u.nombre_completo}</td>
-                        <td style="color: #cbd5e1;"><code>${u.correo}</code></td>
+                        <td style="font-weight: 700; color: #f8fafc;">${esc(u.nombre_completo)}</td>
+                        <td style="color: #cbd5e1;"><code>${esc(u.correo)}</code></td>
                         <td>
                             <span class="badge-role ${badgeRoleClass}">
-                                ${iconRole} ${u.rol_nombre}
+                                ${iconRole} ${esc(u.rol_nombre)}
                             </span>
                         </td>
                         <td>
@@ -857,10 +861,10 @@
                             </span>
                         </td>
                         <td style="font-size: 12.5px; color: var(--text-muted);">
-                            <i class="fa-regular fa-calendar" style="margin-right: 4px;"></i> ${u.created_at || 'Sistema'}
+                            <i class="fa-regular fa-calendar" style="margin-right: 4px;"></i> ${esc(u.created_at || 'Sistema')}
                         </td>
                         <td style="text-align: right; white-space: nowrap;">
-                            <button class="btn-edit" onclick="openEditModal(${u.id}, '${u.nombre_completo}', '${u.correo}', ${u.rol_id})"><i class="fa-solid fa-pen"></i> Editar</button>
+                            <button class="btn-edit" onclick="openEditById(${u.id})"><i class="fa-solid fa-pen"></i> Editar</button>
                             <button class="btn-delete" onclick="deleteUser(${u.id})"><i class="fa-solid fa-trash"></i> Eliminar</button>
                         </td>
                     </tr>
@@ -873,7 +877,7 @@
             select.innerHTML = '';
             rolesCache.forEach(r => {
                 const selected = (r.id === selectedRoleId) ? 'selected' : '';
-                select.innerHTML += `<option value="${r.id}" ${selected}>${r.nombre} (${r.descripcion || 'Sin descripción'})</option>`;
+                select.innerHTML += `<option value="${r.id}" ${selected}>${esc(r.nombre)} (${esc(r.descripcion || 'Sin descripción')})</option>`;
             });
         }
 
@@ -885,6 +889,11 @@
             document.getElementById('userPassword').value = '';
             populateRolesSelect();
             document.getElementById('userModal').style.display = 'flex';
+        }
+
+        function openEditById(id) {
+            const u = usuariosRaw.find(x => x.id === id);
+            if (u) openEditModal(u.id, u.nombre_completo, u.correo, u.rol_id);
         }
 
         function openEditModal(id, nombre, correo, roleId) {

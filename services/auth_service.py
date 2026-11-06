@@ -30,6 +30,10 @@ class AuthService:
         clean_correo = (correo or '').strip()
         user = User.query.filter(db.func.lower(User.correo) == clean_correo.lower()).first()
         if user and AuthService.verify_password(user.password_hash, password):
+            # Migra hashes SHA-256 sin sal al formato seguro al iniciar sesión.
+            if len(user.password_hash) == 64 and ':' not in user.password_hash:
+                user.password_hash = AuthService.hash_password(password)
+                db.session.commit()
             return user
         return None
 
@@ -46,6 +50,10 @@ class AuthService:
         # Validación 2: Nombre de usuario duplicado
         if User.query.filter(db.func.lower(User.nombre_completo) == nombre_clean.lower()).first():
             return None, "El nombre de usuario ya se encuentra registrado."
+
+        # La primera cuenta de una instalación nueva administra el sistema.
+        if User.query.first() is None:
+            role_name = RoleEnum.ADMINISTRADOR.value
 
         hashed_pw = AuthService.hash_password(password)
         new_user = User(nombre_completo=nombre_clean, correo=correo_clean, password_hash=hashed_pw)

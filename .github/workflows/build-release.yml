@@ -1,0 +1,77 @@
+name: Instaladores
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+jobs:
+  tests:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -r requirements.txt
+      - run: python -m unittest tests.test_fiax
+
+  windows:
+    needs: tests
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: ./packaging/build_windows.ps1
+        shell: pwsh
+      - name: Probar el ejecutable
+        shell: pwsh
+        run: |
+          $exe = (Get-ChildItem dist\FIAX-CPU-*.exe).FullName
+          $proc = Start-Process $exe -ArgumentList "--no-browser","--port","5057" -PassThru
+          $ok = $false
+          foreach ($i in 1..30) {
+            Start-Sleep 2
+            try { if ((Invoke-RestMethod http://127.0.0.1:5057/healthz).app -eq "fiax-cpu") { $ok = $true; break } } catch {}
+          }
+          Stop-Process $proc -Force
+          if (-not $ok) { throw "El ejecutable no respondió" }
+      - uses: actions/upload-artifact@v4
+        with: { name: windows-exe, path: "dist/*.exe" }
+
+  linux:
+    needs: tests
+    # La versión más antigua disponible da compatibilidad con más distribuciones.
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: sudo apt-get update && sudo apt-get install -y rpm
+      - run: pip install -r requirements-build.txt
+      - run: packaging/build_linux.sh
+      - name: Probar el .deb
+        run: |
+          sudo apt-get install -y ./dist/*.deb
+          fiax-cpu --no-browser --port 5057 &
+          for i in $(seq 1 30); do sleep 2; curl -fs http://127.0.0.1:5057/healthz && exit 0; done
+          exit 1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-paquetes
+          path: |
+            dist/*.deb
+            dist/*.rpm
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: [windows, linux]
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with: { path: paquetes, merge-multiple: true }
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" paquetes/* --repo "$GITHUB_REPOSITORY" --generate-notes

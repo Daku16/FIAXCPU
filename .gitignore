@@ -22,3 +22,9 @@ instance/
 .DS_Store
 Thumbs.db
 
+
+# Empaquetado
+build/
+dist/
+*.deb
+*.rpm
