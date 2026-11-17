@@ -235,7 +235,7 @@ class MaintenanceService:
         return resueltas
 
     @classmethod
-    def run_procedure(cls, tipo, user_id=None):
+    def run_procedure(cls, tipo, user_id=None, origen='MANUAL'):
         """Ejecuta un procedimiento y guarda la comparación entre estado inicial y final."""
         if tipo not in PROCEDIMIENTOS:
             return {"success": False, "error": f"Procedimiento desconocido: {tipo}"}
@@ -256,11 +256,11 @@ class MaintenanceService:
 
         exito = all(r.get("success") for r in resultados.values())
         mensaje = " ".join(r.get("mensaje", "") for r in resultados.values())
-        comparacion = ComparisonService.save(tipo, titulo, inicial, final, exito, mensaje, usuario_id=user_id)
+        comparacion = ComparisonService.save(tipo, titulo, inicial, final, exito, mensaje, usuario_id=user_id, origen=origen)
         AuditService.registrar(
-            accion=accion_audit,
+            accion=accion_audit if origen == "MANUAL" else f"{accion_audit}_PROGRAMADA",
             modulo="MANTENIMIENTO",
-            detalles=f"{mensaje} Score: {inicial['score_salud']} -> {final['score_salud']}.",
+            detalles=f"{'[Programador de tareas] ' if origen != 'MANUAL' else ''}{mensaje} Score: {inicial['score_salud']} -> {final['score_salud']}.",
             nivel="INFO" if exito else "WARNING",
             usuario_id=user_id,
         )

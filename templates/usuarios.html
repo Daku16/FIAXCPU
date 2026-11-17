@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FIAX CPU - Gestión de Usuarios y Roles (RBAC)</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='vendor/fontawesome/css/all.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='a11y.css') }}">
+    <script src="{{ url_for('static', filename='a11y.js') }}"></script>
     <style>
         :root {
             --bg-main: #0b1120;
@@ -60,7 +62,7 @@
         }
 
         .sidebar-scroll-area::-webkit-scrollbar-thumb {
-            background: #334155;
+            background: var(--bg-btn-hover);
             border-radius: 4px;
         }
 
@@ -74,7 +76,7 @@
         }
 
         .logo-icon {
-            background: linear-gradient(135deg, #0284c7, #38bdf8);
+            background: linear-gradient(135deg, #0284c7, var(--c-accent));
             color: white;
             width: 42px;
             height: 42px;
@@ -82,19 +84,19 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
+            font-size: calc(20px * var(--fs, 1));
             box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
         }
 
         .logo-text h2 {
-            font-size: 20px;
+            font-size: calc(20px * var(--fs, 1));
             font-weight: 800;
-            color: #f8fafc;
+            color: var(--text-main);
             letter-spacing: 0.5px;
         }
 
         .logo-text span {
-            font-size: 11px;
+            font-size: calc(11px * var(--fs, 1));
             color: var(--accent-blue);
             font-weight: 600;
             text-transform: uppercase;
@@ -121,7 +123,7 @@
             justify-content: center;
             font-weight: 800;
             color: white;
-            font-size: 16px;
+            font-size: calc(16px * var(--fs, 1));
         }
 
         .user-info {
@@ -130,26 +132,26 @@
         }
 
         .user-info .name {
-            font-size: 14px;
+            font-size: calc(14px * var(--fs, 1));
             font-weight: 700;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            color: #f8fafc;
+            color: var(--text-main);
         }
 
         .user-info .role-badge {
             display: inline-flex;
             align-items: center;
             gap: 5px;
-            font-size: 10px;
+            font-size: calc(10px * var(--fs, 1));
             font-weight: 800;
             padding: 2px 8px;
             border-radius: 6px;
             margin-top: 4px;
             text-transform: uppercase;
             background-color: rgba(59, 130, 246, 0.25);
-            color: #93c5fd;
+            color: var(--c-blue-t);
             border: 1px solid #3b82f6;
         }
 
@@ -169,7 +171,7 @@
             cursor: pointer;
             text-align: left;
             font-weight: 600;
-            font-size: 13.5px;
+            font-size: calc(13.5px * var(--fs, 1));
             width: 100%;
             display: flex;
             align-items: center;
@@ -179,14 +181,14 @@
         }
 
         .nav-btn i {
-            font-size: 16px;
+            font-size: calc(16px * var(--fs, 1));
             width: 20px;
             text-align: center;
         }
 
         .nav-btn:hover {
-            background-color: rgba(255, 255, 255, 0.06);
-            color: #f8fafc;
+            background-color: rgba(var(--ink-rgb), 0.06);
+            color: var(--text-main);
         }
 
         .nav-btn.active {
@@ -198,7 +200,7 @@
         .sidebar-footer {
             padding: 15px 20px;
             border-top: 1px solid var(--border-color);
-            background: #0d1629;
+            background: var(--bg-card-alt);
             flex-shrink: 0;
         }
 
@@ -211,17 +213,17 @@
             padding: 12px;
             border-radius: 8px;
             background-color: rgba(239, 68, 68, 0.12);
-            color: #f87171;
+            color: var(--c-red-t);
             border: 1px solid rgba(239, 68, 68, 0.35);
             font-weight: 700;
-            font-size: 13.5px;
+            font-size: calc(13.5px * var(--fs, 1));
             text-decoration: none;
             transition: all 0.2s ease;
             cursor: pointer;
         }
 
         .btn-logout-sidebar:hover {
-            background-color: #ef4444;
+            background-color: #dc2626;
             color: white;
             box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
             transform: translateY(-1px);
@@ -246,14 +248,14 @@
         }
 
         .header-bar h1 {
-            font-size: 24px;
+            font-size: calc(24px * var(--fs, 1));
             font-weight: 800;
-            color: #f8fafc;
+            color: var(--text-main);
         }
 
         .header-bar p {
             color: var(--text-muted);
-            font-size: 13.5px;
+            font-size: calc(13.5px * var(--fs, 1));
             margin-top: 2px;
         }
 
@@ -264,13 +266,13 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #059669, #10b981);
+            background: linear-gradient(135deg, #059669, var(--color-green));
             color: white;
             border: none;
             padding: 11px 20px;
             border-radius: 8px;
             font-weight: 700;
-            font-size: 13.5px;
+            font-size: calc(13.5px * var(--fs, 1));
             cursor: pointer;
             display: inline-flex;
             align-items: center;
@@ -288,10 +290,10 @@
             padding: 10px 16px;
             border-radius: 8px;
             background-color: rgba(239, 68, 68, 0.15);
-            color: #fca5a5;
+            color: var(--c-red-soft);
             border: 1px solid rgba(239, 68, 68, 0.4);
             font-weight: 700;
-            font-size: 13px;
+            font-size: calc(13px * var(--fs, 1));
             cursor: pointer;
             text-decoration: none;
             display: inline-flex;
@@ -301,19 +303,19 @@
         }
 
         .btn-top-logout:hover {
-            background-color: #ef4444;
+            background-color: #dc2626;
             color: white;
         }
 
         .btn-edit {
-            background-color: #d97706;
+            background-color: #b45309;
             color: white;
             border: none;
             padding: 7px 12px;
             border-radius: 6px;
             cursor: pointer;
             font-weight: 700;
-            font-size: 12px;
+            font-size: calc(12px * var(--fs, 1));
             margin-right: 6px;
             display: inline-flex;
             align-items: center;
@@ -333,7 +335,7 @@
             border-radius: 6px;
             cursor: pointer;
             font-weight: 700;
-            font-size: 12px;
+            font-size: calc(12px * var(--fs, 1));
             display: inline-flex;
             align-items: center;
             gap: 5px;
@@ -362,7 +364,7 @@
         }
 
         .kpi-info span {
-            font-size: 12.5px;
+            font-size: calc(12.5px * var(--fs, 1));
             color: var(--text-muted);
             font-weight: 600;
             text-transform: uppercase;
@@ -370,9 +372,9 @@
         }
 
         .kpi-info .kpi-num {
-            font-size: 26px;
+            font-size: calc(26px * var(--fs, 1));
             font-weight: 800;
-            color: #f8fafc;
+            color: var(--text-main);
             margin-top: 4px;
         }
 
@@ -383,7 +385,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
+            font-size: calc(20px * var(--fs, 1));
         }
 
         /* Contenedor de Tabla */
@@ -414,7 +416,7 @@
             border: 1px solid var(--border-color);
             padding: 7px 14px;
             border-radius: 8px;
-            font-size: 12.5px;
+            font-size: calc(12.5px * var(--fs, 1));
             font-weight: 700;
             cursor: pointer;
             transition: 0.2s;
@@ -438,21 +440,29 @@
             text-align: left;
             padding: 14px;
             border-bottom: 1px solid var(--border-color);
-            font-size: 13.5px;
+            font-size: calc(13.5px * var(--fs, 1));
             vertical-align: middle;
         }
 
         th {
             background-color: var(--bg-card-alt);
-            color: #cbd5e1;
+            color: var(--text-soft);
             font-weight: 700;
-            font-size: 12px;
+            font-size: calc(12px * var(--fs, 1));
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
-        tr:hover td {
-            background-color: rgba(255, 255, 255, 0.02);
+        tbody th {
+            background-color: transparent;
+            font-size: calc(13.5px * var(--fs, 1));
+            text-transform: none;
+            letter-spacing: 0;
+        }
+
+        tr:hover td,
+        tr:hover tbody th {
+            background-color: rgba(var(--ink-rgb), 0.02);
         }
 
         /* Insignias de Roles */
@@ -462,27 +472,27 @@
             gap: 6px;
             padding: 5px 12px;
             border-radius: 8px;
-            font-size: 12px;
+            font-size: calc(12px * var(--fs, 1));
             font-weight: 800;
             text-transform: uppercase;
         }
 
         .badge-role-admin {
             background-color: rgba(59, 130, 246, 0.25);
-            color: #60a5fa;
+            color: var(--c-blue-t);
             border: 1px solid #3b82f6;
         }
 
         .badge-role-tecnico {
             background-color: rgba(245, 158, 11, 0.25);
-            color: #fbbf24;
-            border: 1px solid #f59e0b;
+            color: var(--c-yellow-t);
+            border: 1px solid var(--color-yellow);
         }
 
         .badge-role-usuario {
             background-color: rgba(16, 185, 129, 0.25);
-            color: #34d399;
-            border: 1px solid #10b981;
+            color: var(--c-green-t);
+            border: 1px solid var(--color-green);
         }
 
         /* Insignias de Estado */
@@ -492,7 +502,7 @@
             gap: 6px;
             padding: 5px 12px;
             border-radius: 20px;
-            font-size: 12px;
+            font-size: calc(12px * var(--fs, 1));
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -500,8 +510,8 @@
 
         .badge-status.activo {
             background: rgba(16, 185, 129, 0.2);
-            color: #34d399;
-            border: 1px solid #10b981;
+            color: var(--c-green-t);
+            border: 1px solid var(--color-green);
             box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
         }
 
@@ -529,10 +539,10 @@
             box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.6);
         }
 
-        .modal h3 {
+        .modal h2 {
             margin-bottom: 20px;
             color: var(--accent-blue);
-            font-size: 19px;
+            font-size: calc(19px * var(--fs, 1));
             font-weight: 800;
             display: flex;
             align-items: center;
@@ -546,8 +556,8 @@
         label {
             display: block;
             margin-bottom: 6px;
-            font-size: 13px;
-            color: #cbd5e1;
+            font-size: calc(13px * var(--fs, 1));
+            color: var(--text-soft);
             font-weight: 600;
         }
 
@@ -558,8 +568,8 @@
             border-radius: 8px;
             border: 1px solid var(--border-color);
             background-color: var(--bg-card-alt);
-            color: white;
-            font-size: 13.5px;
+            color: var(--text-main);
+            font-size: calc(13.5px * var(--fs, 1));
             outline: none;
             transition: 0.2s;
         }
@@ -570,6 +580,33 @@
             box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
         }
 
+        .modal-title {
+            font-size: calc(19px * var(--fs, 1));
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .field-hint {
+            display: block;
+            margin-top: 6px;
+            font-size: calc(12px * var(--fs, 1));
+            color: var(--text-muted);
+        }
+
+        .form-error {
+            min-height: 1em;
+            margin-top: 6px;
+            font-size: calc(13px * var(--fs, 1));
+            font-weight: 700;
+            color: var(--c-red-t);
+        }
+
+        .form-error:empty {
+            display: none;
+        }
+
         .modal-buttons {
             display: flex;
             justify-content: flex-end;
@@ -578,19 +615,19 @@
         }
 
         .btn-cancel {
-            background-color: #334155;
-            color: white;
+            background-color: var(--bg-btn-hover);
+            color: var(--text-main);
             border: none;
             padding: 11px 18px;
             border-radius: 6px;
             cursor: pointer;
             font-weight: 700;
-            font-size: 13px;
+            font-size: calc(13px * var(--fs, 1));
             transition: 0.2s;
         }
 
         .btn-cancel:hover {
-            background-color: #475569;
+            background-color: var(--bg-btn-active);
         }
     </style>
 </head>
@@ -598,14 +635,14 @@
 <body>
 
     <!-- Menú Lateral -->
-    <div class="sidebar">
+    <div class="sidebar" role="navigation" aria-label="Menú principal">
         <div class="sidebar-scroll-area">
             <div class="logo-box">
                 <div class="logo-icon"><i class="fa-solid fa-microchip"></i></div>
                 <div class="logo-text">
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <h2>FIAX CPU</h2>
-                        <span style="font-size: 10px; font-weight: 800; background: rgba(56, 189, 248, 0.2); color: #38bdf8; padding: 1px 6px; border-radius: 4px; border: 1px solid rgba(56, 189, 248, 0.4);">v{{ app_version }}</span>
+                        <span style="font-size: calc(10px * var(--fs, 1)); font-weight: 800; background: rgba(56, 189, 248, 0.2); color: var(--c-accent); padding: 1px 6px; border-radius: 4px; border: 1px solid rgba(56, 189, 248, 0.4);">v{{ app_version }}</span>
                     </div>
                     <span>Ing. de Sistemas 2026</span>
                 </div>
@@ -630,8 +667,8 @@
         <!-- Botón Fijo al fondo del Sidebar -->
         <div class="sidebar-footer">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding: 0 4px;">
-                <span style="font-size: 11px; color: var(--text-muted); font-weight: 600;">Versión del Sistema</span>
-                <span style="font-size: 11px; font-weight: 800; color: #38bdf8; background: rgba(56, 189, 248, 0.12); padding: 2px 8px; border-radius: 6px; border: 1px solid rgba(56, 189, 248, 0.3);"><i class="fa-solid fa-code-branch"></i> v{{ app_version }}</span>
+                <span style="font-size: calc(11px * var(--fs, 1)); color: var(--text-muted); font-weight: 600;">Versión del Sistema</span>
+                <span style="font-size: calc(11px * var(--fs, 1)); font-weight: 800; color: var(--c-accent); background: rgba(56, 189, 248, 0.12); padding: 2px 8px; border-radius: 6px; border: 1px solid rgba(56, 189, 248, 0.3);"><i class="fa-solid fa-code-branch"></i> v{{ app_version }}</span>
             </div>
             <a href="/logout" class="btn-logout-sidebar">
                 <i class="fa-solid fa-arrow-right-from-bracket"></i>
@@ -641,12 +678,12 @@
     </div>
 
     <!-- Contenido Principal -->
-    <div class="main-content">
+    <main class="main-content" id="contenido">
         <div class="header-bar">
             <div>
                 <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
                     <h1>Control de Acceso y Gestión de Usuarios (RBAC)</h1>
-                    <span style="font-size: 11.5px; font-weight: 800; background: rgba(56, 189, 248, 0.15); color: #38bdf8; padding: 3px 10px; border-radius: 20px; border: 1px solid rgba(56, 189, 248, 0.35); letter-spacing: 0.5px;">
+                    <span style="font-size: calc(11.5px * var(--fs, 1)); font-weight: 800; background: rgba(56, 189, 248, 0.15); color: var(--c-accent); padding: 3px 10px; border-radius: 20px; border: 1px solid rgba(56, 189, 248, 0.35); letter-spacing: 0.5px;">
                         <i class="fa-solid fa-code-branch"></i> Versión {{ app_version }}
                     </span>
                 </div>
@@ -675,7 +712,7 @@
             <div class="kpi-card">
                 <div class="kpi-info">
                     <span>Cuentas Activas</span>
-                    <div class="kpi-num" id="kpi-activos" style="color: #34d399;">--</div>
+                    <div class="kpi-num" id="kpi-activos" style="color: var(--c-green-t);">--</div>
                 </div>
                 <div class="kpi-icon" style="background: rgba(16, 185, 129, 0.15); color: var(--color-green);">
                     <i class="fa-solid fa-circle-check"></i>
@@ -685,7 +722,7 @@
             <div class="kpi-card">
                 <div class="kpi-info">
                     <span>Personal Técnico</span>
-                    <div class="kpi-num" id="kpi-tecnicos" style="color: #fbbf24;">--</div>
+                    <div class="kpi-num" id="kpi-tecnicos" style="color: var(--c-yellow-t);">--</div>
                 </div>
                 <div class="kpi-icon" style="background: rgba(245, 158, 11, 0.15); color: var(--color-yellow);">
                     <i class="fa-solid fa-screwdriver-wrench"></i>
@@ -695,7 +732,7 @@
             <div class="kpi-card">
                 <div class="kpi-info">
                     <span>Administradores</span>
-                    <div class="kpi-num" id="kpi-admins" style="color: #60a5fa;">--</div>
+                    <div class="kpi-num" id="kpi-admins" style="color: var(--c-blue-t);">--</div>
                 </div>
                 <div class="kpi-icon" style="background: rgba(59, 130, 246, 0.15); color: #3b82f6;">
                     <i class="fa-solid fa-user-shield"></i>
@@ -706,25 +743,26 @@
         <!-- Tabla de Directorio de Usuarios -->
         <div class="card">
             <div class="table-filter-bar">
-                <div class="filter-tabs">
-                    <button class="filter-btn active" onclick="filterRole('TODOS', this)">Todos los Registros</button>
-                    <button class="filter-btn" onclick="filterRole('ADMINISTRADOR', this)">Administradores</button>
-                    <button class="filter-btn" onclick="filterRole('TECNICO', this)">Técnicos</button>
-                    <button class="filter-btn" onclick="filterRole('USUARIO', this)">Usuarios</button>
+                <div class="filter-tabs" role="group" aria-label="Filtrar por rol">
+                    <button class="filter-btn active" onclick="filterRole('TODOS', this)" aria-pressed="true">Todos los Registros</button>
+                    <button class="filter-btn" onclick="filterRole('ADMINISTRADOR', this)" aria-pressed="false">Administradores</button>
+                    <button class="filter-btn" onclick="filterRole('TECNICO', this)" aria-pressed="false">Técnicos</button>
+                    <button class="filter-btn" onclick="filterRole('USUARIO', this)" aria-pressed="false">Usuarios</button>
                 </div>
-                <span style="font-size: 13px; color: var(--text-muted);" id="lbl-conteo">Mostrando registros</span>
+                <span style="font-size: calc(13px * var(--fs, 1)); color: var(--text-muted);" id="lbl-conteo" role="status" aria-live="polite">Mostrando registros</span>
             </div>
 
             <table>
+                <caption class="sr-only">Directorio de usuarios del sistema</caption>
                 <thead>
                     <tr>
-                        <th style="width: 60px;">ID</th>
-                        <th>Nombre y Apellidos</th>
-                        <th>Correo Institucional / Acceso</th>
-                        <th>Rol y Privilegios</th>
-                        <th>Estado de Cuenta</th>
-                        <th>Fecha de Registro</th>
-                        <th style="text-align: right;">Acciones</th>
+                        <th scope="col" style="width: 60px;">ID</th>
+                        <th scope="col">Nombre y Apellidos</th>
+                        <th scope="col">Correo Institucional / Acceso</th>
+                        <th scope="col">Rol y Privilegios</th>
+                        <th scope="col">Estado de Cuenta</th>
+                        <th scope="col">Fecha de Registro</th>
+                        <th scope="col" style="text-align: right;">Acciones</th>
                     </tr>
                 </thead>
                 <tbody id="usuarios-tbody">
@@ -735,40 +773,46 @@
                 </tbody>
             </table>
         </div>
-    </div>
+    </main>
 
     <!-- MODAL: CREAR / EDITAR USUARIO -->
     <div class="modal-overlay" id="userModal">
-        <div class="modal">
-            <h3 id="modalTitle"><i class="fa-solid fa-user-gear"></i> Registrar Usuario</h3>
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <form onsubmit="event.preventDefault(); saveUser();" novalidate>
+            <h2 id="modalTitle" class="modal-title"><i class="fa-solid fa-user-gear"></i> Registrar Usuario</h2>
             <input type="hidden" id="userId">
 
             <div class="form-group">
-                <label>Nombre Completo</label>
-                <input type="text" id="userNombre" placeholder="Ej. Carlos Mendoza" required>
+                <label for="userNombre">Nombre Completo</label>
+                <input type="text" id="userNombre" placeholder="Ej. Carlos Mendoza" autocomplete="off" required aria-describedby="userFormError">
             </div>
             <div class="form-group">
-                <label>Correo Electrónico de Acceso</label>
-                <input type="email" id="userCorreo" placeholder="usuario@fiax.com" required>
+                <label for="userCorreo">Correo Electrónico de Acceso</label>
+                <input type="email" id="userCorreo" placeholder="usuario@fiax.com" autocomplete="off" required aria-describedby="userFormError">
             </div>
             <div class="form-group">
-                <label>Contraseña (Dejar en blanco al editar si no se modifica)</label>
-                <input type="password" id="userPassword" placeholder="******">
+                <label for="userPassword">Contraseña</label>
+                <input type="password" id="userPassword" placeholder="******" autocomplete="new-password" aria-describedby="userPasswordHint userFormError">
+                <small id="userPasswordHint" class="field-hint">Mínimo 8 caracteres. Al editar, déjela en blanco para conservar la actual.</small>
             </div>
             <div class="form-group">
-                <label>Rol y Privilegios en el Sistema</label>
+                <label for="userRole">Rol y Privilegios en el Sistema</label>
                 <select id="userRole">
                     <!-- Roles cargados dinámicamente -->
                 </select>
             </div>
 
+            <p id="userFormError" class="form-error" role="alert"></p>
             <div class="modal-buttons">
-                <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
-                <button class="btn-primary" onclick="saveUser()"><i class="fa-solid fa-check"></i> Guardar
+                <button type="button" class="btn-cancel" onclick="closeModal()">Cancelar</button>
+                <button type="submit" class="btn-primary"><i class="fa-solid fa-check"></i> Guardar
                     Cambios</button>
             </div>
+        </form>
         </div>
     </div>
+
+    <div class="sr-only" id="usuariosAviso" role="status" aria-live="polite"></div>
 
     <script>
 function esc(value) {
@@ -812,8 +856,14 @@ function esc(value) {
 
         function filterRole(roleName, btn) {
             filtroActual = roleName;
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            if (btn) btn.classList.add('active');
+            document.querySelectorAll('.filter-btn').forEach(b => {
+                b.classList.remove('active');
+                b.setAttribute('aria-pressed', 'false');
+            });
+            if (btn) {
+                btn.classList.add('active');
+                btn.setAttribute('aria-pressed', 'true');
+            }
             renderTable();
         }
 
@@ -848,8 +898,8 @@ function esc(value) {
                 tbody.innerHTML += `
                     <tr>
                         <td><strong style="color: var(--accent-blue);">#${u.id}</strong></td>
-                        <td style="font-weight: 700; color: #f8fafc;">${esc(u.nombre_completo)}</td>
-                        <td style="color: #cbd5e1;"><code>${esc(u.correo)}</code></td>
+                        <th scope="row" style="font-weight: 700; color: var(--text-main); text-align: left;">${esc(u.nombre_completo)}</th>
+                        <td style="color: var(--text-soft);"><code>${esc(u.correo)}</code></td>
                         <td>
                             <span class="badge-role ${badgeRoleClass}">
                                 ${iconRole} ${esc(u.rol_nombre)}
@@ -860,12 +910,12 @@ function esc(value) {
                                 <i class="fa-solid fa-circle-check"></i> ACTIVO
                             </span>
                         </td>
-                        <td style="font-size: 12.5px; color: var(--text-muted);">
+                        <td style="font-size: calc(12.5px * var(--fs, 1)); color: var(--text-muted);">
                             <i class="fa-regular fa-calendar" style="margin-right: 4px;"></i> ${esc(u.created_at || 'Sistema')}
                         </td>
                         <td style="text-align: right; white-space: nowrap;">
-                            <button class="btn-edit" onclick="openEditById(${u.id})"><i class="fa-solid fa-pen"></i> Editar</button>
-                            <button class="btn-delete" onclick="deleteUser(${u.id})"><i class="fa-solid fa-trash"></i> Eliminar</button>
+                            <button class="btn-edit" onclick="openEditById(${u.id})" aria-label="Editar a ${esc(u.nombre_completo)}"><i class="fa-solid fa-pen"></i> Editar</button>
+                            <button class="btn-delete" onclick="deleteUser(${u.id})" aria-label="Eliminar a ${esc(u.nombre_completo)}"><i class="fa-solid fa-trash"></i> Eliminar</button>
                         </td>
                     </tr>
                 `;
@@ -888,6 +938,7 @@ function esc(value) {
             document.getElementById('userCorreo').value = '';
             document.getElementById('userPassword').value = '';
             populateRolesSelect();
+            setFormError('');
             document.getElementById('userModal').style.display = 'flex';
         }
 
@@ -903,11 +954,26 @@ function esc(value) {
             document.getElementById('userCorreo').value = correo;
             document.getElementById('userPassword').value = '';
             populateRolesSelect(roleId);
+            setFormError('');
             document.getElementById('userModal').style.display = 'flex';
         }
 
         function closeModal() {
             document.getElementById('userModal').style.display = 'none';
+        }
+
+        function setFormError(message, fieldId) {
+            document.getElementById('userFormError').textContent = message;
+            ['userNombre', 'userCorreo', 'userPassword'].forEach(id => {
+                document.getElementById(id).setAttribute('aria-invalid', id === fieldId ? 'true' : 'false');
+            });
+            if (fieldId) document.getElementById(fieldId).focus();
+        }
+
+        function avisar(message) {
+            const aviso = document.getElementById('usuariosAviso');
+            aviso.textContent = '';
+            setTimeout(() => { aviso.textContent = message; }, 50);
         }
 
         async function saveUser() {
@@ -917,13 +983,16 @@ function esc(value) {
             const password = document.getElementById('userPassword').value;
             const roleIdVal = document.getElementById('userRole').value;
 
-            if (!nombre || !correo) {
-                alert("El nombre y el correo son obligatorios.");
+            if (!nombre) {
+                setFormError("El nombre es obligatorio.", 'userNombre');
                 return;
             }
-
+            if (!correo || !document.getElementById('userCorreo').checkValidity()) {
+                setFormError("Escriba un correo electrónico válido.", 'userCorreo');
+                return;
+            }
             if (!id && !password) {
-                alert("La contraseña es obligatoria para nuevos usuarios.");
+                setFormError("La contraseña es obligatoria para nuevos usuarios.", 'userPassword');
                 return;
             }
 
@@ -950,11 +1019,12 @@ function esc(value) {
                 if (res.ok) {
                     closeModal();
                     loadUsers();
+                    avisar(id ? `Usuario ${nombre} actualizado.` : `Usuario ${nombre} registrado.`);
                 } else {
-                    alert("Error: " + (result.error || "No se pudo guardar el usuario."));
+                    setFormError("Error: " + (result.error || "No se pudo guardar el usuario."));
                 }
             } catch (err) {
-                alert("Error de conexión al servidor.");
+                setFormError("Error de conexión al servidor.");
             }
         }
 
@@ -967,6 +1037,7 @@ function esc(value) {
 
                 if (res.ok) {
                     loadUsers();
+                    avisar('Usuario eliminado.');
                 } else {
                     alert("Error: " + (result.error || "No se pudo eliminar el usuario."));
                 }

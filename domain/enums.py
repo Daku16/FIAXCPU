@@ -14,6 +14,7 @@ class PermissionEnum(str, Enum):
     FIX_EXECUTE = "FIX_EXECUTE"
     MAINTENANCE_RUN = "MAINTENANCE_RUN"
     AUDIT_READ = "AUDIT_READ"
+    SCHEDULE_MANAGE = "SCHEDULE_MANAGE"
 
 class SeveridadEnum(str, Enum):
     BAJO = "BAJO"

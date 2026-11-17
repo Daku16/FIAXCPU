@@ -2,12 +2,13 @@ import os
 from urllib.parse import urlparse
 
 from flask import Flask, render_template, redirect, url_for, session, request, jsonify
+from sqlalchemy import inspect, text
 from config import config_by_name
 from domain.models import db, User, Role, Permission, SesionDiagnostico
 from domain.enums import RoleEnum, PermissionEnum
 from runtime_paths import load_or_create_secret, resource_path, is_frozen, user_data_dir
 from services.role_service import RoleManagementService
-from services.auth_service import AuthService
+from services.auth_service import AuthService, AuthorizationService
 from services.telemetry_service import TelemetryService
 from services.diagnostic_service import DiagnosticService
 from controllers.auth_controller import auth_bp
@@ -26,6 +27,7 @@ def create_app(config_name='default', instance_path=None):
         instance_path=instance_path,
     )
     app.config.from_object(config_by_name[config_name])
+    app.config['CONFIG_NAME'] = config_name
     os.makedirs(app.instance_path, exist_ok=True)
     if not app.config.get('SECRET_KEY'):
         app.config['SECRET_KEY'] = load_or_create_secret(app.instance_path)
@@ -106,7 +108,9 @@ def create_app(config_name='default', instance_path=None):
             user_role=user_role,
             user_id=session.get('user_id'),
             equipo=equipo.to_dict() if equipo else {},
-            ultimo_diag=ultimo_diag
+            ultimo_diag=ultimo_diag,
+            can_schedule=AuthorizationService.user_has_permission(
+                session.get('user_id'), PermissionEnum.SCHEDULE_MANAGE.value)
         )
 
     @app.route('/usuarios')
@@ -137,11 +141,21 @@ def create_app(config_name='default', instance_path=None):
 app = create_app(os.environ.get('FIAX_ENV', 'dev'))
 
 
+def migrate_schema():
+    """Agrega a bases de datos existentes las columnas nuevas (create_all solo crea tablas)."""
+    columnas = {c['name'] for c in inspect(db.engine).get_columns('ejecuciones_mantenimiento')}
+    if 'origen' not in columnas:
+        with db.engine.begin() as conn:
+            conn.execute(text(
+                "ALTER TABLE ejecuciones_mantenimiento ADD COLUMN origen VARCHAR(20) NOT NULL DEFAULT 'MANUAL'"))
+
+
 def setup_initial_data(target_app=None):
     """Siembra de datos inicial con esquema relacional completo y equipo anfitrión."""
     target_app = target_app or app
     with target_app.app_context():
         db.create_all()
+        migrate_schema()
         role_service = RoleManagementService()
 
         # 1. Crear Permisos del Sistema
@@ -164,7 +178,8 @@ def setup_initial_data(target_app=None):
             PermissionEnum.REPORT_READ.value,
             PermissionEnum.MAINTENANCE_RUN.value,
             PermissionEnum.AUDIT_READ.value,
-            PermissionEnum.USER_READ.value
+            PermissionEnum.USER_READ.value,
+            PermissionEnum.SCHEDULE_MANAGE.value
         ])).all()
 
         usuario_role.permissions = Permission.query.filter(Permission.nombre.in_([

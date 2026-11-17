@@ -87,7 +87,7 @@ class ComparisonService:
         return filas
 
     @classmethod
-    def save(cls, tipo, titulo, inicial, final, exito, mensaje, usuario_id=None, incidencia_id=None):
+    def save(cls, tipo, titulo, inicial, final, exito, mensaje, usuario_id=None, incidencia_id=None, origen='MANUAL'):
         sesion = SesionDiagnostico.query.order_by(SesionDiagnostico.id.desc()).first()
         ejecucion = EjecucionMantenimiento(
             tipo=tipo,
@@ -96,6 +96,7 @@ class ComparisonService:
             incidencia_id=incidencia_id,
             usuario_id=usuario_id,
             exito=1 if exito else 0,
+            origen=origen,
             mensaje=mensaje,
             estado_inicial_json=json.dumps(inicial),
             estado_final_json=json.dumps(final),
@@ -111,8 +112,10 @@ class ComparisonService:
             "tipo": ejecucion.tipo,
             "titulo": ejecucion.titulo,
             "fecha_hora": format_local(ejecucion.fecha_hora),
-            "usuario_nombre": ejecucion.usuario.nombre_completo if ejecucion.usuario else "Sistema",
+            "usuario_nombre": ejecucion.usuario.nombre_completo if ejecucion.usuario else (
+                "Programador de tareas" if ejecucion.origen == "PROGRAMADO" else "Sistema"),
             "exito": bool(ejecucion.exito),
+            "origen": ejecucion.origen or "MANUAL",
             "mensaje": ejecucion.mensaje,
             "filas": cls.build_rows(ejecucion.estado_inicial, ejecucion.estado_final),
         }

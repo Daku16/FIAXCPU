@@ -40,15 +40,42 @@ def _pick_port(preferred):
         return probe.getsockname()[1]
 
 
+def run_scheduled_maintenance(args):
+    """Ejecución desatendida: misma base de datos que la aplicación, sin servidor ni navegador."""
+    os.environ["FIAX_ENV"] = args.env
+    from runtime_paths import user_data_dir
+    data_dir = args.instance or user_data_dir()
+    os.makedirs(data_dir, exist_ok=True)
+    logging.basicConfig(filename=os.path.join(data_dir, "fiax.log"), level=logging.INFO,
+                        format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+
+    import app as fiax
+    target = fiax.create_app(args.env, instance_path=args.instance) if args.instance else fiax.app
+    fiax.setup_initial_data(target)
+    from services.scheduler_service import SchedulerService
+    with target.app_context():
+        resultado = SchedulerService.run_scheduled(args.run_maintenance)
+    logging.info("Mantenimiento programado '%s': %s", args.run_maintenance, resultado.get("mensaje"))
+    print(resultado.get("mensaje") or resultado.get("error"))
+    return 0 if resultado.get("success") else 1
+
+
 def main():
     parser = argparse.ArgumentParser(prog="fiax-cpu", description="FIAX CPU - Mantenimiento del equipo")
     parser.add_argument("--port", type=int, default=DEFAULT_PORT, help="puerto local preferido")
     parser.add_argument("--no-browser", action="store_true", help="no abrir el navegador")
     parser.add_argument("--version", action="store_true", help="mostrar la versión y salir")
+    parser.add_argument("--run-maintenance", metavar="TIPO", choices=("temporales", "dns", "memoria", "global"),
+                        help="ejecutar un mantenimiento sin abrir la aplicación (lo usa el programador de tareas)")
+    parser.add_argument("--env", default="prod", help=argparse.SUPPRESS)
+    parser.add_argument("--instance", help=argparse.SUPPRESS)
     args = parser.parse_args()
 
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(errors="replace")
+
+    if args.run_maintenance:
+        return run_scheduled_maintenance(args)
 
     os.environ["FIAX_ENV"] = "prod"
     from config import Config

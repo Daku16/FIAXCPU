@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FIAX CPU - Autenticación y Acceso Seguro</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='vendor/fontawesome/css/all.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='a11y.css') }}">
+    <script src="{{ url_for('static', filename='a11y.js') }}"></script>
     <style>
         :root {
             --bg-main: #0b1120;
@@ -61,7 +63,7 @@
         }
 
         .logo-icon {
-            background: linear-gradient(135deg, #0284c7, #38bdf8);
+            background: linear-gradient(135deg, #0284c7, var(--c-accent));
             color: white;
             width: 52px;
             height: 52px;
@@ -69,21 +71,21 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
+            font-size: calc(24px * var(--fs, 1));
             margin-bottom: 12px;
             box-shadow: 0 4px 16px rgba(56, 189, 248, 0.35);
         }
 
         .logo-header h2 {
-            font-size: 24px;
+            font-size: calc(24px * var(--fs, 1));
             font-weight: 900;
-            color: #f8fafc;
+            color: var(--text-main);
             letter-spacing: 0.5px;
         }
 
         .logo-header p.subtitle {
             color: var(--accent-blue);
-            font-size: 12px;
+            font-size: calc(12px * var(--fs, 1));
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -106,7 +108,7 @@
             color: var(--text-muted);
             cursor: pointer;
             font-weight: 700;
-            font-size: 13.5px;
+            font-size: calc(13.5px * var(--fs, 1));
             border-bottom: 3px solid transparent;
             display: flex;
             align-items: center;
@@ -116,7 +118,7 @@
         }
 
         .tab-btn:hover {
-            color: #f8fafc;
+            color: var(--text-main);
         }
 
         .tab-btn.active {
@@ -126,8 +128,19 @@
 
         /* Grupos de Formulario e Inputs */
         .form-group {
-            position: relative;
             margin-bottom: 16px;
+        }
+
+        .input-wrap {
+            position: relative;
+        }
+
+        .form-label {
+            display: block;
+            font-size: calc(12.5px * var(--fs, 1));
+            font-weight: 700;
+            color: var(--text-soft);
+            margin-bottom: 6px;
         }
 
         .input-icon {
@@ -136,7 +149,7 @@
             top: 50%;
             transform: translateY(-50%);
             color: var(--text-muted);
-            font-size: 14px;
+            font-size: calc(14px * var(--fs, 1));
             pointer-events: none;
             transition: color 0.2s;
         }
@@ -147,8 +160,8 @@
             border-radius: 10px;
             border: 1px solid var(--border-color);
             background-color: var(--bg-card-alt);
-            color: white;
-            font-size: 14px;
+            color: var(--text-main);
+            font-size: calc(14px * var(--fs, 1));
             outline: none;
             transition: all 0.2s ease;
         }
@@ -171,7 +184,7 @@
             border: none;
             color: var(--text-muted);
             cursor: pointer;
-            font-size: 14px;
+            font-size: calc(14px * var(--fs, 1));
             padding: 6px;
             display: flex;
             align-items: center;
@@ -192,7 +205,7 @@
             background-color: var(--btn-blue);
             color: white;
             font-weight: 800;
-            font-size: 14.5px;
+            font-size: calc(14.5px * var(--fs, 1));
             cursor: pointer;
             transition: all 0.2s ease;
             display: flex;
@@ -209,17 +222,17 @@
         }
 
         button.submit-btn.btn-register {
-            background-color: var(--color-green);
+            background-color: #047857;
             box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
         }
 
         button.submit-btn.btn-register:hover {
-            background-color: var(--color-green-hover);
+            background-color: #065f46;
         }
 
         /* Feedback en vivo de contraseñas */
         .match-feedback {
-            font-size: 11.5px;
+            font-size: calc(11.5px * var(--fs, 1));
             margin-top: -10px;
             margin-bottom: 14px;
             display: none;
@@ -229,12 +242,12 @@
         }
 
         .match-feedback.error {
-            color: #f87171;
+            color: var(--c-red-t);
             display: flex;
         }
 
         .match-feedback.success {
-            color: #34d399;
+            color: var(--c-green-t);
             display: flex;
         }
 
@@ -251,7 +264,7 @@
         }
 
         .version-tag {
-            font-size: 11px;
+            font-size: calc(11px * var(--fs, 1));
             font-weight: 700;
             color: var(--text-muted);
             letter-spacing: 0.5px;
@@ -290,27 +303,27 @@
         }
 
         .popup-icon {
-            font-size: 38px;
+            font-size: calc(38px * var(--fs, 1));
             color: var(--color-red);
             margin-bottom: 12px;
         }
 
-        .popup h3 {
-            color: #f8fafc;
-            font-size: 18px;
+        .popup h2 {
+            color: var(--text-main);
+            font-size: calc(18px * var(--fs, 1));
             font-weight: 800;
             margin-bottom: 8px;
         }
 
         .popup p {
-            color: #cbd5e1;
-            font-size: 13.5px;
+            color: var(--text-soft);
+            font-size: calc(13.5px * var(--fs, 1));
             line-height: 1.5;
             margin-bottom: 22px;
         }
 
         .popup-btn {
-            background-color: var(--color-red);
+            background-color: #dc2626;
             color: white;
             border: none;
             padding: 11px 24px;
@@ -318,7 +331,7 @@
             font-weight: 800;
             cursor: pointer;
             width: 100%;
-            font-size: 13.5px;
+            font-size: calc(13.5px * var(--fs, 1));
             transition: all 0.2s ease;
         }
 
@@ -340,7 +353,8 @@
 
 <body>
 
-    <div class="card">
+    <main class="card" id="contenido">
+        <h1 class="sr-only">FIAX CPU: acceso al sistema</h1>
         <!-- Encabezado y Logotipo -->
         <div class="logo-header">
             <div class="logo-icon"><i class="fa-solid fa-microchip"></i></div>
@@ -349,78 +363,112 @@
         </div>
 
         {% if first_run %}
-        <p style="font-size: 13px; line-height: 1.45; color: #e2e8f0; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 8px; padding: 10px 12px; margin-bottom: 14px;">
+        <p style="font-size: calc(13px * var(--fs, 1)); line-height: 1.45; color: var(--text-body); background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 8px; padding: 10px 12px; margin-bottom: 14px;">
             <i class="fa-solid fa-circle-info"></i> Primera ejecución: la cuenta que cree ahora será la del Administrador.
         </p>
         {% endif %}
 
         <!-- Pestañas de Alternancia -->
-        <div class="tabs">
-            <button type="button" class="tab-btn {% if not active_tab or active_tab == 'login' %}active{% endif %}"
+        <div class="tabs" role="tablist" aria-label="Acceso al sistema">
+            <button type="button" id="tab-login" role="tab" aria-controls="panel-login"
+                aria-selected="{{ 'false' if active_tab == 'registro' else 'true' }}"
+                tabindex="{{ '-1' if active_tab == 'registro' else '0' }}"
+                class="tab-btn {% if not active_tab or active_tab == 'login' %}active{% endif %}"
                 onclick="switchTab('login')">
                 <i class="fa-solid fa-right-to-bracket"></i> Iniciar Sesión
             </button>
-            <button type="button" class="tab-btn {% if active_tab == 'registro' %}active{% endif %}"
+            <button type="button" id="tab-registro" role="tab" aria-controls="panel-registro"
+                aria-selected="{{ 'true' if active_tab == 'registro' else 'false' }}"
+                tabindex="{{ '0' if active_tab == 'registro' else '-1' }}"
+                class="tab-btn {% if active_tab == 'registro' %}active{% endif %}"
                 onclick="switchTab('registro')">
                 <i class="fa-solid fa-user-plus"></i> Crear Cuenta
             </button>
         </div>
 
         <!-- FORMULARIO 1: INICIAR SESIÓN -->
-        <form id="form-login" action="/login" method="POST"
+        <div id="panel-login" role="tabpanel" aria-labelledby="tab-login" {% if active_tab == 'registro' %}hidden{% endif %}>
+        <form id="form-login" action="/login" method="POST" aria-labelledby="tab-login"
             style="display: {% if active_tab == 'registro' %}none{% else %}block{% endif %};">
             <div class="form-group">
-                <input type="email" name="correo" id="login-email" placeholder="Correo electrónico institucional"
-                    value="{{ correo or '' }}" autocomplete="email" required>
-                <i class="fa-solid fa-envelope input-icon"></i>
+                <label class="form-label" for="login-email">Correo electrónico</label>
+                <div class="input-wrap">
+                    <input type="email" name="correo" id="login-email" placeholder="nombre@entidad.gov.co"
+                        value="{{ correo or '' }}" autocomplete="email" required
+                        {% if error_login and active_tab != 'registro' %}aria-invalid="true" aria-describedby="errorModal-mensaje"{% endif %}>
+                    <i class="fa-solid fa-envelope input-icon"></i>
+                </div>
             </div>
             <div class="form-group">
-                <input type="password" name="password" id="login-password" placeholder="Contraseña de acceso"
-                    autocomplete="current-password" required>
-                <i class="fa-solid fa-lock input-icon"></i>
-                <button type="button" class="btn-toggle-pass" onclick="togglePassVisibility('login-password', this)" title="Ver / Ocultar">
-                    <i class="fa-solid fa-eye"></i>
-                </button>
+                <label class="form-label" for="login-password">Contraseña</label>
+                <div class="input-wrap">
+                    <input type="password" name="password" id="login-password" placeholder="Contraseña de acceso"
+                        autocomplete="current-password" required
+                        {% if error_login and active_tab != 'registro' %}aria-invalid="true" aria-describedby="errorModal-mensaje"{% endif %}>
+                    <i class="fa-solid fa-lock input-icon"></i>
+                    <button type="button" class="btn-toggle-pass" onclick="togglePassVisibility('login-password', this)"
+                        aria-label="Mostrar contraseña" aria-pressed="false" aria-controls="login-password">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                </div>
             </div>
             <button type="submit" class="submit-btn">
                 <i class="fa-solid fa-right-to-bracket"></i> Ingresar al Sistema
             </button>
         </form>
+        </div>
 
         <!-- FORMULARIO 2: REGISTRO DE NUEVO USUARIO -->
+        <div id="panel-registro" role="tabpanel" aria-labelledby="tab-registro" {% if active_tab != 'registro' %}hidden{% endif %}>
         <form id="form-registro" action="/registro" method="POST" onsubmit="return validateRegisterForm()"
+            aria-labelledby="tab-registro"
             style="display: {% if active_tab == 'registro' %}block{% else %}none{% endif %};">
             <div class="form-group">
-                <input type="text" name="nombre" id="reg-nombre" placeholder="Nombre y Apellidos completos"
-                    value="{{ nombre or '' }}" autocomplete="name" required>
-                <i class="fa-solid fa-user input-icon"></i>
+                <label class="form-label" for="reg-nombre">Nombre completo</label>
+                <div class="input-wrap">
+                    <input type="text" name="nombre" id="reg-nombre" placeholder="Nombre y apellidos"
+                        value="{{ nombre or '' }}" autocomplete="name" required>
+                    <i class="fa-solid fa-user input-icon"></i>
+                </div>
             </div>
             <div class="form-group">
-                <input type="email" name="correo" id="reg-correo" placeholder="Correo electrónico"
-                    value="{{ correo or '' }}" autocomplete="email" required>
-                <i class="fa-solid fa-envelope input-icon"></i>
+                <label class="form-label" for="reg-correo">Correo electrónico</label>
+                <div class="input-wrap">
+                    <input type="email" name="correo" id="reg-correo" placeholder="nombre@entidad.gov.co"
+                        value="{{ correo or '' }}" autocomplete="email" required>
+                    <i class="fa-solid fa-envelope input-icon"></i>
+                </div>
             </div>
             <div class="form-group">
-                <input type="password" name="password" id="reg-password" placeholder="Crear contraseña"
-                    autocomplete="new-password" oninput="checkPasswordMatch()" required>
-                <i class="fa-solid fa-lock input-icon"></i>
-                <button type="button" class="btn-toggle-pass" onclick="togglePassVisibility('reg-password', this)" title="Ver / Ocultar">
-                    <i class="fa-solid fa-eye"></i>
-                </button>
+                <label class="form-label" for="reg-password">Contraseña (mínimo 8 caracteres)</label>
+                <div class="input-wrap">
+                    <input type="password" name="password" id="reg-password" placeholder="Crear contraseña"
+                        autocomplete="new-password" minlength="8" oninput="checkPasswordMatch()" required>
+                    <i class="fa-solid fa-lock input-icon"></i>
+                    <button type="button" class="btn-toggle-pass" onclick="togglePassVisibility('reg-password', this)"
+                        aria-label="Mostrar contraseña" aria-pressed="false" aria-controls="reg-password">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                </div>
             </div>
             <div class="form-group">
-                <input type="password" name="confirm_password" id="reg-confirm-password" placeholder="Confirmar contraseña"
-                    autocomplete="new-password" oninput="checkPasswordMatch()" required>
-                <i class="fa-solid fa-shield-halved input-icon"></i>
-                <button type="button" class="btn-toggle-pass" onclick="togglePassVisibility('reg-confirm-password', this)" title="Ver / Ocultar">
-                    <i class="fa-solid fa-eye"></i>
-                </button>
+                <label class="form-label" for="reg-confirm-password">Confirmar contraseña</label>
+                <div class="input-wrap">
+                    <input type="password" name="confirm_password" id="reg-confirm-password" placeholder="Repita la contraseña"
+                        autocomplete="new-password" oninput="checkPasswordMatch()" aria-describedby="match-feedback" required>
+                    <i class="fa-solid fa-shield-halved input-icon"></i>
+                    <button type="button" class="btn-toggle-pass" onclick="togglePassVisibility('reg-confirm-password', this)"
+                        aria-label="Mostrar contraseña" aria-pressed="false" aria-controls="reg-confirm-password">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                </div>
             </div>
-            <div id="match-feedback" class="match-feedback"></div>
+            <div id="match-feedback" class="match-feedback" aria-live="polite"></div>
             <button type="submit" class="submit-btn btn-register">
                 <i class="fa-solid fa-user-check"></i> Registrar e Ingresar
             </button>
         </form>
+        </div>
 
         <!-- Pie Informativo con Versión -->
         <div class="version-footer">
@@ -428,16 +476,16 @@
                 FIAX CPU &bull; <i class="fa-solid fa-code-branch"></i> <strong>Versión {{ app_version }}</strong>
             </span>
         </div>
-    </div>
+    </main>
 
     <!-- POPUP EMERGENTE DE ERRORES (RESPETA REGLAS DE TEST) -->
     {% if error_login %}
     <div class="modal-overlay" id="errorModal" onclick="handleBackdropClick(event)">
-        <div class="popup">
+        <div class="popup" role="alertdialog" aria-modal="true" aria-labelledby="errorModal-titulo" aria-describedby="errorModal-mensaje">
             <div class="popup-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
-            <h3>{% if active_tab == 'registro' %}Validación de Registro{% else %}Credenciales Inválidas{% endif %}</h3>
-            <p>{{ error_login }}</p>
-            <button type="button" class="popup-btn" onclick="closePopup()">Aceptar</button>
+            <h2 id="errorModal-titulo">{% if active_tab == 'registro' %}Validación de Registro{% else %}Credenciales Inválidas{% endif %}</h2>
+            <p id="errorModal-mensaje">{{ error_login }}</p>
+            <button type="button" class="popup-btn" onclick="closePopup()" data-a11y-initial>Aceptar</button>
         </div>
     </div>
     {% endif %}
@@ -448,6 +496,13 @@
             const formRegistro = document.getElementById('form-registro');
             const btns = document.querySelectorAll('.tab-btn');
 
+            document.getElementById('panel-login').hidden = tab !== 'login';
+            document.getElementById('panel-registro').hidden = tab === 'login';
+            btns.forEach(b => {
+                const selected = b.id === `tab-${tab}`;
+                b.setAttribute('aria-selected', selected ? 'true' : 'false');
+                b.tabIndex = selected ? 0 : -1;
+            });
             if (tab === 'login') {
                 formLogin.style.display = 'block';
                 formRegistro.style.display = 'none';
@@ -469,7 +524,10 @@
             const input = document.getElementById(inputId);
             if (!input) return;
             const icon = btn.querySelector('i');
-            if (input.type === 'password') {
+            const showing = input.type === 'password';
+            btn.setAttribute('aria-pressed', showing ? 'true' : 'false');
+            btn.setAttribute('aria-label', showing ? 'Ocultar contraseña' : 'Mostrar contraseña');
+            if (showing) {
                 input.type = 'text';
                 if (icon) {
                     icon.classList.remove('fa-eye');
@@ -495,6 +553,8 @@
                 return;
             }
 
+            const confirm = document.getElementById('reg-confirm-password');
+            confirm.setAttribute('aria-invalid', p1 !== p2 ? 'true' : 'false');
             if (p1 !== p2) {
                 feedback.className = 'match-feedback error';
                 feedback.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> Las contraseñas no coinciden.';
@@ -508,7 +568,8 @@
             const p1 = document.getElementById('reg-password').value;
             const p2 = document.getElementById('reg-confirm-password').value;
             if (p1 !== p2) {
-                alert("Las contraseñas no coinciden. Por favor verifíquelas antes de continuar.");
+                checkPasswordMatch();
+                document.getElementById('reg-confirm-password').focus();
                 return false;
             }
             return true;
@@ -516,8 +577,12 @@
 
         function closePopup() {
             const modal = document.getElementById('errorModal');
-            if (modal) {
+            if (modal && modal.style.display !== 'none') {
                 modal.style.display = 'none';
+                // Devuelve el foco al primer campo del formulario visible para corregir el dato.
+                const form = document.querySelector('[role="tabpanel"]:not([hidden]) form');
+                const field = form && form.querySelector('input');
+                if (field) field.focus();
             }
         }
 
@@ -531,6 +596,21 @@
             if (e.key === 'Escape') {
                 closePopup();
             }
+        });
+
+        // Flechas izquierda/derecha entre pestañas (patrón ARIA tablist).
+        document.querySelector('[role="tablist"]').addEventListener('keydown', (e) => {
+            if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight' && e.key !== 'Home' && e.key !== 'End') return;
+            e.preventDefault();
+            const target = (e.key === 'ArrowLeft' || e.key === 'Home') ? 'login' : 'registro';
+            switchTab(target);
+            document.getElementById(`tab-${target}`).focus();
+        });
+
+        // El popup de error aparece al cargar: recibe el foco para que se lea de inmediato.
+        document.addEventListener('DOMContentLoaded', () => {
+            const accept = document.querySelector('#errorModal .popup-btn');
+            if (accept) accept.focus();
         });
     </script>
 </body>

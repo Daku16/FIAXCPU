@@ -23,6 +23,9 @@ class Config:
 
     PASSWORD_MIN_LENGTH = 8
 
+    # Programador del mantenimiento automático: auto (Windows -> schtasks, otros -> cron), windows, cron, memoria.
+    SCHEDULER_BACKEND = os.environ.get('FIAX_SCHEDULER', 'auto')
+
     # Umbrales Heurísticos de Hardware para FIAX Diagnostic Engine
     THRESHOLD_CPU_WARNING = 70.0   # Porcentaje
     THRESHOLD_CPU_CRITICAL = 85.0  # Porcentaje
@@ -47,6 +50,8 @@ class TestingConfig(Config):
     SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
     SEED_DEMO_USERS = True
     PASSWORD_MIN_LENGTH = 8
+    # Las pruebas nunca registran tareas reales en el sistema operativo.
+    SCHEDULER_BACKEND = 'memoria'
 
 
 config_by_name = {

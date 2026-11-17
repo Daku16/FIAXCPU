@@ -1,0 +1,204 @@
+/* Accesibilidad compartida por todas las pantallas de FIAX CPU.
+   Temas (data-theme), alto contraste (data-contrast) y tamaño de texto (--fs) se aplican en <html>. */
+
+:root {
+    --fs: 1;
+    --text-body: #e2e8f0;
+    --text-soft: #cbd5e1;
+    --text-faint: #94a3b8;
+    --c-accent: #38bdf8;
+    --c-green-t: #34d399;
+    --c-red-t: #f87171;
+    --c-red-soft: #fca5a5;
+    --c-yellow-t: #fbbf24;
+    --c-orange-t: #fb923c;
+    --c-purple-t: #c084fc;
+    --c-blue-t: #93c5fd;
+    --bg-btn: #1e293b;
+    --bg-btn-hover: #334155;
+    --bg-btn-active: #475569;
+    --bg-inset: rgba(13, 23, 46, 0.6);
+    --ink-rgb: 255, 255, 255;
+    --hero-grad: linear-gradient(135deg, #0f2752, #075985);
+    --focus-ring: #fde047;
+    color-scheme: dark;
+}
+
+html[data-fs="1.125"] { --fs: 1.125; }
+html[data-fs="1.25"] { --fs: 1.25; }
+html[data-fs="1.5"] { --fs: 1.5; }
+
+/* ---------- Tema claro ---------- */
+html[data-theme="light"] {
+    color-scheme: light;
+    --bg-main: #eef2f7;
+    --bg-sidebar: #ffffff;
+    --bg-card: #ffffff;
+    --bg-card-alt: #f4f7fb;
+    --border-color: #c7d2e0;
+    --accent-blue: #0369a1;
+    --color-green: #047857;
+    --color-green-hover: #065f46;
+    --color-yellow: #b45309;
+    --color-red: #b91c1c;
+    --color-red-hover: #991b1b;
+    --text-main: #0f172a;
+    --text-body: #1e293b;
+    --text-soft: #334155;
+    --text-muted: #475569;
+    --text-faint: #52627a;
+    --c-accent: #0369a1;
+    --c-green-t: #047857;
+    --c-red-t: #b91c1c;
+    --c-red-soft: #b91c1c;
+    --c-yellow-t: #92400e;
+    --c-orange-t: #c2410c;
+    --c-purple-t: #7e22ce;
+    --c-blue-t: #1d4ed8;
+    --bg-btn: #e2e8f0;
+    --bg-btn-hover: #cbd5e1;
+    --bg-btn-active: #94a3b8;
+    --bg-inset: #f1f5f9;
+    --ink-rgb: 15, 23, 42;
+    --hero-grad: linear-gradient(135deg, #e0f2fe, #f0f9ff);
+    --focus-ring: #1d4ed8;
+}
+
+/* ---------- Alto contraste ---------- */
+html[data-contrast="high"] {
+    --text-muted: #e2e8f0;
+    --text-faint: #e2e8f0;
+    --text-soft: #f1f5f9;
+    --text-body: #ffffff;
+    --text-main: #ffffff;
+    --border-color: #94a3b8;
+    --bg-main: #000814;
+    --bg-card: #0b1328;
+    --bg-card-alt: #050b1a;
+    --bg-sidebar: #050b1a;
+    --c-accent: #7dd3fc;
+    --c-green-t: #6ee7b7;
+    --c-red-t: #fca5a5;
+    --c-yellow-t: #fde68a;
+    --focus-ring: #fde047;
+}
+html[data-theme="light"][data-contrast="high"] {
+    --text-muted: #0f172a;
+    --text-faint: #0f172a;
+    --text-soft: #0f172a;
+    --text-body: #000000;
+    --text-main: #000000;
+    --border-color: #334155;
+    --bg-main: #ffffff;
+    --bg-card: #ffffff;
+    --bg-card-alt: #ffffff;
+    --bg-sidebar: #ffffff;
+    --c-accent: #075985;
+    --c-green-t: #065f46;
+    --c-red-t: #991b1b;
+    --c-yellow-t: #78350f;
+    --focus-ring: #c2410c;
+}
+html[data-contrast="high"] a:not([class]) { text-decoration: underline; }
+html[data-contrast="high"] .card,
+html[data-contrast="high"] .metric-card,
+html[data-contrast="high"] .tool-card,
+html[data-contrast="high"] .kpi-card,
+html[data-contrast="high"] .fx-kpi { border: 1px solid var(--border-color) !important; }
+
+/* Las barras laterales tenían color fijo en el tema oscuro: se igualan al tema activo. */
+html[data-theme="light"] .sidebar { border-right: 1px solid var(--border-color); }
+html[data-theme="light"] .modal-overlay { background-color: rgba(15, 23, 42, 0.55) !important; }
+html[data-theme="light"] .nav-btn.active,
+html[data-theme="light"] .btn-primary,
+html[data-theme="light"] .user-avatar,
+html[data-theme="light"] .logo-icon { color: #ffffff; }
+
+/* ---------- Foco visible ---------- */
+:focus-visible {
+    outline: 3px solid var(--focus-ring) !important;
+    outline-offset: 2px !important;
+}
+input:focus-visible, select:focus-visible, textarea:focus-visible {
+    outline-offset: 0 !important;
+}
+tr[tabindex]:focus-visible { outline-offset: -3px !important; }
+
+/* ---------- Utilidades ---------- */
+.sr-only {
+    position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+.skip-link {
+    position: fixed; top: 8px; left: 8px; z-index: 10000;
+    transform: translateY(-160%); transition: transform 0.15s ease;
+    background: var(--focus-ring); color: #0f172a; font-weight: 800;
+    padding: 10px 16px; border-radius: 8px; text-decoration: none;
+    font-size: calc(14px * var(--fs, 1));
+}
+.skip-link:focus { transform: translateY(0); }
+
+/* ---------- Botón y panel de accesibilidad ---------- */
+.a11y-trigger {
+    width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;
+    margin-bottom: 10px; padding: 9px 12px; border-radius: 8px; cursor: pointer;
+    background: var(--bg-btn); color: var(--text-soft); border: 1px solid var(--border-color);
+    font-weight: 700; font-size: calc(13px * var(--fs, 1)); font-family: inherit;
+}
+.a11y-trigger:hover { background: var(--bg-btn-hover); color: var(--text-main); }
+.a11y-trigger.floating {
+    position: fixed; right: 16px; bottom: 16px; width: auto; z-index: 900; margin: 0;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+}
+
+.a11y-panel-overlay {
+    position: fixed; inset: 0; z-index: 9000; display: none;
+    align-items: center; justify-content: center; background: rgba(2, 6, 23, 0.6);
+}
+.a11y-panel {
+    width: min(440px, calc(100% - 32px)); max-height: 92vh; overflow-y: auto;
+    background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color);
+    border-radius: 14px; padding: 24px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+}
+.a11y-panel h2 { font-size: calc(18px * var(--fs, 1)); margin: 0 0 4px; }
+.a11y-panel p.a11y-hint { font-size: calc(13px * var(--fs, 1)); color: var(--text-muted); margin: 0 0 16px; }
+.a11y-panel fieldset { border: 0; margin: 0 0 16px; padding: 0; }
+.a11y-panel legend {
+    font-size: calc(12px * var(--fs, 1)); font-weight: 800; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 8px; padding: 0;
+}
+.a11y-options { display: flex; gap: 8px; flex-wrap: wrap; }
+.a11y-options label {
+    flex: 1; min-width: 72px; position: relative; cursor: pointer;
+}
+.a11y-options input {
+    position: absolute; opacity: 0; width: 1px; height: 1px;
+}
+.a11y-options span {
+    display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 42px;
+    padding: 8px 10px; border-radius: 8px; border: 2px solid var(--border-color);
+    background: var(--bg-card-alt); color: var(--text-soft); font-weight: 700;
+    font-size: calc(13px * var(--fs, 1)); text-align: center; white-space: nowrap;
+}
+.a11y-options input:checked + span {
+    border-color: var(--c-accent); color: var(--text-main); background: rgba(56, 189, 248, 0.14);
+}
+.a11y-options input:checked + span::after { content: "✓"; font-weight: 900; }
+.a11y-options input:focus-visible + span { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+.a11y-panel-actions { display: flex; justify-content: space-between; gap: 10px; margin-top: 6px; }
+.a11y-panel-actions button {
+    padding: 10px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; font-family: inherit;
+    font-size: calc(13px * var(--fs, 1)); border: 1px solid var(--border-color);
+    background: var(--bg-btn); color: var(--text-main);
+}
+.a11y-panel-actions button.primary { background: #1d4ed8; border-color: #1d4ed8; color: #ffffff; }
+
+/* Insignias de estado sobre fondos teñidos: tonos más oscuros en el tema claro. */
+html[data-theme="light"] .status-health-badge.excelente { color: #065f46; }
+html[data-theme="light"] .status-health-badge.advertencia { color: #78350f; }
+html[data-theme="light"] .status-health-badge.critico { color: #7f1d1d; }
+
+/* Con texto ampliado, los valores y sus etiquetas pasan a la siguiente línea en lugar de desbordarse. */
+.metric-value-row { flex-wrap: wrap; gap: 6px; }
+html[data-theme="light"] .meta-item { background: rgba(255, 255, 255, 0.75) !important; }

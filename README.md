@@ -12,6 +12,19 @@ Diagnóstico y mantenimiento del equipo, con comparación del estado inicial y f
 
 La aplicación abre el navegador y solo acepta conexiones desde el mismo equipo. La cuenta creada en la primera ejecución es la del Administrador. Los datos quedan en `%LOCALAPPDATA%\FIAXCPU` (Windows) o `~/.local/share/fiaxcpu` (Linux) y se conservan al actualizar.
 
+## Mantenimiento automático y reportes
+
+- **Reportes de Mantenimiento** (menú lateral): filtra los procedimientos por año, mes, tipo, origen (manual o programado) y resultado, con resumen por mes y por procedimiento. *Exportar a Excel (CSV)* descarga el detalle.
+- **Mantenimiento Automático** (Administrador y Técnico): al elegir *Sí* se registra la tarea en el Programador de tareas de Windows (`\FIAX CPU\Mantenimiento automatico`) o en el crontab del usuario en Linux. La aplicación lo marca como **ACTIVO** solo después de consultar al sistema y confirmar que la tarea existe; al elegir *No* la elimina y vuelve a verificar.
+- La tarea ejecuta `FIAX-CPU --run-maintenance <tipo>` sin abrir el navegador y guarda el resultado en la misma base de datos, con origen *Programado*.
+
+## Accesibilidad (WCAG 2.1 AA)
+
+- Navegable solo con teclado: enlace *Saltar al contenido*, foco visible, filas de tablas que se abren con Enter y modales que retienen el foco, se cierran con Escape y lo devuelven al botón de origen.
+- Compatible con lectores de pantalla: regiones (`nav`, `main`, secciones con nombre), etiquetas en todos los campos, errores asociados al campo y avisos anunciados (`aria-live`).
+- Botón **Accesibilidad** (pie del menú lateral; flotante en el inicio de sesión): tema oscuro, claro o del sistema, contraste alto y tamaño de texto de 100 % a 150 %. Se recuerda en el navegador.
+- Implementado en `static/a11y.css` y `static/a11y.js`, compartidos por todas las pantallas. Verificado con axe-core en los temas claro, oscuro y de alto contraste.
+
 ## Publicar una versión
 
 1. Cambie `APP_VERSION` en `config.py`.

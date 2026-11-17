@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FIAX CPU - Asistente Inteligente de Mantenimiento</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='vendor/fontawesome/css/all.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='a11y.css') }}">
+    <script src="{{ url_for('static', filename='a11y.js') }}"></script>
     <style>
         :root {
             --bg-main: #0b1120;
@@ -61,7 +63,7 @@
         }
 
         .sidebar-scroll-area::-webkit-scrollbar-thumb {
-            background: #334155;
+            background: var(--bg-btn-hover);
             border-radius: 4px;
         }
 
@@ -75,7 +77,7 @@
         }
 
         .logo-icon {
-            background: linear-gradient(135deg, #0284c7, #38bdf8);
+            background: linear-gradient(135deg, #0284c7, var(--c-accent));
             color: white;
             width: 42px;
             height: 42px;
@@ -83,19 +85,19 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
+            font-size: calc(20px * var(--fs, 1));
             box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
         }
 
         .logo-text h2 {
-            font-size: 20px;
+            font-size: calc(20px * var(--fs, 1));
             font-weight: 800;
-            color: #f8fafc;
+            color: var(--text-main);
             letter-spacing: 0.5px;
         }
 
         .logo-text span {
-            font-size: 11px;
+            font-size: calc(11px * var(--fs, 1));
             color: var(--accent-blue);
             font-weight: 600;
             text-transform: uppercase;
@@ -122,7 +124,7 @@
             justify-content: center;
             font-weight: 800;
             color: white;
-            font-size: 17px;
+            font-size: calc(17px * var(--fs, 1));
         }
 
         .user-info {
@@ -131,19 +133,19 @@
         }
 
         .user-info .name {
-            font-size: 14px;
+            font-size: calc(14px * var(--fs, 1));
             font-weight: 700;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            color: #f8fafc;
+            color: var(--text-main);
         }
 
         .user-info .role-badge {
             display: inline-flex;
             align-items: center;
             gap: 5px;
-            font-size: 10.5px;
+            font-size: calc(10.5px * var(--fs, 1));
             font-weight: 800;
             padding: 3px 8px;
             border-radius: 6px;
@@ -153,20 +155,20 @@
 
         .badge-admin {
             background-color: rgba(59, 130, 246, 0.25);
-            color: #93c5fd;
+            color: var(--c-blue-t);
             border: 1px solid #3b82f6;
         }
 
         .badge-tecnico {
             background-color: rgba(245, 158, 11, 0.25);
-            color: #fbbf24;
-            border: 1px solid #f59e0b;
+            color: var(--c-yellow-t);
+            border: 1px solid var(--color-yellow);
         }
 
         .badge-usuario {
             background-color: rgba(16, 185, 129, 0.25);
-            color: #34d399;
-            border: 1px solid #10b981;
+            color: var(--c-green-t);
+            border: 1px solid var(--color-green);
         }
 
         .nav-links {
@@ -185,7 +187,7 @@
             cursor: pointer;
             text-align: left;
             font-weight: 600;
-            font-size: 13.5px;
+            font-size: calc(13.5px * var(--fs, 1));
             width: 100%;
             display: flex;
             align-items: center;
@@ -195,14 +197,14 @@
         }
 
         .nav-btn i {
-            font-size: 16px;
+            font-size: calc(16px * var(--fs, 1));
             width: 20px;
             text-align: center;
         }
 
         .nav-btn:hover {
-            background-color: rgba(255, 255, 255, 0.06);
-            color: #f8fafc;
+            background-color: rgba(var(--ink-rgb), 0.06);
+            color: var(--text-main);
         }
 
         .nav-btn.active {
@@ -214,7 +216,7 @@
         .sidebar-footer {
             padding: 15px 20px;
             border-top: 1px solid var(--border-color);
-            background: #0d1629;
+            background: var(--bg-card-alt);
             flex-shrink: 0;
         }
 
@@ -227,17 +229,17 @@
             padding: 12px;
             border-radius: 8px;
             background-color: rgba(239, 68, 68, 0.12);
-            color: #f87171;
+            color: var(--c-red-t);
             border: 1px solid rgba(239, 68, 68, 0.35);
             font-weight: 700;
-            font-size: 13.5px;
+            font-size: calc(13.5px * var(--fs, 1));
             text-decoration: none;
             transition: all 0.2s ease;
             cursor: pointer;
         }
 
         .btn-logout-sidebar:hover {
-            background-color: #ef4444;
+            background-color: #dc2626;
             color: white;
             box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
             transform: translateY(-1px);
@@ -263,14 +265,14 @@
         }
 
         .header-title h1 {
-            font-size: 24px;
+            font-size: calc(24px * var(--fs, 1));
             font-weight: 800;
-            color: #f8fafc;
+            color: var(--text-main);
         }
 
         .header-title p {
             color: var(--text-muted);
-            font-size: 13.5px;
+            font-size: calc(13.5px * var(--fs, 1));
             margin-top: 2px;
         }
 
@@ -284,7 +286,7 @@
             padding: 10px 18px;
             border-radius: 8px;
             font-weight: 700;
-            font-size: 13px;
+            font-size: calc(13px * var(--fs, 1));
             border: none;
             cursor: pointer;
             display: inline-flex;
@@ -306,39 +308,39 @@
         }
 
         .btn-success {
-            background-color: var(--color-green);
+            background-color: #047857;
             color: white;
         }
 
         .btn-success:hover {
-            background-color: #059669;
+            background-color: #065f46;
         }
 
         .btn-secondary {
-            background-color: #1e293b;
+            background-color: var(--bg-btn);
             border: 1px solid var(--border-color);
-            color: #cbd5e1;
+            color: var(--text-soft);
         }
 
         .btn-secondary:hover {
-            background-color: #334155;
-            color: white;
+            background-color: var(--bg-btn-hover);
+            color: var(--text-main);
         }
 
         .btn-top-logout {
             background-color: rgba(239, 68, 68, 0.15);
-            color: #fca5a5;
+            color: var(--c-red-soft);
             border: 1px solid rgba(239, 68, 68, 0.4);
         }
 
         .btn-top-logout:hover {
-            background-color: #ef4444;
+            background-color: #dc2626;
             color: white;
         }
 
         /* Banner de Ficha Técnica y Salud */
         .health-banner {
-            background: linear-gradient(135deg, #0f2752, #075985);
+            background: var(--hero-grad);
             padding: 24px;
             border-radius: 16px;
             display: flex;
@@ -357,9 +359,9 @@
         }
 
         .hardware-title {
-            font-size: 21px;
+            font-size: calc(21px * var(--fs, 1));
             font-weight: 800;
-            color: #f8fafc;
+            color: var(--text-main);
             display: flex;
             align-items: center;
             gap: 10px;
@@ -369,8 +371,8 @@
             display: flex;
             gap: 12px;
             flex-wrap: wrap;
-            font-size: 12.5px;
-            color: #cbd5e1;
+            font-size: calc(12.5px * var(--fs, 1));
+            color: var(--text-soft);
             margin-top: 4px;
         }
 
@@ -381,7 +383,7 @@
             background: rgba(0, 0, 0, 0.3);
             padding: 5px 12px;
             border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(var(--ink-rgb), 0.12);
             font-weight: 600;
         }
 
@@ -390,7 +392,7 @@
             display: flex;
             align-items: center;
             gap: 22px;
-            background: rgba(11, 17, 32, 0.7);
+            background: var(--bg-inset);
             padding: 16px 26px;
             border-radius: 16px;
             border: 1px solid rgba(56, 189, 248, 0.25);
@@ -402,7 +404,7 @@
         }
 
         .gauge-label {
-            font-size: 11px;
+            font-size: calc(11px * var(--fs, 1));
             text-transform: uppercase;
             color: var(--accent-blue);
             font-weight: 800;
@@ -417,33 +419,33 @@
             gap: 6px;
             padding: 4px 12px;
             border-radius: 20px;
-            font-size: 12.5px;
+            font-size: calc(12.5px * var(--fs, 1));
             font-weight: 800;
             text-transform: uppercase;
         }
 
         .status-health-badge.excelente {
             background-color: rgba(16, 185, 129, 0.25);
-            color: #34d399;
-            border: 1px solid #10b981;
+            color: var(--c-green-t);
+            border: 1px solid var(--color-green);
         }
 
         .status-health-badge.advertencia {
             background-color: rgba(245, 158, 11, 0.25);
-            color: #fbbf24;
-            border: 1px solid #f59e0b;
+            color: var(--c-yellow-t);
+            border: 1px solid var(--color-yellow);
         }
 
         .status-health-badge.critico {
             background-color: rgba(239, 68, 68, 0.25);
-            color: #f87171;
-            border: 1px solid #ef4444;
+            color: var(--c-red-t);
+            border: 1px solid var(--color-red);
         }
 
         .gauge-value {
-            font-size: 44px;
+            font-size: calc(44px * var(--fs, 1));
             font-weight: 900;
-            color: #38bdf8;
+            color: var(--c-accent);
             line-height: 1;
         }
 
@@ -474,14 +476,14 @@
 
         .metric-header span {
             color: var(--text-muted);
-            font-size: 13px;
+            font-size: calc(13px * var(--fs, 1));
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
         .metric-header i {
-            font-size: 20px;
+            font-size: calc(20px * var(--fs, 1));
             color: var(--accent-blue);
         }
 
@@ -492,13 +494,13 @@
         }
 
         .metric-value {
-            font-size: 32px;
+            font-size: calc(32px * var(--fs, 1));
             font-weight: 900;
-            color: #f8fafc;
+            color: var(--text-main);
         }
 
         .metric-state-pill {
-            font-size: 11px;
+            font-size: calc(11px * var(--fs, 1));
             font-weight: 800;
             padding: 3px 8px;
             border-radius: 6px;
@@ -510,24 +512,24 @@
 
         .state-normal {
             background: rgba(16, 185, 129, 0.2);
-            color: #34d399;
-            border: 1px solid #10b981;
+            color: var(--c-green-t);
+            border: 1px solid var(--color-green);
         }
 
         .state-warning {
             background: rgba(245, 158, 11, 0.2);
-            color: #fbbf24;
-            border: 1px solid #f59e0b;
+            color: var(--c-yellow-t);
+            border: 1px solid var(--color-yellow);
         }
 
         .state-critical {
             background: rgba(239, 68, 68, 0.2);
-            color: #f87171;
-            border: 1px solid #ef4444;
+            color: var(--c-red-t);
+            border: 1px solid var(--color-red);
         }
 
         .metric-sub {
-            font-size: 12.5px;
+            font-size: calc(12.5px * var(--fs, 1));
             color: var(--text-muted);
             font-weight: 500;
         }
@@ -537,7 +539,7 @@
             background-color: var(--bg-card-alt);
             border-radius: 4px;
             overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(var(--ink-rgb), 0.05);
         }
 
         .progress-fill {
@@ -574,10 +576,10 @@
             gap: 12px;
         }
 
-        .card-header h3 {
-            font-size: 17px;
+        .card-header h2 {
+            font-size: calc(17px * var(--fs, 1));
             font-weight: 800;
-            color: #f8fafc;
+            color: var(--text-main);
             display: flex;
             align-items: center;
             gap: 10px;
@@ -592,22 +594,22 @@
         th,
         td {
             padding: 14px;
-            font-size: 13.5px;
+            font-size: calc(13.5px * var(--fs, 1));
             border-bottom: 1px solid var(--border-color);
             vertical-align: middle;
         }
 
         th {
-            color: #cbd5e1;
+            color: var(--text-soft);
             font-weight: 700;
             background-color: var(--bg-card-alt);
-            font-size: 12px;
+            font-size: calc(12px * var(--fs, 1));
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
         tr:hover td {
-            background-color: rgba(255, 255, 255, 0.02);
+            background-color: rgba(var(--ink-rgb), 0.02);
         }
 
         /* Tarjetas de Incidencias */
@@ -650,7 +652,7 @@
         .incident-card.status-RESUELTA {
             border-left-color: var(--color-green);
             opacity: 0.82;
-            background-color: rgba(23, 36, 66, 0.6);
+            background-color: var(--bg-inset);
         }
 
         .incident-info {
@@ -666,7 +668,7 @@
         }
 
         .badge-sev {
-            font-size: 11px;
+            font-size: calc(11px * var(--fs, 1));
             font-weight: 900;
             padding: 4px 10px;
             border-radius: 6px;
@@ -678,30 +680,30 @@
 
         .badge-sev.CRITICO {
             background-color: rgba(239, 68, 68, 0.25);
-            color: #f87171;
-            border: 1px solid #ef4444;
+            color: var(--c-red-t);
+            border: 1px solid var(--color-red);
         }
 
         .badge-sev.ALTO {
             background-color: rgba(249, 115, 22, 0.25);
-            color: #fb923c;
+            color: var(--c-orange-t);
             border: 1px solid #f97316;
         }
 
         .badge-sev.MEDIO {
             background-color: rgba(245, 158, 11, 0.25);
-            color: #fbbf24;
-            border: 1px solid #f59e0b;
+            color: var(--c-yellow-t);
+            border: 1px solid var(--color-yellow);
         }
 
         .badge-sev.BAJO {
             background-color: rgba(59, 130, 246, 0.25);
-            color: #60a5fa;
+            color: var(--c-blue-t);
             border: 1px solid #3b82f6;
         }
 
         .badge-inc-estado {
-            font-size: 11.5px;
+            font-size: calc(11.5px * var(--fs, 1));
             font-weight: 800;
             padding: 4px 12px;
             border-radius: 20px;
@@ -714,33 +716,33 @@
 
         .badge-inc-estado.pendiente {
             background: rgba(245, 158, 11, 0.2);
-            color: #fbbf24;
-            border: 1px solid #f59e0b;
+            color: var(--c-yellow-t);
+            border: 1px solid var(--color-yellow);
             box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
         }
 
         .badge-inc-estado.resuelta {
             background: rgba(16, 185, 129, 0.25);
-            color: #34d399;
-            border: 1px solid #10b981;
+            color: var(--c-green-t);
+            border: 1px solid var(--color-green);
             box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
         }
 
         .incident-title {
-            font-size: 16px;
+            font-size: calc(16px * var(--fs, 1));
             font-weight: 800;
-            color: #f8fafc;
+            color: var(--text-main);
         }
 
         .incident-desc {
-            font-size: 13.5px;
-            color: #cbd5e1;
+            font-size: calc(13.5px * var(--fs, 1));
+            color: var(--text-soft);
             margin-top: 5px;
             line-height: 1.4;
         }
 
         .incident-solution {
-            font-size: 13px;
+            font-size: calc(13px * var(--fs, 1));
             color: var(--accent-blue);
             margin-top: 8px;
             display: flex;
@@ -765,12 +767,12 @@
         }
 
         .btn-filter-inc {
-            background: rgba(255, 255, 255, 0.04);
+            background: rgba(var(--ink-rgb), 0.04);
             color: var(--text-muted);
             border: 1px solid var(--border-color);
             padding: 8px 16px;
             border-radius: 8px;
-            font-size: 13px;
+            font-size: calc(13px * var(--fs, 1));
             font-weight: 700;
             cursor: pointer;
             display: inline-flex;
@@ -780,28 +782,28 @@
         }
 
         .btn-filter-inc:hover {
-            background: rgba(255, 255, 255, 0.08);
-            color: #f8fafc;
+            background: rgba(var(--ink-rgb), 0.08);
+            color: var(--text-main);
         }
 
         .btn-filter-inc.active {
             background: rgba(56, 189, 248, 0.15);
-            color: #38bdf8;
-            border-color: #38bdf8;
+            color: var(--c-accent);
+            border-color: var(--c-accent);
             box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
         }
 
         .btn-filter-inc.active.filter-resueltas {
             background: rgba(16, 185, 129, 0.15);
-            color: #34d399;
-            border-color: #10b981;
+            color: var(--c-green-t);
+            border-color: var(--color-green);
             box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);
         }
 
         .filter-count-badge {
-            background: rgba(255, 255, 255, 0.12);
-            color: #cbd5e1;
-            font-size: 11px;
+            background: rgba(var(--ink-rgb), 0.12);
+            color: var(--text-soft);
+            font-size: calc(11px * var(--fs, 1));
             padding: 2px 8px;
             border-radius: 12px;
             font-weight: 800;
@@ -809,13 +811,13 @@
         }
 
         .btn-filter-inc.active .filter-count-badge {
-            background: #38bdf8;
-            color: #0b1120;
+            background: var(--c-accent);
+            color: var(--bg-main);
         }
 
         .btn-filter-inc.active.filter-resueltas .filter-count-badge {
-            background: #34d399;
-            color: #0b1120;
+            background: var(--c-green-t);
+            color: var(--bg-main);
         }
 
         /* Herramientas de Optimización */
@@ -843,17 +845,17 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
+            font-size: calc(22px * var(--fs, 1));
         }
 
         .tool-title {
-            font-size: 17px;
+            font-size: calc(17px * var(--fs, 1));
             font-weight: 800;
-            color: #f8fafc;
+            color: var(--text-main);
         }
 
         .tool-desc {
-            font-size: 13.5px;
+            font-size: calc(13.5px * var(--fs, 1));
             color: var(--text-muted);
             line-height: 1.5;
         }
@@ -884,15 +886,15 @@
         }
 
         .diag-spinner {
-            font-size: 46px;
+            font-size: calc(46px * var(--fs, 1));
             color: var(--accent-blue);
             animation: spin 1.5s linear infinite;
             margin-bottom: 20px;
         }
 
         .diag-status-step {
-            font-size: 14px;
-            color: #cbd5e1;
+            font-size: calc(14px * var(--fs, 1));
+            color: var(--text-soft);
             margin-top: 10px;
             font-weight: 600;
         }
@@ -915,8 +917,8 @@
         }
 
         .toast {
-            background-color: #172442;
-            color: white;
+            background-color: var(--bg-card);
+            color: var(--text-main);
             padding: 14px 20px;
             border-radius: 10px;
             border-left: 5px solid var(--accent-blue);
@@ -924,7 +926,7 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            font-size: 13.5px;
+            font-size: calc(13.5px * var(--fs, 1));
             animation: slideIn 0.3s ease;
         }
 
@@ -949,42 +951,71 @@
         }
 
         /* Comparación entre estado inicial y final */
-        .cmp-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        .cmp-table th { text-align: right; font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; padding: 7px 8px; border-bottom: 1px solid var(--border-color); }
+        .cmp-table { width: 100%; border-collapse: collapse; font-size: calc(13px * var(--fs, 1)); }
+        .cmp-table th { text-align: right; font-size: calc(11px * var(--fs, 1)); color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; padding: 7px 8px; border-bottom: 1px solid var(--border-color); }
         .cmp-table th:first-child, .cmp-table td:first-child { text-align: left; }
-        .cmp-table td { text-align: right; padding: 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); color: #e2e8f0; font-variant-numeric: tabular-nums; }
-        .cmp-table td.cmp-final { font-weight: 800; color: #f8fafc; }
+        .cmp-table td { text-align: right; padding: 8px; border-bottom: 1px solid rgba(var(--ink-rgb), 0.05); color: var(--text-body); font-variant-numeric: tabular-nums; }
+        .cmp-table td.cmp-final { font-weight: 800; color: var(--text-main); }
         .cmp-delta { font-weight: 800; white-space: nowrap; }
-        .cmp-delta.mejora { color: #34d399; }
-        .cmp-delta.empeora { color: #f87171; }
+        .cmp-delta.mejora { color: var(--c-green-t); }
+        .cmp-delta.empeora { color: var(--c-red-t); }
         .cmp-delta.igual { color: var(--text-muted); }
-        .cmp-score { display: flex; align-items: center; justify-content: center; gap: 18px; padding: 14px; margin-bottom: 14px; background: rgba(13, 23, 46, 0.75); border: 1px solid var(--border-color); border-radius: 10px; }
-        .cmp-score small { display: block; font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 2px; }
-        .cmp-score strong { font-size: 28px; font-weight: 900; color: #f8fafc; }
+        .cmp-score { display: flex; align-items: center; justify-content: center; gap: 18px; padding: 14px; margin-bottom: 14px; background: var(--bg-inset); border: 1px solid var(--border-color); border-radius: 10px; }
+        .cmp-score small { display: block; font-size: calc(11px * var(--fs, 1)); color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 2px; }
+        .cmp-score strong { font-size: calc(28px * var(--fs, 1)); font-weight: 900; color: var(--text-main); }
         .cmp-score i { color: var(--accent-blue); }
-        .cmp-note { font-size: 12px; color: var(--text-muted); line-height: 1.45; margin-top: 10px; }
-        .cmp-message { font-size: 13px; color: #e2e8f0; line-height: 1.5; margin-bottom: 14px; overflow-wrap: anywhere; }
+        .cmp-note { font-size: calc(12px * var(--fs, 1)); color: var(--text-muted); line-height: 1.45; margin-top: 10px; }
+        .cmp-message { font-size: calc(13px * var(--fs, 1)); color: var(--text-body); line-height: 1.5; margin-bottom: 14px; overflow-wrap: anywhere; }
         .cmp-initial { display: grid; grid-template-columns: repeat(auto-fit, minmax(135px, 1fr)); gap: 8px; margin-bottom: 20px; }
-        .cmp-initial div { background: rgba(13, 23, 46, 0.6); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 10px; }
-        .cmp-initial small { display: block; font-size: 11px; color: var(--text-muted); }
-        .cmp-initial strong { font-size: 15px; color: #f8fafc; }
+        .cmp-initial div { background: var(--bg-inset); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 10px; }
+        .cmp-initial small { display: block; font-size: calc(11px * var(--fs, 1)); color: var(--text-muted); }
+        .cmp-initial strong { font-size: calc(15px * var(--fs, 1)); color: var(--text-main); }
         .cmp-history-row { cursor: pointer; }
         .cmp-history-row:hover td { background: rgba(56, 189, 248, 0.06); }
-        .badge-inc-estado.reemplazada { background: rgba(148, 163, 184, 0.15); color: #cbd5e1; border: 1px solid #64748b; }
+        .badge-inc-estado.reemplazada { background: rgba(148, 163, 184, 0.15); color: var(--text-soft); border: 1px solid var(--text-faint); }
+        /* Reportes de mantenimiento */
+        .fx-filters { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
+        .fx-field { display: flex; flex-direction: column; gap: 5px; min-width: 140px; }
+        .fx-field label, .fx-field .fx-label { font-size: calc(11px * var(--fs, 1)); font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; }
+        .fx-input { background: var(--bg-card-alt); border: 1px solid var(--border-color); color: var(--text-body); border-radius: 8px; padding: 9px 11px; font-size: calc(13px * var(--fs, 1)); font-family: inherit; }
+        .fx-input:focus { outline: none; border-color: var(--accent-blue); }
+        .fx-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-top: 18px; }
+        .fx-kpi { background: var(--bg-inset); border: 1px solid var(--border-color); border-radius: 10px; padding: 14px; }
+        .fx-kpi small { display: block; font-size: calc(11px * var(--fs, 1)); font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; }
+        .fx-kpi strong { display: block; font-size: calc(22px * var(--fs, 1)); font-weight: 800; color: var(--text-main); margin-top: 4px; font-variant-numeric: tabular-nums; }
+        .fx-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-top: 20px; }
+        .fx-tag { font-size: calc(10.5px * var(--fs, 1)); font-weight: 800; padding: 2px 7px; border-radius: 4px; letter-spacing: 0.3px; }
+        .fx-tag.ok { background: rgba(16, 185, 129, 0.15); color: var(--c-green-t); }
+        .fx-tag.err { background: rgba(239, 68, 68, 0.15); color: var(--c-red-t); }
+        .fx-tag.auto { background: rgba(168, 85, 247, 0.15); color: var(--c-purple-t); }
+        .fx-tag.man { background: rgba(56, 189, 248, 0.12); color: var(--c-accent); }
+
+        /* Mantenimiento automático */
+        .auto-pill { margin-left: auto; font-size: calc(9.5px * var(--fs, 1)); font-weight: 800; padding: 2px 7px; border-radius: 10px; letter-spacing: 0.4px; background: rgba(148, 163, 184, 0.15); color: var(--text-muted); }
+        .auto-pill.on { background: rgba(16, 185, 129, 0.18); color: var(--c-green-t); }
+        .auto-pill.warn { background: rgba(245, 158, 11, 0.18); color: var(--c-yellow-t); }
+        .auto-switch { display: flex; gap: 8px; }
+        .auto-switch button { flex: 1; padding: 11px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-card-alt); color: var(--text-soft); font-weight: 700; font-size: calc(13px * var(--fs, 1)); cursor: pointer; font-family: inherit; }
+        .auto-switch button.sel-on { border-color: var(--color-green); background: rgba(16, 185, 129, 0.15); color: var(--c-green-t); }
+        .auto-switch button.sel-off { border-color: var(--text-faint); background: rgba(100, 116, 139, 0.18); color: var(--text-body); }
+        .auto-status { border-radius: 8px; padding: 12px 14px; font-size: calc(13px * var(--fs, 1)); line-height: 1.5; margin: 14px 0; border: 1px solid var(--border-color); background: var(--bg-inset); color: var(--text-soft); }
+        .auto-status.ok { border-color: rgba(16, 185, 129, 0.45); background: rgba(16, 185, 129, 0.08); }
+        .auto-status.err { border-color: rgba(239, 68, 68, 0.45); background: rgba(239, 68, 68, 0.08); }
+        .auto-status.warn { border-color: rgba(245, 158, 11, 0.45); background: rgba(245, 158, 11, 0.08); }
     </style>
 </head>
 
 <body>
 
     <!-- Menú Lateral -->
-    <div class="sidebar">
+    <div class="sidebar" role="navigation" aria-label="Menú principal">
         <div class="sidebar-scroll-area">
             <div class="logo-box">
                 <div class="logo-icon"><i class="fa-solid fa-microchip"></i></div>
                 <div class="logo-text">
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <h2>FIAX CPU</h2>
-                        <span style="font-size: 10px; font-weight: 800; background: rgba(56, 189, 248, 0.2); color: #38bdf8; padding: 1px 6px; border-radius: 4px; border: 1px solid rgba(56, 189, 248, 0.4);">v{{ app_version }}</span>
+                        <span style="font-size: calc(10px * var(--fs, 1)); font-weight: 800; background: rgba(56, 189, 248, 0.2); color: var(--c-accent); padding: 1px 6px; border-radius: 4px; border: 1px solid rgba(56, 189, 248, 0.4);">v{{ app_version }}</span>
                     </div>
                     <span>Ing. de Sistemas 2026</span>
                 </div>
@@ -1004,18 +1035,25 @@
             </div>
 
             <ul class="nav-links">
-                <li><button class="nav-btn active" onclick="switchNavTab('tab-telemetria', this)"><i
+                <li><button class="nav-btn active" onclick="switchNavTab('tab-telemetria', this)" aria-controls="tab-telemetria"><i
                             class="fa-solid fa-gauge-high"></i> Estado y Telemetría</button></li>
-                <li><button class="nav-btn" onclick="switchNavTab('tab-diagnostico', this)"><i
+                <li><button class="nav-btn" onclick="switchNavTab('tab-diagnostico', this)" aria-controls="tab-diagnostico"><i
                             class="fa-solid fa-stethoscope"></i> Diagnóstico e Incidencias</button></li>
-                <li><button class="nav-btn" onclick="switchNavTab('tab-optimizacion', this)"><i
+                <li><button class="nav-btn" onclick="switchNavTab('tab-optimizacion', this)" aria-controls="tab-optimizacion"><i
                             class="fa-solid fa-wand-magic-sparkles"></i> Optimización y Limpieza</button></li>
+                <li><button class="nav-btn" onclick="switchNavTab('tab-reportes', this)" aria-controls="tab-reportes"><i
+                            class="fa-solid fa-chart-column"></i> Reportes de Mantenimiento</button></li>
                 {% if user_role in ['ADMINISTRADOR', 'TECNICO'] %}
-                <li><button class="nav-btn" onclick="switchNavTab('tab-auditoria', this)"><i
+                <li><button class="nav-btn" onclick="switchNavTab('tab-auditoria', this)" aria-controls="tab-auditoria"><i
                             class="fa-solid fa-clock-rotate-left"></i> Historial y Auditoría</button></li>
                 {% endif %}
+                {% if can_schedule %}
+                <li><button class="nav-btn" id="btnAutoMaint" onclick="openAutoMaintModal()" aria-haspopup="dialog" aria-describedby="autoMaintPill"><i
+                            class="fa-solid fa-calendar-check"></i> Mantenimiento Automático
+                        <span class="auto-pill" id="autoMaintPill"><span class="sr-only">Estado: </span>...</span></button></li>
+                {% endif %}
                 {% if user_role == 'ADMINISTRADOR' %}
-                <li><a href="/usuarios" class="nav-btn" style="color: #fbbf24;"><i class="fa-solid fa-users-gear"></i>
+                <li><a href="/usuarios" class="nav-btn" style="color: var(--c-yellow-t);"><i class="fa-solid fa-users-gear"></i>
                         Gestión de Usuarios</a></li>
                 {% endif %}
             </ul>
@@ -1029,8 +1067,8 @@
             </button>
             {% endif %}
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding: 0 4px;">
-                <span style="font-size: 11px; color: var(--text-muted); font-weight: 600;">Versión del Sistema</span>
-                <span style="font-size: 11px; font-weight: 800; color: #38bdf8; background: rgba(56, 189, 248, 0.12); padding: 2px 8px; border-radius: 6px; border: 1px solid rgba(56, 189, 248, 0.3);"><i class="fa-solid fa-code-branch"></i> v{{ app_version }}</span>
+                <span style="font-size: calc(11px * var(--fs, 1)); color: var(--text-muted); font-weight: 600;">Versión del Sistema</span>
+                <span style="font-size: calc(11px * var(--fs, 1)); font-weight: 800; color: var(--c-accent); background: rgba(56, 189, 248, 0.12); padding: 2px 8px; border-radius: 6px; border: 1px solid rgba(56, 189, 248, 0.3);"><i class="fa-solid fa-code-branch"></i> v{{ app_version }}</span>
             </div>
             <a href="/logout" class="btn-logout-sidebar">
                 <i class="fa-solid fa-arrow-right-from-bracket"></i>
@@ -1040,14 +1078,14 @@
     </div>
 
     <!-- Contenido Principal -->
-    <div class="main-content">
+    <main class="main-content" id="contenido">
 
         <!-- Barra Superior de Acciones -->
         <div class="top-header">
             <div class="header-title">
                 <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
                     <h1>Asistente Inteligente de Mantenimiento</h1>
-                    <span style="font-size: 11.5px; font-weight: 800; background: rgba(56, 189, 248, 0.15); color: #38bdf8; padding: 3px 10px; border-radius: 20px; border: 1px solid rgba(56, 189, 248, 0.35); letter-spacing: 0.5px;">
+                    <span style="font-size: calc(11.5px * var(--fs, 1)); font-weight: 800; background: rgba(56, 189, 248, 0.15); color: var(--c-accent); padding: 3px 10px; border-radius: 20px; border: 1px solid rgba(56, 189, 248, 0.35); letter-spacing: 0.5px;">
                         <i class="fa-solid fa-code-branch"></i> Versión {{ app_version }}
                     </span>
                 </div>
@@ -1107,14 +1145,14 @@
                         {% endif %}
                     </div>
                 </div>
-                <div class="gauge-value" id="txt-health-score">
-                    {{ score if score is not none else '--' }}<span style="font-size: 20px; font-weight: 500;">/100</span>
+                <div class="gauge-value" id="txt-health-score" aria-label="Score de salud">
+                    {{ score if score is not none else '--' }}<span style="font-size: calc(20px * var(--fs, 1)); font-weight: 500;">/100</span>
                 </div>
             </div>
         </div>
 
         <!-- PESTAÑA 1: TELEMETRÍA EN TIEMPO REAL -->
-        <div id="tab-telemetria" class="tab-pane active">
+        <section id="tab-telemetria" class="tab-pane active" aria-label="Estado y telemetría">
             <div class="metrics-grid">
                 <!-- CPU -->
                 <div class="metric-card">
@@ -1191,20 +1229,21 @@
             <!-- Tabla de Procesos Top Consumidores -->
             <div class="card">
                 <div class="card-header">
-                    <h3><i class="fa-solid fa-list-check" style="color: var(--accent-blue);"></i> Procesos Activos con
-                        Mayor Consumo de Memoria</h3>
-                    <span style="font-size: 12.5px; color: var(--text-muted);">Monitoreo directo del sistema operativo
+                    <h2><i class="fa-solid fa-list-check" style="color: var(--accent-blue);"></i> Procesos Activos con
+                        Mayor Consumo de Memoria</h2>
+                    <span style="font-size: calc(12.5px * var(--fs, 1)); color: var(--text-muted);">Monitoreo directo del sistema operativo
                         anfitrión</span>
                 </div>
                 <table>
+                    <caption class="sr-only">Procesos activos con mayor consumo</caption>
                     <thead>
                         <tr>
-                            <th>PID</th>
-                            <th>Nombre del Proceso</th>
-                            <th>Uso de Memoria (MB)</th>
-                            <th>Consumo RAM (%)</th>
-                            <th>Carga CPU (%)</th>
-                            <th>Estado de Proceso</th>
+                            <th scope="col">PID</th>
+                            <th scope="col">Nombre del Proceso</th>
+                            <th scope="col">Uso de Memoria (MB)</th>
+                            <th scope="col">Consumo RAM (%)</th>
+                            <th scope="col">Carga CPU (%)</th>
+                            <th scope="col">Estado de Proceso</th>
                         </tr>
                     </thead>
                     <tbody id="tbody-procesos">
@@ -1215,16 +1254,16 @@
                     </tbody>
                 </table>
             </div>
-        </div>
+        </section>
 
         <!-- PESTAÑA 2: DIAGNÓSTICO E INCIDENCIAS -->
-        <div id="tab-diagnostico" class="tab-pane">
+        <section id="tab-diagnostico" class="tab-pane" aria-label="Diagnóstico e incidencias">
             <div class="card">
                 <div class="card-header">
                     <div>
-                        <h3><i class="fa-solid fa-triangle-exclamation" style="color: var(--color-yellow);"></i>
-                            Incidencias Detectadas y Acciones Correctivas</h3>
-                        <p style="font-size: 13.5px; color: var(--text-muted); margin-top: 3px;">Inspección continua de
+                        <h2><i class="fa-solid fa-triangle-exclamation" style="color: var(--color-yellow);"></i>
+                            Incidencias Detectadas y Acciones Correctivas</h2>
+                        <p style="font-size: calc(13.5px * var(--fs, 1)); color: var(--text-muted); margin-top: 3px;">Inspección continua de
                             anomalías, cuellos de botella y riesgos de degradación de hardware.</p>
                     </div>
                     <button class="btn btn-primary" onclick="triggerCompleteDiagnosis()"><i
@@ -1232,40 +1271,40 @@
                 </div>
 
                 <!-- Barra de Filtros de Incidencias -->
-                <div class="incident-filters-bar">
-                    <button class="btn-filter-inc active" id="filter-btn-pendientes" onclick="setIncidentsFilter('PENDIENTE')">
-                        <i class="fa-solid fa-triangle-exclamation" style="color: #fbbf24;"></i>
+                <div class="incident-filters-bar" role="group" aria-label="Filtrar incidencias">
+                    <button class="btn-filter-inc active" id="filter-btn-pendientes" onclick="setIncidentsFilter('PENDIENTE')" aria-pressed="true">
+                        <i class="fa-solid fa-triangle-exclamation" style="color: var(--c-yellow-t);"></i>
                         Pendientes Activas
                         <span class="filter-count-badge" id="badge-count-pendientes">0</span>
                     </button>
-                    <button class="btn-filter-inc" id="filter-btn-resueltas" onclick="setIncidentsFilter('RESUELTA')">
-                        <i class="fa-solid fa-circle-check" style="color: #34d399;"></i>
+                    <button class="btn-filter-inc" id="filter-btn-resueltas" onclick="setIncidentsFilter('RESUELTA')" aria-pressed="false">
+                        <i class="fa-solid fa-circle-check" style="color: var(--c-green-t);"></i>
                         Historial de Resueltas
                         <span class="filter-count-badge" id="badge-count-resueltas">0</span>
                     </button>
-                    <button class="btn-filter-inc" id="filter-btn-todas" onclick="setIncidentsFilter('TODAS')">
+                    <button class="btn-filter-inc" id="filter-btn-todas" onclick="setIncidentsFilter('TODAS')" aria-pressed="false">
                         <i class="fa-solid fa-layer-group"></i>
                         Todas
                         <span class="filter-count-badge" id="badge-count-todas">0</span>
                     </button>
                 </div>
 
-                <div id="container-incidencias">
+                <div id="container-incidencias" aria-live="polite" aria-busy="false">
                     <div style="text-align: center; padding: 30px; color: var(--text-muted);">Cargando incidencias
                         registradas...</div>
                 </div>
             </div>
-        </div>
+        </section>
 
         <!-- PESTAÑA 3: OPTIMIZACIÓN Y LIMPIEZA -->
-        <div id="tab-optimizacion" class="tab-pane">
-            <div class="card" style="margin-bottom: 20px; background: linear-gradient(135deg, #172442, #0d172e);">
+        <section id="tab-optimizacion" class="tab-pane" aria-label="Optimización y limpieza">
+            <div class="card" style="margin-bottom: 20px; background: var(--bg-card);">
                 <div
                     style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
                     <div>
-                        <h2 style="font-size: 19px; color: #f8fafc; margin-bottom: 5px;">Optimización Global en Un Clic
+                        <h2 style="font-size: calc(19px * var(--fs, 1)); color: var(--text-main); margin-bottom: 5px;">Optimización Global en Un Clic
                         </h2>
-                        <p style="font-size: 13.5px; color: var(--text-muted);">Ejecuta de forma secuencial la
+                        <p style="font-size: calc(13.5px * var(--fs, 1)); color: var(--text-muted);">Ejecuta de forma secuencial la
                             depuración de archivos temporales, refresco de DNS y recorte de memoria.</p>
                     </div>
                     <button class="btn btn-success" onclick="runGlobalOptimization()"><i
@@ -1317,40 +1356,120 @@
 
             <!-- Historial de comparaciones -->
             <div class="card" style="margin-top: 20px;">
-                <h2 style="font-size: 17px; color: #f8fafc; margin-bottom: 4px;">Comparaciones: estado inicial y final</h2>
-                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">Seleccione un procedimiento para ver el detalle de lo que cambió.</p>
+                <h2 style="font-size: calc(17px * var(--fs, 1)); color: var(--text-main); margin-bottom: 4px;">Comparaciones: estado inicial y final</h2>
+                <p style="font-size: calc(13px * var(--fs, 1)); color: var(--text-muted); margin-bottom: 14px;">Seleccione un procedimiento para ver el detalle de lo que cambió.</p>
                 <div style="overflow-x: auto;">
-                    <table class="cmp-table" style="min-width: 560px;">
-                        <thead><tr><th>Procedimiento</th><th>Fecha</th><th>Usuario</th><th>Score</th><th>Temporales</th><th>Disco libre</th></tr></thead>
+                    <table class="cmp-table" style="min-width: 560px;"><caption class="sr-only">Comparaciones de estado inicial y final por procedimiento. Use Enter sobre una fila para ver el detalle.</caption>
+                        <thead><tr><th scope="col">Procedimiento</th><th scope="col">Fecha</th><th scope="col">Usuario</th><th scope="col">Score</th><th scope="col">Temporales</th><th scope="col">Disco libre</th></tr></thead>
                         <tbody id="tbody-comparaciones"></tbody>
                     </table>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <!-- PESTAÑA 4: AUDITORÍA Y TRAZABILIDAD -->
-        {% if user_role in ['ADMINISTRADOR', 'TECNICO'] %}
-        <div id="tab-auditoria" class="tab-pane">
+        <!-- PESTAÑA: REPORTES DE MANTENIMIENTO -->
+        <section id="tab-reportes" class="tab-pane" aria-label="Reportes de mantenimiento">
             <div class="card">
                 <div class="card-header">
                     <div>
-                        <h3><i class="fa-solid fa-shield-halved" style="color: var(--accent-blue);"></i> Registro de
-                            Auditoría y Trazabilidad (ISO/IEC 27001)</h3>
-                        <p style="font-size: 13.5px; color: var(--text-muted); margin-top: 3px;">Trazabilidad de
+                        <h2><i class="fa-solid fa-chart-column" style="color: var(--accent-blue);"></i> Reporte de Mantenimientos Realizados</h2>
+                        <p style="font-size: calc(13.5px * var(--fs, 1)); color: var(--text-muted); margin-top: 3px;">Filtre por año y mes los procedimientos ejecutados, manuales o programados.</p>
+                    </div>
+                    <button class="btn btn-secondary" onclick="exportMaintReport()"><i class="fa-solid fa-file-csv"></i> Exportar a Excel (CSV)</button>
+                </div>
+                <div class="fx-filters" role="group" aria-label="Filtros del reporte">
+                    <div class="fx-field"><label for="rep-anio">Año</label>
+                        <select id="rep-anio" class="fx-input" onchange="onReportYearChange()"><option value="">Todos</option></select></div>
+                    <div class="fx-field"><label for="rep-mes">Mes</label>
+                        <select id="rep-mes" class="fx-input" onchange="loadMaintReport()" disabled>
+                            <option value="">Todos</option>
+                            <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option>
+                            <option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option>
+                            <option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option>
+                            <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
+                        </select></div>
+                    <div class="fx-field"><label for="rep-tipo">Procedimiento</label>
+                        <select id="rep-tipo" class="fx-input" onchange="loadMaintReport()">
+                            <option value="">Todos</option>
+                            <option value="global">Mantenimiento integral</option>
+                            <option value="temporales">Limpieza de temporales</option>
+                            <option value="dns">Vaciado de caché DNS</option>
+                            <option value="memoria">Optimización de memoria</option>
+                            <option value="incidencia">Resolución de incidencia</option>
+                        </select></div>
+                    <div class="fx-field"><label for="rep-origen">Origen</label>
+                        <select id="rep-origen" class="fx-input" onchange="loadMaintReport()">
+                            <option value="">Todos</option><option value="MANUAL">Manual</option><option value="PROGRAMADO">Programado</option>
+                        </select></div>
+                    <div class="fx-field"><label for="rep-resultado">Resultado</label>
+                        <select id="rep-resultado" class="fx-input" onchange="loadMaintReport()">
+                            <option value="">Todos</option><option value="exito">Exitoso</option><option value="error">Con errores</option>
+                        </select></div>
+                    <button class="btn btn-secondary" onclick="resetMaintReport()"><i class="fa-solid fa-filter-circle-xmark"></i> Limpiar</button>
+                </div>
+                <div class="fx-kpis">
+                    <div class="fx-kpi"><small>Mantenimientos</small><strong id="kpi-total">--</strong></div>
+                    <div class="fx-kpi"><small>Exitosos</small><strong id="kpi-ok" style="color: var(--c-green-t);">--</strong></div>
+                    <div class="fx-kpi"><small>Con errores</small><strong id="kpi-err" style="color: var(--c-red-t);">--</strong></div>
+                    <div class="fx-kpi"><small>Programados / manuales</small><strong id="kpi-origen">--</strong></div>
+                    <div class="fx-kpi"><small>Temporales liberados</small><strong id="kpi-mb">--</strong></div>
+                    <div class="fx-kpi"><small>Score promedio</small><strong id="kpi-score">--</strong></div>
+                </div>
+            </div>
+
+            <div class="fx-grid-2">
+                <div class="card">
+                    <h2 style="font-size: calc(16px * var(--fs, 1)); color: var(--text-main); margin-bottom: 12px;">Por mes</h2>
+                    <table class="cmp-table"><caption class="sr-only">Mantenimientos por mes</caption>
+                        <thead><tr><th scope="col">Mes</th><th scope="col">Total</th><th scope="col">Exitosos</th><th scope="col">Programados</th><th scope="col">MB liberados</th></tr></thead>
+                        <tbody id="tbody-rep-mes"></tbody>
+                    </table>
+                </div>
+                <div class="card">
+                    <h2 style="font-size: calc(16px * var(--fs, 1)); color: var(--text-main); margin-bottom: 12px;">Por procedimiento</h2>
+                    <table class="cmp-table"><caption class="sr-only">Mantenimientos por procedimiento</caption>
+                        <thead><tr><th scope="col">Procedimiento</th><th scope="col">Total</th><th scope="col">Exitosos</th><th scope="col">MB liberados</th></tr></thead>
+                        <tbody id="tbody-rep-tipo"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 20px;">
+                <h2 style="font-size: calc(16px * var(--fs, 1)); color: var(--text-main); margin-bottom: 4px;">Detalle</h2>
+                <p style="font-size: calc(13px * var(--fs, 1)); color: var(--text-muted); margin-bottom: 12px;" id="rep-detalle-nota">Seleccione un mantenimiento para ver la comparación antes y después.</p>
+                <div style="overflow-x: auto;">
+                    <table class="cmp-table" style="min-width: 640px;"><caption class="sr-only">Detalle de mantenimientos. Use Enter sobre una fila para ver la comparación.</caption>
+                        <thead><tr><th scope="col">Procedimiento</th><th scope="col">Fecha</th><th scope="col">Origen</th><th scope="col">Usuario</th><th scope="col">Resultado</th><th scope="col">Score</th><th scope="col">Temporales</th></tr></thead>
+                        <tbody id="tbody-rep-detalle"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- PESTAÑA 4: AUDITORÍA Y TRAZABILIDAD -->
+        {% if user_role in ['ADMINISTRADOR', 'TECNICO'] %}
+        <section id="tab-auditoria" class="tab-pane" aria-label="Historial y auditoría">
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <h2><i class="fa-solid fa-shield-halved" style="color: var(--accent-blue);"></i> Registro de
+                            Auditoría y Trazabilidad (ISO/IEC 27001)</h2>
+                        <p style="font-size: calc(13.5px * var(--fs, 1)); color: var(--text-muted); margin-top: 3px;">Trazabilidad de
                             operaciones de mantenimiento, diagnósticos y cambios de privilegios.</p>
                     </div>
                     <button class="btn btn-secondary" onclick="loadAuditLogs()"><i
                             class="fa-solid fa-arrows-rotate"></i> Actualizar Log</button>
                 </div>
                 <table>
+                    <caption class="sr-only">Registro de auditoría</caption>
                     <thead>
                         <tr>
-                            <th>Fecha y Hora</th>
-                            <th>Módulo</th>
-                            <th>Acción Ejecutada</th>
-                            <th>Usuario / Responsable</th>
-                            <th>IP Origen</th>
-                            <th>Detalle Técnico</th>
+                            <th scope="col">Fecha y Hora</th>
+                            <th scope="col">Módulo</th>
+                            <th scope="col">Acción Ejecutada</th>
+                            <th scope="col">Usuario / Responsable</th>
+                            <th scope="col">IP Origen</th>
+                            <th scope="col">Detalle Técnico</th>
                         </tr>
                     </thead>
                     <tbody id="tbody-auditoria">
@@ -1361,17 +1480,17 @@
                     </tbody>
                 </table>
             </div>
-        </div>
+        </section>
         {% endif %}
 
-    </div>
+    </main>
 
     <!-- MODAL DE DIAGNÓSTICO EN CURSO -->
     <div class="modal-overlay" id="diagModal">
         <div class="modal-diag">
             <i class="fa-solid fa-circle-notch diag-spinner"></i>
-            <h3 style="font-size: 21px; font-weight: 800; color: #f8fafc;">Ejecutando Diagnóstico Heurístico</h3>
-            <p class="diag-status-step" id="modalDiagStep">Capturando métricas de hardware...</p>
+            <h3 style="font-size: calc(21px * var(--fs, 1)); font-weight: 800; color: var(--text-main);">Ejecutando Diagnóstico Heurístico</h3>
+            <p class="diag-status-step" id="modalDiagStep" aria-live="polite">Capturando métricas de hardware...</p>
         </div>
     </div>
 
@@ -1380,30 +1499,30 @@
         <div class="modal-diag" style="max-width: 480px; text-align: left; padding: 28px; position: relative;">
             <div style="display: flex; align-items: flex-start; gap: 15px; margin-bottom: 16px;">
                 <div id="confirmModalIconBox"
-                    style="width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; background: rgba(56, 189, 248, 0.15); color: #38bdf8;">
+                    style="width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: calc(24px * var(--fs, 1)); flex-shrink: 0; background: rgba(56, 189, 248, 0.15); color: var(--c-accent);">
                     <i class="fa-solid fa-circle-question" id="confirmModalIcon"></i>
                 </div>
                 <div style="flex: 1;">
-                    <h3 id="confirmModalTitle"
-                        style="font-size: 18px; font-weight: 800; color: #f8fafc; margin-bottom: 4px; line-height: 1.2;">
-                        ¿Confirmar Acción?</h3>
+                    <h2 id="confirmModalTitle"
+                        style="font-size: calc(18px * var(--fs, 1)); font-weight: 800; color: var(--text-main); margin-bottom: 4px; line-height: 1.2;">
+                        ¿Confirmar Acción?</h2>
                     <span id="confirmModalCategory"
-                        style="font-size: 11.5px; color: var(--accent-blue); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+                        style="font-size: calc(11.5px * var(--fs, 1)); color: var(--accent-blue); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
                         Módulo de Mantenimiento</span>
                 </div>
             </div>
             <p id="confirmModalMessage"
-                style="font-size: 13.5px; color: #cbd5e1; line-height: 1.5; margin-bottom: 14px; background: rgba(13, 23, 46, 0.6); padding: 12px 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+                style="font-size: calc(13.5px * var(--fs, 1)); color: var(--text-soft); line-height: 1.5; margin-bottom: 14px; background: var(--bg-inset); padding: 12px 14px; border-radius: 8px; border: 1px solid var(--border-color);">
                 ¿Está seguro de que desea ejecutar esta acción en el sistema?
             </p>
-            <div style="font-size: 11.5px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Estado inicial del equipo</div>
+            <div style="font-size: calc(11.5px * var(--fs, 1)); font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Estado inicial del equipo</div>
             <div class="cmp-initial" id="confirmModalState"></div>
             <div style="display: flex; justify-content: flex-end; gap: 10px;">
-                <button class="btn btn-secondary" onclick="closeConfirmModal()" style="padding: 10px 18px; font-size: 13px;">
+                <button class="btn btn-secondary" onclick="closeConfirmModal()" style="padding: 10px 18px; font-size: calc(13px * var(--fs, 1));">
                     <i class="fa-solid fa-xmark"></i> Cancelar
                 </button>
                 <button class="btn btn-primary" id="btnConfirmActionExec"
-                    style="padding: 10px 18px; font-size: 13px; font-weight: 700;">
+                    style="padding: 10px 18px; font-size: calc(13px * var(--fs, 1)); font-weight: 700;">
                     <i class="fa-solid fa-check"></i> Confirmar y Ejecutar
                 </button>
             </div>
@@ -1413,8 +1532,8 @@
     <!-- MODAL DE COMPARACIÓN ENTRE ESTADO INICIAL Y FINAL -->
     <div class="modal-overlay" id="comparisonModal" style="display: none;">
         <div class="modal-diag" style="max-width: 620px; width: calc(100% - 32px); max-height: 90vh; overflow-y: auto; text-align: left; padding: 26px;">
-            <span id="cmpModalKicker" style="font-size: 11.5px; font-weight: 800; color: var(--accent-blue); text-transform: uppercase; letter-spacing: 0.5px;"></span>
-            <h3 id="cmpModalTitle" style="font-size: 19px; font-weight: 800; color: #f8fafc; line-height: 1.25; margin: 3px 0 14px;"></h3>
+            <span id="cmpModalKicker" style="font-size: calc(11.5px * var(--fs, 1)); font-weight: 800; color: var(--accent-blue); text-transform: uppercase; letter-spacing: 0.5px;"></span>
+            <h2 id="cmpModalTitle" style="font-size: calc(19px * var(--fs, 1)); font-weight: 800; color: var(--text-main); line-height: 1.25; margin: 3px 0 14px;"></h2>
             <div class="cmp-score">
                 <div style="text-align: center;"><small>Score inicial</small><strong id="cmpScoreInitial">--</strong></div>
                 <i class="fa-solid fa-arrow-right-long"></i>
@@ -1424,15 +1543,71 @@
             <div id="cmpModalTable"></div>
             <p class="cmp-note" id="cmpModalNote">* CPU, RAM y procesos también cambian por la actividad de otros programas, no solo por este procedimiento.</p>
             <div style="display: flex; justify-content: flex-end; margin-top: 18px;">
-                <button class="btn btn-primary" onclick="closeComparisonModal()" style="padding: 10px 22px; font-size: 13.5px; font-weight: 700;">
+                <button class="btn btn-primary" onclick="closeComparisonModal()" style="padding: 10px 22px; font-size: calc(13.5px * var(--fs, 1)); font-weight: 700;">
                     <i class="fa-solid fa-check"></i> Entendido
                 </button>
             </div>
         </div>
     </div>
 
+    <!-- MODAL DE MANTENIMIENTO AUTOMÁTICO -->
+    {% if can_schedule %}
+    <div class="modal-overlay" id="autoMaintModal" style="display: none;">
+        <div class="modal-diag" style="max-width: 520px; width: calc(100% - 32px); max-height: 92vh; overflow-y: auto; text-align: left; padding: 26px;">
+            <div style="display: flex; align-items: flex-start; gap: 14px; margin-bottom: 16px;">
+                <div style="width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: calc(22px * var(--fs, 1)); flex-shrink: 0; background: rgba(168, 85, 247, 0.15); color: var(--c-purple-t);">
+                    <i class="fa-solid fa-calendar-check"></i></div>
+                <div>
+                    <h3 style="font-size: calc(18px * var(--fs, 1)); font-weight: 800; color: var(--text-main); line-height: 1.2;">Mantenimiento automático</h3>
+                    <span style="font-size: calc(12px * var(--fs, 1)); color: var(--text-muted);" id="autoProgramador">Programador de tareas del sistema</span>
+                </div>
+            </div>
+
+            <div class="fx-field" style="margin-bottom: 14px;"><span class="fx-label" id="autoChoiceLabel">¿Ejecutar automáticamente los mantenimientos de FIAX?</span>
+                <div class="auto-switch" role="group" aria-labelledby="autoChoiceLabel">
+                    <button type="button" id="autoBtnOn" onclick="setAutoChoice(true)" aria-pressed="false"><i class="fa-solid fa-check"></i> Sí, programar</button>
+                    <button type="button" id="autoBtnOff" onclick="setAutoChoice(false)" aria-pressed="false"><i class="fa-solid fa-xmark"></i> No</button>
+                </div>
+            </div>
+
+            <div id="autoFields" role="group" aria-label="Programación">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div class="fx-field" style="grid-column: 1 / -1;"><label for="auto-tipo">Procedimiento</label>
+                        <select id="auto-tipo" class="fx-input">
+                            <option value="global">Mantenimiento integral (temporales + DNS + memoria)</option>
+                            <option value="temporales">Solo limpieza de temporales</option>
+                            <option value="dns">Solo vaciado de caché DNS</option>
+                            <option value="memoria">Solo optimización de memoria</option>
+                        </select></div>
+                    <div class="fx-field"><label for="auto-frecuencia">Frecuencia</label>
+                        <select id="auto-frecuencia" class="fx-input" onchange="updateAutoFields()">
+                            <option value="DIARIA">Diaria</option><option value="SEMANAL">Semanal</option><option value="MENSUAL">Mensual</option>
+                        </select></div>
+                    <div class="fx-field"><label for="auto-hora">Hora</label>
+                        <input type="time" id="auto-hora" class="fx-input" value="03:00"></div>
+                    <div class="fx-field" id="wrap-dia-semana" style="grid-column: 1 / -1;"><label for="auto-dia-semana">Día de la semana</label>
+                        <select id="auto-dia-semana" class="fx-input">
+                            <option value="0">Lunes</option><option value="1">Martes</option><option value="2">Miércoles</option>
+                            <option value="3">Jueves</option><option value="4">Viernes</option><option value="5">Sábado</option><option value="6">Domingo</option>
+                        </select></div>
+                    <div class="fx-field" id="wrap-dia-mes" style="grid-column: 1 / -1;"><label for="auto-dia-mes">Día del mes (1 a 28)</label>
+                        <input type="number" id="auto-dia-mes" class="fx-input" min="1" max="28" value="1"></div>
+                </div>
+                <p style="font-size: calc(12px * var(--fs, 1)); color: var(--text-muted); margin-top: 10px;">Si el equipo está apagado a esa hora, la tarea se ejecuta en cuanto vuelva a estar disponible. Los resultados aparecen en Reportes con origen «Programado».</p>
+            </div>
+
+            <div class="auto-status" id="autoStatus" role="status" aria-live="polite">Consultando el programador de tareas...</div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button class="btn btn-secondary" onclick="closeAutoMaintModal()" style="padding: 10px 18px;"><i class="fa-solid fa-xmark"></i> Cerrar</button>
+                <button class="btn btn-primary" id="btnAutoSave" onclick="saveAutoMaint()" style="padding: 10px 18px;"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
     <!-- TOAST CONTAINER -->
-    <div class="toast-container" id="toastContainer"></div>
+    <div class="toast-container" id="toastContainer" role="status" aria-live="polite"></div>
 
     <script>
         function esc(value) {
@@ -1442,6 +1617,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             fetchLiveTelemetry();
             loadIncidents();
+            refreshAutoMaintPill();
             // Polling suave de telemetría cada 8 segundos
             setInterval(fetchLiveTelemetry, 8000);
         });
@@ -1454,9 +1630,12 @@
             if (targetTab) targetTab.classList.add('active');
             if (btnElement) btnElement.classList.add('active');
 
+            if (btnElement && targetTab && window.FiaxA11y) FiaxA11y.focusSection(targetTab);
+
             if (tabId === 'tab-diagnostico') loadIncidents();
             if (tabId === 'tab-auditoria') loadAuditLogs();
             if (tabId === 'tab-optimizacion') loadComparisons();
+            if (tabId === 'tab-reportes') loadMaintReport();
         }
 
         async function fetchLiveTelemetry() {
@@ -1548,11 +1727,11 @@
                         tbody.innerHTML += `
                             <tr>
                                 <td><strong style="color: var(--accent-blue);">#${p.pid}</strong></td>
-                                <td style="font-weight: 700; color: #f8fafc;"><i class="fa-solid fa-gear" style="color: var(--accent-blue); margin-right: 6px;"></i> ${esc(p.name)}</td>
+                                <td style="font-weight: 700; color: var(--text-main);"><i class="fa-solid fa-gear" style="color: var(--accent-blue); margin-right: 6px;"></i> ${esc(p.name)}</td>
                                 <td>${p.memory_mb} MB</td>
-                                <td><span style="font-weight: 800; color: ${p.memory_percent > 8 ? '#f87171' : '#f8fafc'};">${p.memory_percent}%</span></td>
+                                <td><span style="font-weight: 800; color: ${p.memory_percent > 8 ? 'var(--c-red-t)' : 'var(--text-main)'};">${p.memory_percent}%</span></td>
                                 <td>${p.cpu_percent}%</td>
-                                <td><span style="font-size: 11.5px; font-weight: 800; background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; padding: 3px 10px; border-radius: 20px;"><i class="fa-solid fa-circle-dot" style="font-size: 9px; margin-right: 4px;"></i> ACTIVO</span></td>
+                                <td><span style="font-size: calc(11.5px * var(--fs, 1)); font-weight: 800; background: rgba(16, 185, 129, 0.2); color: var(--c-green-t); border: 1px solid var(--color-green); padding: 3px 10px; border-radius: 20px;"><i class="fa-solid fa-circle-dot" style="font-size: calc(9px * var(--fs, 1)); margin-right: 4px;"></i> ACTIVO</span></td>
                             </tr>
                         `;
                     });
@@ -1604,7 +1783,8 @@
         }
 
         function updateHealthGauge(score) {
-            document.getElementById('txt-health-score').innerHTML = `${esc(score)}<span style="font-size: 20px; font-weight: 500;">/100</span>`;
+            if (window.FiaxA11y) FiaxA11y.announce(`Score de salud actualizado: ${score} de 100.`);
+            document.getElementById('txt-health-score').innerHTML = `${esc(score)}<span style="font-size: calc(20px * var(--fs, 1)); font-weight: 500;">/100</span>`;
             const statusElem = document.getElementById('txt-health-status');
             if (score >= 80) {
                 statusElem.className = 'status-health-badge excelente';
@@ -1630,6 +1810,9 @@
             if (btnPend) btnPend.className = 'btn-filter-inc' + (filter === 'PENDIENTE' ? ' active' : '');
             if (btnRes) btnRes.className = 'btn-filter-inc' + (filter === 'RESUELTA' ? ' active filter-resueltas' : '');
             if (btnTodas) btnTodas.className = 'btn-filter-inc' + (filter === 'TODAS' ? ' active' : '');
+            [[btnPend, 'PENDIENTE'], [btnRes, 'RESUELTA'], [btnTodas, 'TODAS']].forEach(([b, f]) => {
+                if (b) b.setAttribute('aria-pressed', filter === f ? 'true' : 'false');
+            });
 
             renderIncidentsList();
         }
@@ -1676,12 +1859,12 @@
                     const resueltasCount = incidentsCache.filter(i => i.estado === 'RESUELTA').length;
                     container.innerHTML = `
                         <div style="text-align: center; padding: 45px 20px; background: rgba(16, 185, 129, 0.05); border: 1px dashed rgba(16, 185, 129, 0.35); border-radius: 12px;">
-                            <i class="fa-solid fa-circle-check" style="color: var(--color-green); font-size: 42px; margin-bottom: 14px;"></i>
+                            <i class="fa-solid fa-circle-check" style="color: var(--color-green); font-size: calc(42px * var(--fs, 1)); margin-bottom: 14px;"></i>
                             <br>
-                            <strong style="color: #f8fafc; font-size: 18px;">¡Excelente! No hay incidencias pendientes</strong>
-                            <p style="margin-top: 6px; color: #cbd5e1; font-size: 13.5px;">Todos los componentes del sistema operan en condiciones óptimas o las alertas ya fueron subsanadas.</p>
+                            <strong style="color: var(--text-main); font-size: calc(18px * var(--fs, 1));">¡Excelente! No hay incidencias pendientes</strong>
+                            <p style="margin-top: 6px; color: var(--text-soft); font-size: calc(13.5px * var(--fs, 1));">Todos los componentes del sistema operan en condiciones óptimas o las alertas ya fueron subsanadas.</p>
                             ${resueltasCount > 0 ? `
-                                <button class="btn btn-secondary" onclick="setIncidentsFilter('RESUELTA')" style="margin-top: 15px; font-size: 12.5px;">
+                                <button class="btn btn-secondary" onclick="setIncidentsFilter('RESUELTA')" style="margin-top: 15px; font-size: calc(12.5px * var(--fs, 1));">
                                     <i class="fa-solid fa-clock-rotate-left"></i> Ver historial de incidencias resueltas (${resueltasCount})
                                 </button>
                             ` : ''}
@@ -1690,17 +1873,17 @@
                 } else if (currentIncidentsFilter === 'RESUELTA') {
                     container.innerHTML = `
                         <div style="text-align: center; padding: 40px; color: var(--text-muted);">
-                            <i class="fa-solid fa-clock-rotate-left" style="font-size: 32px; margin-bottom: 12px; color: #64748b;"></i>
+                            <i class="fa-solid fa-clock-rotate-left" style="font-size: calc(32px * var(--fs, 1)); margin-bottom: 12px; color: var(--text-faint);"></i>
                             <br>
-                            <strong style="color: #cbd5e1; font-size: 15px;">No hay incidencias resueltas en el historial todavía.</strong>
+                            <strong style="color: var(--text-soft); font-size: calc(15px * var(--fs, 1));">No hay incidencias resueltas en el historial todavía.</strong>
                         </div>
                     `;
                 } else {
                     container.innerHTML = `
                         <div style="text-align: center; padding: 40px; color: var(--text-muted);">
-                            <i class="fa-solid fa-circle-check" style="color: var(--color-green); font-size: 32px; margin-bottom: 12px;"></i>
+                            <i class="fa-solid fa-circle-check" style="color: var(--color-green); font-size: calc(32px * var(--fs, 1)); margin-bottom: 12px;"></i>
                             <br>
-                            <strong style="color: #f8fafc; font-size: 16px;">No se registran incidencias en el sistema.</strong>
+                            <strong style="color: var(--text-main); font-size: calc(16px * var(--fs, 1));">No se registran incidencias en el sistema.</strong>
                         </div>
                     `;
                 }
@@ -1737,7 +1920,7 @@
                                         <i class="fa-solid fa-triangle-exclamation"></i> ESTADO: PENDIENTE
                                     </span>
                                 `}
-                                <span style="font-size: 12px; color: var(--text-muted);"><i class="fa-regular fa-clock"></i> ${esc(inc.fecha_deteccion)}</span>
+                                <span style="font-size: calc(12px * var(--fs, 1)); color: var(--text-muted);"><i class="fa-regular fa-clock"></i> ${esc(inc.fecha_deteccion)}</span>
                             </div>
                             <div class="incident-title">${esc(inc.componente_afectado)} &bull; ${esc(inc.tipo_incidencia.replace(/_/g, ' '))}</div>
                             <div class="incident-desc">${esc(inc.descripcion)}</div>
@@ -1911,15 +2094,15 @@
         function showComparison(c) {
             const score = c.filas.find(f => f.clave === 'score_salud');
             document.getElementById('cmpModalKicker').innerText = c.exito ? `Procedimiento ejecutado · ${c.fecha_hora}` : `Procedimiento con errores · ${c.fecha_hora}`;
-            document.getElementById('cmpModalKicker').style.color = c.exito ? 'var(--accent-blue)' : '#f87171';
+            document.getElementById('cmpModalKicker').style.color = c.exito ? 'var(--accent-blue)' : 'var(--c-red-t)';
             document.getElementById('cmpModalTitle').innerText = c.titulo;
             document.getElementById('cmpScoreInitial').innerText = score ? score.inicial : '--';
             document.getElementById('cmpScoreFinal').innerText = score ? score.final : '--';
             document.getElementById('cmpModalMessage').innerText = c.mensaje || '';
             const filas = c.filas.filter(f => f.clave !== 'score_salud');
             document.getElementById('cmpModalTable').innerHTML = `
-                <table class="cmp-table">
-                    <thead><tr><th>Métrica</th><th>Inicial</th><th>Final</th><th>Cambio</th></tr></thead>
+                <table class="cmp-table"><caption class="sr-only">Métricas antes y después del procedimiento</caption>
+                    <thead><tr><th scope="col">Métrica</th><th scope="col">Inicial</th><th scope="col">Final</th><th scope="col">Cambio</th></tr></thead>
                     <tbody>${filas.map(f => `
                         <tr>
                             <td>${esc(f.etiqueta)}${f.volatil ? ' *' : ''}</td>
@@ -1978,7 +2161,7 @@
                 btnClass: 'btn-primary',
                 onConfirm: async () => {
                     await fetch('/api/v1/fiax/sistema/cerrar', { method: 'POST' });
-                    document.body.innerHTML = '<p style="color: #f8fafc; text-align: center; padding: 60px 16px; font-family: sans-serif;">FIAX CPU se cerró. Ya puede cerrar esta pestaña.</p>';
+                    document.body.innerHTML = '<p style="color: var(--text-main); text-align: center; padding: 60px 16px; font-family: sans-serif;">FIAX CPU se cerró. Ya puede cerrar esta pestaña.</p>';
                 }
             });
         }
@@ -2033,23 +2216,224 @@
                 }
 
                 data.logs.forEach(log => {
-                    let levelColor = '#38bdf8';
-                    if (log.nivel === 'WARNING') levelColor = '#fbbf24';
-                    if (log.nivel === 'ERROR') levelColor = '#f87171';
+                    let levelColor = 'var(--c-accent)';
+                    if (log.nivel === 'WARNING') levelColor = 'var(--c-yellow-t)';
+                    if (log.nivel === 'ERROR') levelColor = 'var(--c-red-t)';
 
                     tbody.innerHTML += `
                         <tr>
-                            <td style="font-size: 12.5px; color: var(--text-muted);">${esc(log.fecha_hora)}</td>
-                            <td><span style="font-weight: 800; color: ${levelColor}; font-size: 11px; background: rgba(255,255,255,0.06); padding: 3px 8px; border-radius: 4px;">${esc(log.modulo)}</span></td>
+                            <td style="font-size: calc(12.5px * var(--fs, 1)); color: var(--text-muted);">${esc(log.fecha_hora)}</td>
+                            <td><span style="font-weight: 800; color: ${levelColor}; font-size: calc(11px * var(--fs, 1)); background: rgba(var(--ink-rgb), 0.06); padding: 3px 8px; border-radius: 4px;">${esc(log.modulo)}</span></td>
                             <td><strong>${esc(log.accion)}</strong></td>
                             <td style="font-weight: 600;">${esc(log.usuario_nombre)}</td>
                             <td><code>${esc(log.ip_origen)}</code></td>
-                            <td style="font-size: 13px; color: #cbd5e1;">${esc(log.detalles)}</td>
+                            <td style="font-size: calc(13px * var(--fs, 1)); color: var(--text-soft);">${esc(log.detalles)}</td>
                         </tr>
                     `;
                 });
             } catch (err) {
                 console.error("Error al cargar auditoría:", err);
+            }
+        }
+
+        // --- REPORTE DE MANTENIMIENTOS ---
+        let reportCache = [];
+        let reportYearsLoaded = false;
+
+        function reportParams() {
+            const p = new URLSearchParams();
+            ['anio', 'mes', 'tipo', 'origen', 'resultado'].forEach(k => {
+                const v = document.getElementById(`rep-${k}`).value;
+                if (v) p.set(k, v);
+            });
+            return p.toString();
+        }
+
+        function onReportYearChange() {
+            const mes = document.getElementById('rep-mes');
+            mes.disabled = !document.getElementById('rep-anio').value;
+            if (mes.disabled) mes.value = '';
+            loadMaintReport();
+        }
+
+        function resetMaintReport() {
+            ['anio', 'mes', 'tipo', 'origen', 'resultado'].forEach(k => document.getElementById(`rep-${k}`).value = '');
+            document.getElementById('rep-mes').disabled = true;
+            loadMaintReport();
+        }
+
+        function exportMaintReport() {
+            window.location.href = `/api/v1/fiax/mantenimientos/reporte.csv?${reportParams()}`;
+        }
+
+        async function loadMaintReport() {
+            const detalle = document.getElementById('tbody-rep-detalle');
+            try {
+                const res = await fetch(`/api/v1/fiax/mantenimientos/reporte?${reportParams()}`);
+                const data = await res.json();
+                if (!res.ok) { showToast(data.error || 'No se pudo generar el reporte.', 'error'); return; }
+
+                if (!reportYearsLoaded) {
+                    const sel = document.getElementById('rep-anio');
+                    sel.innerHTML = '<option value="">Todos</option>' + data.anios.map(a => `<option value="${a}">${a}</option>`).join('');
+                    reportYearsLoaded = true;
+                }
+
+                const r = data.resumen;
+                document.getElementById('kpi-total').innerText = r.total;
+                if (window.FiaxA11y) FiaxA11y.announce(`Reporte actualizado: ${r.total} mantenimientos, ${r.exitosos} exitosos.`);
+                document.getElementById('kpi-ok').innerText = r.exitosos;
+                document.getElementById('kpi-err').innerText = r.con_errores;
+                document.getElementById('kpi-origen').innerText = `${r.programados} / ${r.manuales}`;
+                document.getElementById('kpi-mb').innerText = `${r.mb_liberados} MB`;
+                document.getElementById('kpi-score').innerText = r.total ? `${r.score_inicial_promedio} → ${r.score_final_promedio}` : '--';
+
+                const vacio = cols => `<tr><td colspan="${cols}" style="text-align: center; color: var(--text-muted); padding: 20px;">Sin mantenimientos para estos filtros.</td></tr>`;
+                document.getElementById('tbody-rep-mes').innerHTML = data.por_mes.length ? data.por_mes.map(m => `
+                    <tr><td><strong>${esc(m.etiqueta)}</strong></td><td>${m.total}</td><td>${m.exitosos}</td><td>${m.programados}</td><td>${m.mb_liberados}</td></tr>`).join('') : vacio(5);
+                document.getElementById('tbody-rep-tipo').innerHTML = data.por_tipo.length ? data.por_tipo.map(t => `
+                    <tr><td><strong>${esc(t.etiqueta)}</strong></td><td>${t.total}</td><td>${t.exitosos}</td><td>${t.mb_liberados}</td></tr>`).join('') : vacio(4);
+
+                reportCache = data.ejecuciones;
+                document.getElementById('rep-detalle-nota').innerText = data.truncado
+                    ? 'Se muestran los 500 más recientes; la exportación CSV incluye todos.'
+                    : 'Seleccione un mantenimiento para ver la comparación antes y después.';
+                const par = (c, clave) => {
+                    const f = c.filas.find(x => x.clave === clave);
+                    return f ? `${esc(f.inicial)} → ${esc(f.final)}${esc(f.unidad)}` : '—';
+                };
+                detalle.innerHTML = reportCache.length ? reportCache.map((c, i) => `
+                    <tr class="cmp-history-row" onclick="showComparison(reportCache[${i}])">
+                        <td><strong>${esc(c.titulo)}</strong></td>
+                        <td>${esc(c.fecha_hora)}</td>
+                        <td>${c.origen === 'PROGRAMADO' ? '<span class="fx-tag auto">PROGRAMADO</span>' : '<span class="fx-tag man">MANUAL</span>'}</td>
+                        <td>${esc(c.usuario_nombre)}</td>
+                        <td>${c.exito ? '<span class="fx-tag ok">EXITOSO</span>' : '<span class="fx-tag err">CON ERRORES</span>'}</td>
+                        <td>${par(c, 'score_salud')}</td>
+                        <td>${par(c, 'temp_mb')}</td>
+                    </tr>`).join('') : vacio(7);
+            } catch (err) {
+                console.error('Error al cargar el reporte:', err);
+                showToast('Fallo en la comunicación con el servidor.', 'error');
+            }
+        }
+
+        // --- MANTENIMIENTO AUTOMÁTICO ---
+        let autoChoice = false;
+
+        function setAutoChoice(on) {
+            autoChoice = on;
+            document.getElementById('autoBtnOn').className = on ? 'sel-on' : '';
+            document.getElementById('autoBtnOff').className = on ? '' : 'sel-off';
+            document.getElementById('autoBtnOn').setAttribute('aria-pressed', on ? 'true' : 'false');
+            document.getElementById('autoBtnOff').setAttribute('aria-pressed', on ? 'false' : 'true');
+            document.getElementById('autoFields').style.display = on ? 'block' : 'none';
+        }
+
+        function updateAutoFields() {
+            const f = document.getElementById('auto-frecuencia').value;
+            document.getElementById('wrap-dia-semana').style.display = f === 'SEMANAL' ? 'flex' : 'none';
+            document.getElementById('wrap-dia-mes').style.display = f === 'MENSUAL' ? 'flex' : 'none';
+        }
+
+        function renderAutoPill(st) {
+            const pill = document.getElementById('autoMaintPill');
+            if (!pill || !st) return;
+            if (st.confirmado) { pill.className = 'auto-pill on'; pill.innerText = 'ACTIVO'; }
+            else if (st.inconsistente || st.error) { pill.className = 'auto-pill warn'; pill.innerText = 'REVISAR'; }
+            else { pill.className = 'auto-pill'; pill.innerText = 'OFF'; }
+        }
+
+        function renderAutoStatus(st, errorMsg) {
+            const box = document.getElementById('autoStatus');
+            document.getElementById('autoProgramador').innerText = st.programador || 'Programador de tareas del sistema';
+            const ultima = st.config && st.config.ultima_ejecucion
+                ? `<br><span style="color: var(--text-muted);">Última ejecución automática: ${esc(st.config.ultima_ejecucion)} · ${esc(st.config.ultimo_resultado || '')}</span>` : '';
+            if (errorMsg) {
+                box.className = 'auto-status err';
+                box.innerHTML = `<i class="fa-solid fa-circle-xmark" style="color: var(--c-red-t);"></i> <strong>No se pudo completar.</strong> ${esc(errorMsg)}${ultima}`;
+            } else if (st.confirmado) {
+                box.className = 'auto-status ok';
+                box.innerHTML = `<i class="fa-solid fa-circle-check" style="color: var(--c-green-t);"></i> <strong>Programado y verificado en ${esc(st.programador)}.</strong><br>
+                    ${esc(st.descripcion)}<br>Próxima ejecución: <strong>${esc(st.proxima_ejecucion || '—')}</strong> · Confirmado el ${esc(st.config.confirmado_en)}${ultima}`;
+            } else if (st.inconsistente && st.config.activo) {
+                box.className = 'auto-status warn';
+                box.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="color: var(--c-yellow-t);"></i> <strong>La tarea ya no existe en ${esc(st.programador)}.</strong> Pudo haberse eliminado manualmente. Guarde de nuevo para volver a programarla.${ultima}`;
+            } else if (st.inconsistente) {
+                box.className = 'auto-status warn';
+                box.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="color: var(--c-yellow-t);"></i> <strong>Hay una tarea de FIAX en ${esc(st.programador)} que la aplicación no tiene activa.</strong> Guarde con «No» para eliminarla o con «Sí» para tomarla.${ultima}`;
+            } else if (st.error) {
+                box.className = 'auto-status err';
+                box.innerHTML = `<i class="fa-solid fa-circle-xmark" style="color: var(--c-red-t);"></i> ${esc(st.error)}`;
+            } else {
+                box.className = 'auto-status';
+                box.innerHTML = `<i class="fa-solid fa-circle-info"></i> El mantenimiento automático está desactivado. Los mantenimientos solo se ejecutan cuando un usuario los inicia.${ultima}`;
+            }
+        }
+
+        async function refreshAutoMaintPill() {
+            if (!document.getElementById('autoMaintPill')) return null;
+            try {
+                const res = await fetch('/api/v1/fiax/programacion');
+                const st = await res.json();
+                renderAutoPill(st);
+                return st;
+            } catch (err) { return null; }
+        }
+
+        async function openAutoMaintModal() {
+            document.getElementById('autoMaintModal').style.display = 'flex';
+            document.getElementById('autoStatus').className = 'auto-status';
+            document.getElementById('autoStatus').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Consultando el programador de tareas...';
+            const st = await refreshAutoMaintPill();
+            if (!st) { renderAutoStatus({}, 'No se pudo consultar el estado.'); return; }
+            const c = st.config;
+            document.getElementById('auto-tipo').value = c.tipo;
+            document.getElementById('auto-frecuencia').value = c.frecuencia;
+            document.getElementById('auto-hora').value = c.hora;
+            document.getElementById('auto-dia-semana').value = c.dia_semana;
+            document.getElementById('auto-dia-mes').value = c.dia_mes;
+            updateAutoFields();
+            setAutoChoice(c.activo);
+            renderAutoStatus(st);
+        }
+
+        function closeAutoMaintModal() {
+            document.getElementById('autoMaintModal').style.display = 'none';
+        }
+
+        async function saveAutoMaint() {
+            const btn = document.getElementById('btnAutoSave');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Registrando...';
+            const body = {
+                activo: autoChoice,
+                tipo: document.getElementById('auto-tipo').value,
+                frecuencia: document.getElementById('auto-frecuencia').value,
+                hora: document.getElementById('auto-hora').value,
+                dia_semana: Number(document.getElementById('auto-dia-semana').value),
+                dia_mes: Number(document.getElementById('auto-dia-mes').value),
+            };
+            try {
+                const res = await fetch('/api/v1/fiax/programacion', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+                });
+                const st = await res.json();
+                if (st.config) renderAutoPill(st);
+                if (!res.ok || !st.success) {
+                    renderAutoStatus(st.config ? st : {}, st.error || 'Fallo en la operación.');
+                    showToast('No se pudo actualizar el mantenimiento automático.', 'error');
+                } else {
+                    renderAutoStatus(st);
+                    showToast(st.confirmado
+                        ? `Mantenimiento automático programado. Próxima ejecución: ${st.proxima_ejecucion}`
+                        : 'Mantenimiento automático desactivado y tarea eliminada.', 'success');
+                }
+            } catch (err) {
+                renderAutoStatus({}, 'Fallo en la comunicación con el servidor.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar';
             }
         }
 
@@ -2063,6 +2447,7 @@
             if (type === 'error') icon = '<i class="fa-solid fa-circle-xmark" style="color: var(--color-red);"></i>';
 
             toast.innerHTML = `${icon} <span>${esc(message)}</span>`;
+            if (type === 'error') toast.setAttribute('role', 'alert');
             container.appendChild(toast);
 
             setTimeout(() => {

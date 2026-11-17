@@ -2,12 +2,14 @@ import os
 import threading
 import time
 
-from flask import Blueprint, current_app, jsonify, request, session
+from flask import Blueprint, Response, current_app, jsonify, request, session
 from services.telemetry_service import TelemetryService
 from services.diagnostic_service import DiagnosticService
 from services.maintenance_service import MaintenanceService
 from services.audit_service import AuditService
 from services.comparison_service import ComparisonService
+from services.report_service import ReportService
+from services.scheduler_service import SchedulerService
 from domain.models import IncidenciaDetectada, SesionDiagnostico, LogAuditoria
 from security.decorators import has_permission, login_required
 from domain.enums import PermissionEnum
@@ -123,3 +125,46 @@ def get_historial():
         "success": True,
         "sesiones": [s.to_dict() for s in sesiones]
     })
+
+# --- REPORTE DE MANTENIMIENTOS ---
+
+@fiax_bp.route('/mantenimientos/reporte', methods=['GET'])
+@has_permission(PermissionEnum.REPORT_READ)
+def reporte_mantenimientos():
+    """Resumen y detalle de mantenimientos filtrados por año, mes, tipo, origen y resultado."""
+    filtros, error = ReportService.parse_filters(request.args)
+    if error:
+        return jsonify({"success": False, "error": error}), 400
+    return jsonify({"success": True, "anios": ReportService.available_years(), **ReportService.build(filtros)})
+
+@fiax_bp.route('/mantenimientos/reporte.csv', methods=['GET'])
+@has_permission(PermissionEnum.REPORT_READ)
+def reporte_mantenimientos_csv():
+    filtros, error = ReportService.parse_filters(request.args)
+    if error:
+        return jsonify({"success": False, "error": error}), 400
+    AuditService.registrar(accion="EXPORTAR_REPORTE_MANTENIMIENTOS", modulo="MANTENIMIENTO",
+                           detalles=f"Filtros: { {k: v for k, v in filtros.items() if v} or 'ninguno'}")
+    return Response(
+        ReportService.to_csv(filtros),
+        mimetype='text/csv; charset=utf-8',
+        headers={"Content-Disposition": f'attachment; filename="{ReportService.csv_filename(filtros)}"'},
+    )
+
+# --- MANTENIMIENTO AUTOMÁTICO (PROGRAMADOR DE TAREAS) ---
+
+@fiax_bp.route('/programacion', methods=['GET'])
+@login_required
+def estado_programacion():
+    """Configuración guardada y verificación en vivo contra el programador del sistema."""
+    return jsonify(SchedulerService.status())
+
+@fiax_bp.route('/programacion', methods=['POST'])
+@has_permission(PermissionEnum.SCHEDULE_MANAGE)
+def configurar_programacion():
+    data = request.get_json(silent=True) or {}
+    try:
+        resultado = SchedulerService.configure(data, user_id=session.get('user_id'))
+    except ValueError as exc:
+        return jsonify({"success": False, "error": str(exc)}), 400
+    return jsonify(resultado), 200 if resultado.get('success') else 500

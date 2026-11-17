@@ -236,6 +236,8 @@ class EjecucionMantenimiento(db.Model):
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id', ondelete="SET NULL"), nullable=True)
     fecha_hora = db.Column(db.DateTime, default=get_utc_now)
     exito = db.Column(db.Integer, default=1) # 0 o 1
+    # MANUAL: lo pidió un usuario en la aplicación. PROGRAMADO: lo lanzó el programador de tareas.
+    origen = db.Column(db.String(20), default='MANUAL', nullable=False, server_default='MANUAL')
     mensaje = db.Column(db.Text)
     estado_inicial_json = db.Column(db.Text, nullable=False)
     estado_final_json = db.Column(db.Text, nullable=False)
@@ -249,6 +251,34 @@ class EjecucionMantenimiento(db.Model):
     @property
     def estado_final(self):
         return json.loads(self.estado_final_json)
+
+class ProgramacionMantenimiento(db.Model):
+    """Configuración (fila única) del mantenimiento automático registrado en el sistema operativo."""
+    __tablename__ = 'programacion_mantenimiento'
+    id = db.Column(db.Integer, primary_key=True)
+    activo = db.Column(db.Integer, default=0, nullable=False) # 0 o 1
+    tipo = db.Column(db.String(30), default='global', nullable=False)
+    frecuencia = db.Column(db.String(20), default='SEMANAL', nullable=False) # DIARIA, SEMANAL, MENSUAL
+    hora = db.Column(db.String(5), default='03:00', nullable=False) # HH:MM hora local
+    dia_semana = db.Column(db.Integer, default=0) # 0 = lunes ... 6 = domingo
+    dia_mes = db.Column(db.Integer, default=1) # 1 a 28
+    confirmado_en = db.Column(db.DateTime, nullable=True) # cuándo el SO confirmó la tarea
+    actualizado_por = db.Column(db.Integer, db.ForeignKey('usuarios.id', ondelete="SET NULL"), nullable=True)
+    ultima_ejecucion = db.Column(db.DateTime, nullable=True)
+    ultimo_resultado = db.Column(db.Text, nullable=True)
+
+    def to_dict(self):
+        return {
+            "activo": bool(self.activo),
+            "tipo": self.tipo,
+            "frecuencia": self.frecuencia,
+            "hora": self.hora,
+            "dia_semana": self.dia_semana,
+            "dia_mes": self.dia_mes,
+            "confirmado_en": format_local(self.confirmado_en),
+            "ultima_ejecucion": format_local(self.ultima_ejecucion),
+            "ultimo_resultado": self.ultimo_resultado,
+        }
 
 class LogAuditoria(db.Model):
     __tablename__ = 'auditoria_logs'

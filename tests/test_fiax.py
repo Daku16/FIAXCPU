@@ -432,5 +432,269 @@ class FirstRunTestCase(unittest.TestCase):
             self.assertEqual(User.query.filter_by(correo='s@x.co').first().roles[0].nombre, 'USUARIO')
 
 
+class ReportAndSchedulerTestCase(unittest.TestCase):
+    """Reporte de mantenimientos por año/mes y mantenimiento automático."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.app = create_app('testing', instance_path=tempfile.mkdtemp(prefix="fiax-rep-"))
+        setup_initial_data(cls.app)
+
+    def setUp(self):
+        from services.scheduler_service import MemoryBackend
+        MemoryBackend.tareas.clear()
+        MemoryBackend.fallar_al_instalar = False
+        self.client = self.app.test_client()
+        self.client.post('/login', data={'correo': 'admin@fiax.com', 'password': 'admin123'})
+
+    def _ejecucion(self, fecha_local, tipo='global', origen='MANUAL', exito=1, temp=(50.0, 10.0)):
+        import json
+        from datetime import timezone
+        from domain.models import EjecucionMantenimiento
+        utc = fecha_local.astimezone(timezone.utc).replace(tzinfo=None)
+        e = EjecucionMantenimiento(
+            tipo=tipo, titulo=f"Prueba {tipo}", fecha_hora=utc, exito=exito, origen=origen, mensaje="ok",
+            estado_inicial_json=json.dumps({"score_salud": 60, "temp_mb": temp[0]}),
+            estado_final_json=json.dumps({"score_salud": 80, "temp_mb": temp[1]}))
+        db.session.add(e)
+        db.session.commit()
+
+    def test_report_filters_by_year_and_month(self):
+        from datetime import datetime
+        from domain.models import EjecucionMantenimiento
+        with self.app.app_context():
+            EjecucionMantenimiento.query.delete()
+            self._ejecucion(datetime(2024, 1, 31, 23, 30))  # borde de mes en hora local
+            self._ejecucion(datetime(2024, 2, 1, 0, 15), tipo='dns', origen='PROGRAMADO')
+            self._ejecucion(datetime(2024, 2, 20, 10, 0), exito=0)
+            self._ejecucion(datetime(2025, 6, 5, 9, 0), tipo='temporales')
+
+        data = self.client.get('/api/v1/fiax/mantenimientos/reporte?anio=2024').get_json()
+        self.assertEqual(data['resumen']['total'], 3)
+        self.assertEqual([m['mes'] for m in data['por_mes']], [2, 1])
+        self.assertIn(2025, data['anios'])
+        self.assertIn(2024, data['anios'])
+
+        feb = self.client.get('/api/v1/fiax/mantenimientos/reporte?anio=2024&mes=2').get_json()['resumen']
+        self.assertEqual((feb['total'], feb['exitosos'], feb['con_errores'], feb['programados']), (2, 1, 1, 1))
+        self.assertEqual(feb['mb_liberados'], 80.0)
+        self.assertEqual(feb['score_inicial_promedio'], 60)
+
+        prog = self.client.get('/api/v1/fiax/mantenimientos/reporte?origen=PROGRAMADO').get_json()
+        self.assertEqual([e['tipo'] for e in prog['ejecuciones']], ['dns'])
+        self.assertEqual(prog['ejecuciones'][0]['usuario_nombre'], 'Programador de tareas')
+
+        self.assertEqual(self.client.get('/api/v1/fiax/mantenimientos/reporte?mes=2').status_code, 400)
+        self.assertEqual(self.client.get('/api/v1/fiax/mantenimientos/reporte?anio=abc').status_code, 400)
+        self.assertEqual(self.client.get('/api/v1/fiax/mantenimientos/reporte?tipo=x').status_code, 400)
+
+    def test_report_csv_export(self):
+        from datetime import datetime
+        with self.app.app_context():
+            self._ejecucion(datetime(2023, 3, 10, 8, 0), tipo='memoria')
+        res = self.client.get('/api/v1/fiax/mantenimientos/reporte.csv?anio=2023&mes=3')
+        self.assertEqual(res.status_code, 200)
+        self.assertIn('fiax-mantenimientos-2023-03.csv', res.headers['Content-Disposition'])
+        texto = res.data.decode('utf-8-sig')
+        lineas = texto.strip().splitlines()
+        self.assertTrue(lineas[0].startswith('ID;Fecha y hora;Año;Mes'))
+        self.assertEqual(len(lineas), 2)
+        self.assertIn('Marzo', lineas[1])
+        self.assertIn('40,0', lineas[1])
+
+    def test_report_requires_login(self):
+        self.assertEqual(self.app.test_client().get('/api/v1/fiax/mantenimientos/reporte').status_code, 401)
+
+    def test_schedule_is_created_verified_and_removed(self):
+        from services.scheduler_service import MemoryBackend
+        st = self.client.get('/api/v1/fiax/programacion').get_json()
+        self.assertFalse(st['confirmado'])
+
+        res = self.client.post('/api/v1/fiax/programacion', json={
+            'activo': True, 'tipo': 'temporales', 'frecuencia': 'SEMANAL', 'hora': '02:30', 'dia_semana': 6})
+        st = res.get_json()
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(st['confirmado'])
+        self.assertTrue(st['registrada_en_sistema'])
+        self.assertIsNotNone(st['config']['confirmado_en'])
+        self.assertRegex(st['proxima_ejecucion'], r'^\d{4}-\d{2}-\d{2} 02:30$')
+        self.assertIn('domingo', st['descripcion'])
+        comando = MemoryBackend.tareas['fiax']['comando']
+        self.assertEqual(comando[comando.index('--run-maintenance') + 1], 'temporales')
+        self.assertEqual(comando[comando.index('--instance') + 1], self.app.instance_path)
+
+        # Si alguien borra la tarea a mano, la aplicación lo detecta.
+        MemoryBackend.tareas.clear()
+        st = self.client.get('/api/v1/fiax/programacion').get_json()
+        self.assertFalse(st['confirmado'])
+        self.assertTrue(st['inconsistente'])
+
+        st = self.client.post('/api/v1/fiax/programacion', json={'activo': False}).get_json()
+        self.assertTrue(st['success'])
+        self.assertFalse(st['config']['activo'])
+        self.assertNotIn('fiax', MemoryBackend.tareas)
+
+    def test_schedule_failure_is_not_confirmed(self):
+        from services.scheduler_service import MemoryBackend
+        MemoryBackend.fallar_al_instalar = True
+        res = self.client.post('/api/v1/fiax/programacion', json={'activo': True, 'frecuencia': 'DIARIA', 'hora': '04:00'})
+        self.assertEqual(res.status_code, 500)
+        self.assertFalse(res.get_json()['confirmado'])
+        self.assertIn('Acceso denegado', res.get_json()['error'])
+
+    def test_schedule_validation_and_permissions(self):
+        self.assertEqual(self.client.post('/api/v1/fiax/programacion', json={'activo': True, 'hora': '25:00'}).status_code, 400)
+        self.assertEqual(self.client.post('/api/v1/fiax/programacion', json={'activo': True, 'frecuencia': 'MENSUAL', 'dia_mes': 31}).status_code, 400)
+        import uuid
+        usuario = self.app.test_client()
+        correo = f"u_{uuid.uuid4().hex[:6]}@fiax.com"
+        usuario.post('/registro', data={'nombre': f'U {correo}', 'correo': correo, 'password': 'password123', 'confirm_password': 'password123'})
+        usuario.post('/login', data={'correo': correo, 'password': 'password123'})
+        self.assertEqual(usuario.post('/api/v1/fiax/programacion', json={'activo': True}).status_code, 403)
+
+    def test_scheduled_run_records_origin(self):
+        from services.scheduler_service import SchedulerService
+        from domain.models import EjecucionMantenimiento, LogAuditoria
+        with self.app.app_context():
+            resultado = SchedulerService.run_scheduled('temporales')
+            self.assertIn('comparacion', resultado)
+            ultima = EjecucionMantenimiento.query.order_by(EjecucionMantenimiento.id.desc()).first()
+            self.assertEqual(ultima.origen, 'PROGRAMADO')
+            self.assertIsNone(ultima.usuario_id)
+            self.assertIsNotNone(SchedulerService.get_config().ultima_ejecucion)
+            log = LogAuditoria.query.order_by(LogAuditoria.id.desc()).first()
+            self.assertEqual(log.accion, 'LIMPIEZA_TEMPORALES_PROGRAMADA')
+
+    def test_next_run_calculation(self):
+        from datetime import datetime
+        from services.scheduler_service import SchedulerService
+        ahora = datetime(2026, 11, 11, 8, 0)  # miércoles
+        base = {'tipo': 'global', 'hora': '03:00', 'dia_semana': 0, 'dia_mes': 1}
+        self.assertEqual(SchedulerService.next_run({**base, 'frecuencia': 'DIARIA'}, ahora), datetime(2026, 11, 12, 3, 0))
+        self.assertEqual(SchedulerService.next_run({**base, 'frecuencia': 'SEMANAL'}, ahora), datetime(2026, 11, 16, 3, 0))
+        self.assertEqual(SchedulerService.next_run({**base, 'frecuencia': 'MENSUAL'}, ahora), datetime(2026, 12, 1, 3, 0))
+        dic = datetime(2026, 12, 15, 8, 0)
+        self.assertEqual(SchedulerService.next_run({**base, 'frecuencia': 'MENSUAL'}, dic), datetime(2027, 1, 1, 3, 0))
+
+    def test_os_task_definitions(self):
+        from xml.dom import minidom
+        from services.scheduler_service import CronBackend, WindowsTaskBackend
+        comando = ['C:\\Program Files\\FIAX\\FIAX-CPU.exe', '--run-maintenance', 'global', '--instance', 'C:\\Users\\Ana María\\AppData']
+        spec = {'tipo': 'global', 'frecuencia': 'SEMANAL', 'hora': '03:15', 'dia_semana': 4, 'dia_mes': 1}
+        xml = WindowsTaskBackend.build_xml(spec, comando)
+        doc = minidom.parseString(xml.replace('encoding="UTF-16"', 'encoding="UTF-8"').encode('utf-8'))
+        self.assertEqual(doc.getElementsByTagName('Command')[0].firstChild.data, comando[0])
+        self.assertIn('"C:\\Users\\Ana María\\AppData"', doc.getElementsByTagName('Arguments')[0].firstChild.data)
+        self.assertEqual(len(doc.getElementsByTagName('Friday')), 1)
+        self.assertTrue(doc.getElementsByTagName('StartBoundary')[0].firstChild.data.endswith('T03:15:00'))
+
+        linea = CronBackend.build_line(spec, ['/opt/fiax cpu/fiax-cpu', '--run-maintenance', 'global'])
+        self.assertTrue(linea.startswith("15 3 * * 5 '/opt/fiax cpu/fiax-cpu' --run-maintenance global"))
+        self.assertTrue(linea.endswith(CronBackend.MARCA))
+        self.assertTrue(CronBackend.build_line({**spec, 'frecuencia': 'MENSUAL', 'dia_mes': 10}, ['x']).startswith('15 3 10 * * '))
+        self.assertTrue(CronBackend.build_line({**spec, 'dia_semana': 6}, ['x']).startswith('15 3 * * 0 '))
+
+    def test_cron_backend_keeps_other_entries(self):
+        from services.scheduler_service import CronBackend
+        crontab = {'texto': '0 1 * * * /usr/bin/backup\n'}
+
+        def falso_run(comando, **kwargs):
+            if comando == ['crontab', '-l']:
+                return mock.Mock(returncode=0, stdout=crontab['texto'], stderr='')
+            crontab['texto'] = kwargs['input']
+            return mock.Mock(returncode=0, stdout='', stderr='')
+
+        spec = {'tipo': 'global', 'frecuencia': 'DIARIA', 'hora': '03:00', 'dia_semana': 0, 'dia_mes': 1}
+        with mock.patch('services.scheduler_service.shutil.which', return_value='/usr/bin/crontab'), \
+                mock.patch('services.scheduler_service._run', side_effect=falso_run):
+            backend = CronBackend()
+            backend.install(spec, ['fiax', '--run-maintenance', 'global'])
+            backend.install(spec, ['fiax', '--run-maintenance', 'dns'])
+            self.assertTrue(backend.query()['registrada'])
+            self.assertEqual(crontab['texto'].count(CronBackend.MARCA), 1)
+            self.assertIn('/usr/bin/backup', crontab['texto'])
+            backend.remove()
+            self.assertFalse(backend.query()['registrada'])
+            self.assertEqual(crontab['texto'], '0 1 * * * /usr/bin/backup\n')
+
+    def test_existing_database_gets_origin_column(self):
+        import sqlite3
+        carpeta = tempfile.mkdtemp(prefix="fiax-mig-")
+        ruta = os.path.join(carpeta, 'vieja.db')
+        con = sqlite3.connect(ruta)
+        con.execute("CREATE TABLE ejecuciones_mantenimiento (id INTEGER PRIMARY KEY, tipo VARCHAR(30) NOT NULL, "
+                    "titulo VARCHAR(150) NOT NULL, sesion_id INTEGER, incidencia_id INTEGER, usuario_id INTEGER, "
+                    "fecha_hora DATETIME, exito INTEGER, mensaje TEXT, estado_inicial_json TEXT NOT NULL, "
+                    "estado_final_json TEXT NOT NULL)")
+        con.execute("INSERT INTO ejecuciones_mantenimiento (tipo, titulo, exito, estado_inicial_json, estado_final_json) "
+                    "VALUES ('dns', 'Antigua', 1, '{}', '{}')")
+        con.commit()
+        con.close()
+        from config import TestingConfig
+        with mock.patch.object(TestingConfig, 'SQLALCHEMY_DATABASE_URI', f'sqlite:///{ruta}'):
+            app = create_app('testing', instance_path=carpeta)
+        with mock.patch('app.DiagnosticService.execute_complete_diagnosis'):
+            setup_initial_data(app)
+        with app.app_context():
+            from domain.models import EjecucionMantenimiento
+            self.assertEqual(EjecucionMantenimiento.query.first().origen, 'MANUAL')
+
+    def test_sidebar_shows_new_options(self):
+        html = self.client.get('/dashboard').data.decode('utf-8')
+        self.assertIn('Reportes de Mantenimiento', html)
+        self.assertIn('Mantenimiento Automático', html)
+        self.assertIn('autoMaintModal', html)
+
+
+class AccessibilityTestCase(unittest.TestCase):
+    """Estructura accesible mínima de las tres pantallas (el escaneo completo se hace con axe-core)."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.app = create_app('testing', instance_path=tempfile.mkdtemp(prefix="fiax-a11y-"))
+        setup_initial_data(cls.app)
+
+    def _html(self, url, login=True):
+        client = self.app.test_client()
+        if login:
+            client.post('/login', data={'correo': 'admin@fiax.com', 'password': 'admin123'})
+        return client.get(url).data.decode('utf-8')
+
+    def test_shared_assets_and_landmarks(self):
+        for url, login in (('/', False), ('/dashboard', True), ('/usuarios', True)):
+            html = self._html(url, login)
+            self.assertIn('lang="es"', html)
+            self.assertIn('a11y.css', html)
+            self.assertIn('a11y.js', html)
+            self.assertIn('id="contenido"', html, url)
+        self.assertEqual(self.app.test_client().get('/static/a11y.js').status_code, 200)
+
+    def test_login_fields_have_labels(self):
+        import re
+        html = self._html('/', login=False)
+        for campo in re.findall(r'<input[^>]*\bid="([^"]+)"', html):
+            self.assertIn(f'for="{campo}"', html, campo)
+        self.assertIn('role="tablist"', html)
+        self.assertIn('aria-label="Mostrar contraseña"', html)
+
+    def test_login_error_is_announced(self):
+        client = self.app.test_client()
+        html = client.post('/login', data={'correo': 'admin@fiax.com', 'password': 'mala'}).data.decode('utf-8')
+        self.assertIn('role="alertdialog"', html)
+        self.assertIn('aria-invalid="true"', html)
+
+    def test_dashboard_and_users_semantics(self):
+        dash = self._html('/dashboard')
+        self.assertIn('role="navigation"', dash)
+        self.assertIn('aria-controls="tab-reportes"', dash)
+        self.assertNotIn("\\'", dash)  # onclick sin comillas escapadas
+        self.assertNotIn('<th>', dash)  # todos los encabezados con scope
+        self.assertIn('aria-live="polite"', dash)
+        users = self._html('/usuarios')
+        for campo in ('userNombre', 'userCorreo', 'userPassword', 'userRole'):
+            self.assertIn(f'for="{campo}"', users)
+        self.assertIn('role="dialog"', users)
+
+
 if __name__ == '__main__':
     unittest.main()
